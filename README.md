@@ -15,7 +15,7 @@
 
 ---
 
-## 📖 About
+## About
 
 Excelsiors Explorer helps travellers explore a city and plan their trip in one place.
 Our demo city is **Berlin**: users browse real sights, save favourites, book a flight to BER,
@@ -24,7 +24,7 @@ grab a taxi to the next attraction and unlock badges for the places they visit.
 The app was first designed as a clickable prototype on our Miro board, then implemented
 as a working web app that runs in any phone browser.
 
-## ✨ Features
+## Features
 
 | Area | What you can do |
 |------|-----------------|
@@ -44,7 +44,7 @@ There is also pull-to-refresh, an offline banner, and you can install it via *Ad
 
 > ⚠️ **Demo only.** Login, flights, prices, drivers and friends are simulated. No real bookings or payments are made.
 
-## 🚀 Try it
+## Try it
 
 **Online:** <https://excelsiors-explorer.netlify.app/>
 
@@ -55,14 +55,14 @@ There is also pull-to-refresh, an offline banner, and you can install it via *Ad
 - Book a flight to Berlin, then tap **🚕 Book a taxi from BER**
 - Profile → Achievements → **Reset progress (demo)** to start over
 
-## 🛠️ Tech stack
+## Tech stack
 
 - **HTML, CSS and vanilla JavaScript** in one self-contained file (`index.html`), with no frameworks, dependencies or build step
 - **localStorage** for login state, saved places, badges and bookings (stored per browser)
 - **Wikimedia Commons** photos loaded from each place's Wikipedia article
 - **Netlify** hosting, which redeploys on every push to `main`
 
-## 💻 Run locally
+## Run locally
 
 ```bash
 git clone https://github.com/IlyaShynkevich/excelsiors-explorer.git
@@ -88,12 +88,12 @@ excelsiors-explorer/
 | Name | Role |
 |------|------|
 | Ilya Shynkevich | Development |
-| _Name_ | _Role_ |
-| _Name_ | _Role_ |
+| Nicolas Stechmann | Team Leader |
+| Anant Raghavan | Development |
 
 Planning in **Jira** (Kanban board) and design in **Miro**.
 
-## 📸 Credits
+## Credits
 
 - Place photos: [Wikimedia Commons](https://commons.wikimedia.org/), under free licences (see each file's page for author and licence)
 - Place information is based on Wikipedia and official sources; opening hours and prices may change
