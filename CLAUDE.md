@@ -42,4 +42,5 @@ Mobile-first travel app demo for Berlin: explore sights, save places, check in f
 - Make focused edits; keep existing features working.
 - After editing, check the JS for syntax errors (e.g. extract the `<script>` block and run `node --check`).
 - Update `README.md` when features change.
-- Don't commit or push unless asked.
+- Never run git add, commit, push, pull or any other command that changes git state. The user handles all git.
+  At the end of a task, list the changed files and suggest a commit message.
