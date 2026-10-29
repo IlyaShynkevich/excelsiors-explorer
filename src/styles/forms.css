@@ -1,0 +1,41 @@
+/* login */
+#login .scroll{display:flex;flex-direction:column;padding-top:calc(var(--safe-t) + clamp(var(--s6),9vh,88px))}
+#loginForm,#login .alt{width:100%;max-width:400px;margin-inline:auto}
+.logo{display:block;width:88px;height:88px;border-radius:24%;margin:0 auto var(--s4);object-fit:cover;clip-path:inset(1.5% round 24%);box-shadow:0 6px 18px rgba(11,122,43,.25)}
+h1.brand{color:var(--accent);text-align:center;font-size:var(--fs-title1);font-weight:700;letter-spacing:-.02em}
+.tag{text-align:center;color:var(--muted);font-size:var(--fs-sub);line-height:1.35;margin:var(--s1) auto var(--s6);max-width:220px}
+label{display:block;font-size:var(--fs-foot);font-weight:600;margin-bottom:var(--s2)}
+.field{display:block;width:100%;min-width:0;height:var(--field-h);border:1px solid var(--border);border-radius:var(--r-sm);padding:0 var(--s3);
+       background:var(--card);margin-bottom:var(--s4);outline:none;font-size:max(16px,var(--fs-body));-webkit-appearance:none;appearance:none;
+       transition:border-color .2s,box-shadow .2s}
+.field:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(11,122,43,.18)}
+.btn{width:100%;min-height:var(--field-h);padding:0 var(--s4);border-radius:var(--r);background:var(--green);color:#fff;font-weight:600;
+     font-size:var(--fs-body);display:flex;align-items:center;justify-content:center;gap:var(--s2);text-align:center}
+.btn:active:not(:disabled){background:var(--green-d)}
+.alt{text-align:center;font-size:var(--fs-sub);margin-top:var(--s3);color:var(--muted)}
+.alt a{color:var(--link);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;min-height:var(--tap);padding:0 var(--s1)}
+.err{color:var(--danger);font-size:var(--fs-foot);margin:calc(-1 * var(--s2)) 0 var(--s3);display:none}
+#login .demo{max-width:400px;margin-inline:auto}
+
+/* sign up + edit profile (EE-7) */
+#signupForm,#signup .alt,#signup .demo,#editForm,#editProfile .demo{width:100%;max-width:400px;margin-inline:auto}
+.fmsg{font-size:var(--fs-foot);color:var(--muted);margin:calc(-1 * var(--s2)) 0 var(--s3);line-height:1.35}
+.fmsg:empty{display:none}
+.fmsg.bad{color:var(--danger)}
+.fmsg.ok{color:var(--accent)}
+.field[aria-invalid=true]{border-color:var(--danger);box-shadow:0 0 0 3px rgba(215,0,21,.12)}
+.pw-wrap{position:relative}
+.pw-wrap .field{padding-right:76px}
+.pw-eye{position:absolute;right:2px;top:0;height:var(--field-h);min-width:var(--tap);padding:0 var(--s3);color:var(--link);font-size:var(--fs-sub);font-weight:600}
+.cnt{float:right;font-weight:400;color:var(--muted);font-variant-numeric:tabular-nums}
+.cnt.max{color:var(--danger)}
+.form .btn{margin-top:var(--s2)}
+/* avatars: the Lego picture or an emoji on a colour; fills whatever round container it is placed in */
+.av-img{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;line-height:1;overflow:hidden}
+.av-lego{background:var(--lego) center/cover no-repeat}
+.av-pick{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s4) var(--s3);justify-items:center;margin:0 0 var(--s5)}
+.av-pick button{width:clamp(52px,15vw,60px);height:clamp(52px,15vw,60px);border-radius:50%;padding:0;font-size:clamp(24px,7vw,28px);
+                box-shadow:0 0 0 3px var(--bg),0 0 0 5px transparent;transition:box-shadow .2s,transform .12s ease-out}
+.av-pick button[aria-checked=true]{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--accent)}
+.av-pick button:active{transform:scale(.94)}
+.av-pick button:focus-visible{outline:2px solid var(--link);outline-offset:6px}

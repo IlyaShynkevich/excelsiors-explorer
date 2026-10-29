@@ -8,3 +8,7 @@ desktop.ini
 # Logs & temp
 *.log
 *.tmp
+
+# Build
+node_modules/
+dist/

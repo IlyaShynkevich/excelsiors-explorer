@@ -66,30 +66,55 @@ Profile → **Delete Account** removes the account and everything saved in the b
 
 ## Tech stack
 
-- **HTML, CSS and vanilla JavaScript** in one self-contained file (`index.html`), with no frameworks, dependencies or build step
+- **React 18 + Vite**, plain JavaScript (no TypeScript, no UI or router library); hash routing in a small custom hook
+- **CSS** in `src/styles/` (iOS-style design tokens, light and dark mode)
 - **localStorage** for the account, profile, login state, saved places, badges, bookings, meetups and chat messages (stored per browser)
+- **PWA**: web app manifest and a network-first service worker, so the app can be installed and opens offline
 - **Wikimedia Commons** photos loaded from each place's Wikipedia article
-- **Vercel** hosting, which redeploys on every push to `main`
+- **Vercel** hosting: Vercel detects Vite, runs `npm run build` and serves `dist/`, with no extra config. Every push to `main` goes live
 
 ## Run locally
+
+You need [Node.js](https://nodejs.org/) 18 or newer.
 
 ```bash
 git clone https://github.com/IlyaShynkevich/excelsiors-explorer.git
 cd excelsiors-explorer
+npm install        # once
+npm run dev        # dev server with hot reload: http://localhost:5173
+npm run build      # production build into dist/
+npm run preview    # serve the production build: http://localhost:4173
 ```
 
-Then open `index.html` in a browser. To test it on your phone over the same Wi-Fi,
-use the VS Code **Live Server** extension and open `http://<your-laptop-ip>:5500` on the phone.
+To test on your phone over the same Wi-Fi, run `npm run dev -- --host` and open the *Network* address it prints.
+The service worker (install / offline) is only registered in the production build (`npm run build` + `npm run preview`).
 
 ## 📁 Project structure
 
 ```
 excelsiors-explorer/
-├── index.html      # the whole app (markup, styles, logic, embedded images)
-├── assets/
-│   └── logo.png    # logo used in this README
-├── README.md
-└── .gitignore
+├── index.html               # page shell: meta tags, manifest and icon links, #root
+├── vite.config.js           # React plugin; writes the list of built files into dist/sw.js
+├── package.json
+├── public/                  # copied as-is into dist/
+│   ├── manifest.webmanifest
+│   ├── sw.js                # service worker (cache 'ee-v2', network-first)
+│   └── assets/              # favicon, apple-touch-icon, app icons
+├── src/
+│   ├── main.jsx             # entry: styles, React root, service worker registration
+│   ├── App.jsx              # shell: current screen, tab bar, toast, bottom sheet, theme, offline, keyboard
+│   ├── assets/              # logo, home background, Lego avatar picture
+│   ├── data/                # demo data: places + photos, badges + friends, meetups + chats, flights/taxi, avatars
+│   ├── state/               # user data layer (the only code using localStorage), UI store, app actions
+│   ├── hooks/               # useHashRouter (routes + back button), useFieldMessages (form validation)
+│   ├── components/          # app bar, tab bar, bottom sheets, chat bubble, badge, avatars, cards, chips …
+│   ├── screens/             # one file per screen: Login, SignUp, Home, Explore, PlaceDetail, Saved, Profile,
+│   │                        #   EditProfile, Achievements, Book, Meetups, MeetupDetail, MeetupChat
+│   ├── lib/format.js        # date, time and price formatting
+│   └── styles/              # the CSS, split by area
+├── legacy/index.old.html    # the previous single-file version, kept until the migration is signed off
+├── assets/logo.png          # logo used in this README
+└── README.md
 ```
 
 ## 👥 Team
