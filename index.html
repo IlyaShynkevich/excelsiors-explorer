@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Explorer">
@@ -18,7 +18,7 @@
     --green:#0b7a2b; --green-d:#085c20; --green-l:#e6f4ea; --accent:#0b7a2b;
     --bg:#f2f2f7; --card:#ffffff; --surface:#ffffff; --fill:rgba(118,118,128,.12); --fill-2:rgba(118,118,128,.2);
     --text:#1c1c1e; --muted:#6c6c70; --border:#d1d1d6; --hairline:rgba(60,60,67,.2); --link:#0a66d8; --danger:#d70015;
-    --mat:rgba(249,249,251,.8); --panel:rgba(255,255,255,.9);
+    --mat:rgba(249,249,251,.8); --panel:rgba(255,255,255,.9); --bubble:#e5e5ea;
     --sh-1:0 1px 2px rgba(0,0,0,.04),0 2px 10px rgba(0,0,0,.06);
     --sh-2:0 8px 32px rgba(0,0,0,.16);
     /* spacing scale */
@@ -40,7 +40,7 @@
     --bg:#0b0d0c; --card:#1b1e1c; --surface:#1b1e1c; --fill:rgba(118,118,128,.24); --fill-2:rgba(118,118,128,.36);
     --text:#f2f4f3; --muted:#9aa39e; --border:#3a3f3c; --hairline:rgba(84,84,88,.6); --link:#5aa9ff; --danger:#ff6961;
     --green-l:#163222; --accent:#3cc46a;
-    --mat:rgba(22,24,23,.78); --panel:rgba(24,27,25,.9);
+    --mat:rgba(22,24,23,.78); --panel:rgba(24,27,25,.9); --bubble:#2a2e2c;
     --sh-1:0 1px 2px rgba(0,0,0,.4); --sh-2:0 8px 32px rgba(0,0,0,.5);
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -54,9 +54,8 @@
   .scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:var(--s4) var(--gr) calc(var(--safe-b) + var(--s6)) var(--gl)}
   .appbar + .scroll{padding-top:calc(var(--safe-t) + var(--bar-h) + var(--s2))}
   /* tab screens: room for the floating tab bar */
-  #home .scroll,#explore .scroll,#book .scroll,#saved .scroll,#profile .scroll{padding-bottom:calc(var(--tab-total) + var(--s6))}
-  button{font:inherit;cursor:pointer;border:none;background:none;color:inherit;touch-action:manipulation}
-  input,select{font:inherit;color:var(--text)}
+  #home .scroll,#explore .scroll,#book .scroll,#saved .scroll,#profile .scroll{padding-bottom:calc(var(--tab-total) + var(--s6))}  button{font:inherit;cursor:pointer;border:none;background:none;color:inherit;touch-action:manipulation}
+  input,select,textarea{font:inherit;color:var(--text)}
   h1,h2,h3,h4{letter-spacing:-.015em;line-height:1.2}
 
   /* desktop / laptop: app inside a phone frame (transform keeps fixed elements inside it) */
@@ -151,10 +150,10 @@
   .empty{text-align:center;color:var(--muted);padding:var(--s6) 0}
 
   /* detail */
-  #detail .scroll{padding:0}
+  #detail .scroll,#meetup .scroll{padding:0}
   /* overflow:visible: the round back button sits lower than the bar's 44px height and was clipped */
-  #detail .appbar{background:none;border:0;-webkit-backdrop-filter:none;backdrop-filter:none;pointer-events:none;overflow:visible;z-index:6}
-  #detail .appbar .back{pointer-events:auto;top:calc(var(--safe-t) + var(--s2));bottom:auto;left:var(--gl);width:var(--tap);height:var(--tap);border-radius:50%;background:var(--mat);
+  #detail .appbar,#meetup .appbar{background:none;border:0;-webkit-backdrop-filter:none;backdrop-filter:none;pointer-events:none;overflow:visible;z-index:6}
+  #detail .appbar .back,#meetup .appbar .back{pointer-events:auto;top:calc(var(--safe-t) + var(--s2));bottom:auto;left:var(--gl);width:var(--tap);height:var(--tap);border-radius:50%;background:var(--mat);
                         -webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);box-shadow:var(--sh-1);font-size:32px}
   .hero{height:clamp(250px,72vw,310px)}
   .detail{position:relative;margin-top:calc(-1 * var(--r-lg));background:var(--bg);border-radius:var(--r-lg) var(--r-lg) 0 0;
@@ -269,9 +268,11 @@
   .lb-score{font-weight:800;color:var(--accent);font-size:var(--fs-headline)}
 
   /* booking */
-  .quick{display:flex;gap:var(--s2)}
-  .quick button{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px;min-height:var(--tap);padding:0 var(--s2);
-                border-radius:var(--r-sm);background:var(--green);color:#fff;font-weight:600;font-size:clamp(13px,3.7vw,15px);white-space:nowrap}
+  /* three equal columns, icon above the label, so all quick buttons stay readable at 320px */
+  .quick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s2)}
+  .quick button{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:60px;padding:var(--s2) var(--s1);
+                border-radius:var(--r-sm);background:var(--green);color:#fff;font-weight:600;font-size:clamp(12px,3.6vw,14px);line-height:1.15;text-align:center}
+  .quick button span{font-size:20px;line-height:1}
   .bk-hero{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);margin-bottom:var(--s2)}
   .bk-tile{min-width:0;border-radius:var(--r);padding:var(--s4);color:#fff;text-align:left;min-height:clamp(112px,34vw,132px);display:flex;flex-direction:column;
            justify-content:space-between;box-shadow:var(--sh-1)}
@@ -283,7 +284,7 @@
   #book .field,.sheet .field{margin-bottom:0}
   select.field{padding-right:34px;text-overflow:ellipsis;
                background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238e8e93' stroke-width='2' fill='none'/%3E%3C/svg%3E") no-repeat right var(--s3) center}
-  input[type=date].field,input[type=datetime-local].field{line-height:var(--field-h)}
+  input[type=date].field,input[type=datetime-local].field,input[type=time].field{line-height:var(--field-h)}
   .field::-webkit-date-and-time-value{text-align:left}
   .row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--s3)}
   .route{display:flex;align-items:flex-end;gap:var(--s2)}
@@ -398,6 +399,95 @@
     :root{--mat:rgba(249,249,251,.97)} body.dark{--mat:rgba(22,24,23,.97)}
   }
   .sheet .err{margin:var(--s2) 0 0}
+
+  /* meetups */
+  .lt-row{display:flex;align-items:center;justify-content:space-between;gap:var(--s3)}
+  .lt-row .ltitle{min-width:0}
+  .add-btn{width:36px;height:36px;border-radius:50%;background:var(--green);color:#fff;font-size:24px;line-height:1;font-weight:400;flex:none;
+           display:grid;place-items:center;margin-top:-6px;box-shadow:var(--sh-1)}
+  .chips{display:flex;gap:var(--s2);overflow-x:auto;margin:0 calc(-1 * var(--gr)) var(--s3) calc(-1 * var(--gl));padding:2px var(--gr) var(--s1) var(--gl);scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chips button{flex:none;min-height:38px;padding:0 var(--s4);border-radius:19px;background:var(--fill);font-size:var(--fs-sub);font-weight:500;white-space:nowrap}
+  .chips button.on{background:var(--green);color:#fff;font-weight:600}
+  .mt-place{font-size:var(--fs-foot);color:var(--muted);margin-bottom:var(--s3)}
+  .mt-place b{color:var(--text)}
+  .mt-place a,.plink{color:var(--link);font-weight:600;cursor:pointer}
+  .mt-card .img{height:clamp(116px,34vw,148px);position:relative}
+  .mt-card .when{position:absolute;left:var(--s3);top:var(--s3);padding:4px 10px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;
+                 font-size:var(--fs-cap);font-weight:600;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+  .mt-foot{display:flex;align-items:center;gap:var(--s2);margin-top:var(--s3)}
+  .going{flex:1;min-width:0;font-size:var(--fs-foot);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .going.in{color:var(--accent);font-weight:600}
+  .pav{width:34px;height:34px;border-radius:50%;background:var(--green-l);display:grid;place-items:center;font-size:18px;line-height:1;flex:none;overflow:hidden}
+  .pav img{width:100%;height:100%;object-fit:cover;display:block}
+  .stack{display:flex;flex:none}
+  .stack .pav{width:28px;height:28px;font-size:15px;box-shadow:0 0 0 2px var(--card)}
+  .stack .pav + .pav{margin-left:-8px}
+  .pill{flex:none;min-height:40px;padding:0 var(--s4);border-radius:20px;background:var(--green);color:#fff;font-weight:600;font-size:var(--fs-sub);
+        display:inline-flex;align-items:center;transition:transform .12s ease-out,background-color .2s}
+  .pill:active:not(:disabled){transform:scale(.95)}
+  .pill.ghost{background:var(--fill);color:var(--accent)}
+  .pill:disabled,.pill.host{background:var(--fill);color:var(--muted)}
+  .detail h3 small{font-size:var(--fs-sub);font-weight:500;color:var(--muted)}
+  .plist{background:var(--card);border-radius:var(--r);overflow:hidden}
+  .plist > div{display:flex;align-items:center;gap:var(--s3);min-height:52px;padding:var(--s2) var(--s4);font-size:var(--fs-sub)}
+  .plist > div + div{background-image:linear-gradient(var(--hairline),var(--hairline));background-repeat:no-repeat;
+                     background-position:right top;background-size:calc(100% - var(--s4) - 34px - var(--s3)) 1px}
+  .plist .n{flex:1;min-width:0;font-weight:500}
+  .htag{flex:none;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 7px;border-radius:6px;background:var(--green-l);color:var(--accent)}
+  .chat-link{display:flex;align-items:center;gap:var(--s3);width:100%;min-height:64px;padding:var(--s3) var(--s4);background:var(--card);border-radius:var(--r);
+             text-align:left;box-shadow:var(--sh-1);transition:transform .12s ease-out}
+  .chat-link:active{transform:scale(.98)}
+  .chat-link .ic{width:40px;height:40px;border-radius:50%;background:var(--green);display:grid;place-items:center;font-size:19px;flex:none}
+  .chat-link.locked .ic{background:var(--fill-2)}
+  .chat-link .nm{flex:1;min-width:0}
+  .chat-link .nm b{display:block;font-size:var(--fs-sub);font-weight:600}
+  .chat-link .nm small{display:block;font-size:var(--fs-foot);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .chat-link .chev{font-size:22px;color:var(--muted);opacity:.7}
+  textarea.field{height:auto;min-height:84px;padding:var(--s3);line-height:1.4;resize:none}
+  .field.bad{border-color:var(--danger);box-shadow:0 0 0 3px rgba(215,0,21,.12)}
+  .sheet #mtErr{margin:0 0 var(--s3);display:none}
+  .mt-entry{margin:var(--s4) 0 0}
+  .list.mt-entry button .ico{background:#ff9500}
+  .mt-entry .muted{margin-left:auto;font-size:var(--fs-sub)}
+  .mt-entry button::after{margin-left:var(--s2)}
+
+  /* group chat */
+  #chat .appbar .ttl{display:flex;flex-direction:column;align-items:center;min-width:0;max-width:100%;line-height:1.2}
+  #chat .appbar .ttl > *{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #chat .appbar small{font-size:var(--fs-cap);font-weight:400;color:var(--muted)}
+  #chat .scroll{padding-bottom:var(--s3);overscroll-behavior:contain}
+  .sys{text-align:center;font-size:var(--fs-cap);color:var(--muted);margin:var(--s2) auto var(--s3);max-width:280px;line-height:1.4}
+  .day{text-align:center;font-size:var(--fs-cap);color:var(--muted);font-weight:600;margin:var(--s4) 0 var(--s2)}
+  .msg{display:flex;align-items:flex-end;gap:var(--s2);margin-top:2px}
+  .msg.first{margin-top:var(--s2)}
+  .msg .pav{width:28px;height:28px;font-size:15px}
+  .msg .pav.hide{visibility:hidden}
+  .msg .bw{min-width:0;max-width:78%}
+  .msg .who{display:block;font-size:var(--fs-cap);color:var(--muted);margin:0 0 2px 12px}
+  .msg .b{display:inline-block;max-width:100%;padding:8px 12px;border-radius:18px;background:var(--bubble);font-size:var(--fs-body);line-height:1.35;
+          overflow-wrap:anywhere;white-space:pre-wrap}
+  .msg.me{justify-content:flex-end}
+  .msg.me .b{max-width:78%;background:var(--green);color:#fff}
+  .msg.new .b{animation:bub .3s var(--ease)}
+  @keyframes bub{from{transform:scale(.6);opacity:0}}
+  .b.typing{display:inline-flex;gap:4px;padding:12px 14px}
+  .b.typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite}
+  .b.typing i:nth-child(2){animation-delay:.2s}
+  .b.typing i:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,60%,100%{opacity:.3;transform:none}30%{opacity:1;transform:translateY(-2px)}}
+  .chat-bar{flex:none;display:flex;align-items:center;gap:var(--s2);padding:var(--s2) var(--gr) calc(var(--safe-b) + var(--s2)) var(--gl);
+            background:var(--mat);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);border-top:.5px solid var(--hairline)}
+  .chat-in{flex:1;min-width:0;height:40px;border:1px solid var(--border);border-radius:20px;padding:0 var(--s4);background:var(--card);outline:none;
+           font-size:16px;-webkit-appearance:none;appearance:none}
+  .chat-in:focus{border-color:var(--green)}
+  .send{width:40px;height:40px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;flex:none;transition:transform .12s ease-out,background-color .2s}
+  .send:active:not(:disabled){transform:scale(.92)}
+  .send:disabled{background:var(--fill-2);cursor:default}
+  .send svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+  /* iOS keeps the layout viewport when the keyboard opens: pin the chat to the visible area instead */
+  body.kb-open #chat.active{position:fixed;left:0;right:0;top:var(--vvt,0px);height:var(--vvh,100%);z-index:7;background:var(--bg)}
+  body.kb-open .chat-bar{padding-bottom:var(--s2)}
 </style>
 </head>
 <body>
@@ -434,8 +524,9 @@
         <p class="sub">What would you like to do next?</p>
         <input class="search" id="homeSearch" placeholder="Search destinations..." enterkeyhint="search">
         <div class="quick">
-          <button data-book="flights">✈️ Book a flight</button>
-          <button data-book="taxi">🚕 Get a taxi</button>
+          <button data-book="flights"><span>✈️</span>Book a flight</button>
+          <button data-book="taxi"><span>🚕</span>Get a taxi</button>
+          <button data-meetups=""><span>👥</span>Meetups</button>
         </div>
         <h3>Popular in Berlin</h3>
         <div class="grid" id="popular"></div>
@@ -490,6 +581,9 @@
         <div class="mini-badges" id="miniBadges"></div>
         <div class="rank" id="achRank"></div>
       </button>
+      <div class="list mt-entry">
+        <button data-meetups=""><span class="ico">👥</span>Travel Meetups<span class="muted" id="pfMeetups"></span></button>
+      </div>
       <h3 class="sec">Profile Settings</h3>
       <div class="list">
         <button data-toast="Personal Information"><span class="ico">◉</span>Personal Information</button>
@@ -528,6 +622,35 @@
       </div>
       <div id="achBody"></div>
     </div>
+  </section>
+
+  <!-- 9. MEETUPS (EE-28) -->
+  <section class="screen" id="meetups">
+    <div class="appbar"><button class="back" data-go="home" aria-label="Back">‹</button>Excelsior Explorer</div>
+    <div class="scroll">
+      <div class="lt-row"><h1 class="ltitle">Meetups</h1><button class="add-btn" data-mtnew aria-label="Create a meetup">+</button></div>
+      <p class="hint">Join a planned activity and meet other travelers in Berlin.</p>
+      <div class="chips" id="mtChips"></div>
+      <p class="mt-place" id="mtPlace"></p>
+      <div id="mtList"></div>
+      <p class="demo">Demo: meetups, people and chat are simulated.</p>
+    </div>
+  </section>
+
+  <!-- 10. MEETUP DETAIL -->
+  <section class="screen" id="meetup">
+    <div class="appbar"><button class="back" data-go="meetups" aria-label="Back">‹</button>&nbsp;</div>
+    <div class="scroll" id="meetupBody"></div>
+  </section>
+
+  <!-- 11. GROUP CHAT (EE-20) -->
+  <section class="screen" id="chat">
+    <div class="appbar"><button class="back" data-go="meetup" aria-label="Back">‹</button><span class="ttl"><span id="chatTitle"></span><small id="chatSub"></small></span></div>
+    <div class="scroll" id="chatMsgs" aria-live="polite"></div>
+    <form class="chat-bar" id="chatForm" autocomplete="off">
+      <input class="chat-in" id="chatInput" placeholder="Message" enterkeyhint="send" maxlength="500" aria-label="Message">
+      <button class="send" id="chatSend" type="submit" aria-label="Send" disabled><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+    </form>
   </section>
 
   <nav id="nav">
@@ -678,13 +801,18 @@
     prev: 'explore', current: 'login', dark: false, lang: 'English', achTab: 'badges'
   };
   state.bookings = [];
+  // Meetups: joined ids, meetups the user created, chat messages per meetup id (old saved data has none of these)
+  state.joined = []; state.myMeetups = []; state.chats = {};
   try {
     const s = JSON.parse(localStorage.getItem('ee_berlin')||'null');
     if (s){ state.saved = s.saved||state.saved; state.dark = !!s.dark;
             state.visited = s.visited||state.visited; state.unlocked = s.unlocked||state.unlocked;
-            state.bookings = s.bookings||[]; }
+            state.bookings = s.bookings||[];
+            state.joined = Array.isArray(s.joined) ? s.joined : []; state.myMeetups = Array.isArray(s.myMeetups) ? s.myMeetups : [];
+            state.chats = s.chats && typeof s.chats === 'object' ? s.chats : {}; }
   } catch(e){}
-  const persist = () => { try { localStorage.setItem('ee_berlin', JSON.stringify({saved:state.saved, dark:state.dark, visited:state.visited, unlocked:state.unlocked, bookings:state.bookings})); } catch(e){} };
+  const persist = () => { try { localStorage.setItem('ee_berlin', JSON.stringify({saved:state.saved, dark:state.dark, visited:state.visited, unlocked:state.unlocked, bookings:state.bookings,
+                                                                                  joined:state.joined, myMeetups:state.myMeetups, chats:state.chats})); } catch(e){} };
 
   // ---------- Achievements data ----------
   const has = id => state.visited.includes(id) ? 1 : 0;
@@ -703,6 +831,8 @@
     {id:'zoo',     icon:'🐼', name:'Zoo Friend',       c:['#e5e7eb','#374151'], rarity:31, desc:'Say hi to the pandas at Berlin Zoo.',                                 goal:()=>[has('zoo'),1]},
     {id:'jetset',  icon:'✈️', name:'Jet Setter',       c:['#c4b5fd','#5b21b6'], rarity:26, desc:'Book your first flight in the app.',                                   goal:()=>[upTo(state.bookings.filter(b => b.type === 'flight').length,1),1]},
     {id:'cabbie',  icon:'🚕', name:'Taxi!',            c:['#fef08a','#ca8a04'], rarity:44, desc:'Book your first taxi ride.',                                          goal:()=>[upTo(state.bookings.filter(b => b.type === 'taxi').length,1),1]},
+    {id:'social',  icon:'🦋', name:'Social Butterfly', c:['#f9a8d4','#be185d'], rarity:19, desc:'Join your first travel meetup.',                                   goal:()=>[upTo(state.joined.filter(id => !state.myMeetups.some(m => m.id === id)).length,1),1]},
+    {id:'host',    icon:'🎤', name:'Host with the Most', c:['#fdba74','#9a3412'], rarity:11, desc:'Create a meetup and invite other travelers.',                     goal:()=>[upTo(state.myMeetups.length,1),1]},
     {id:'collector', icon:'📌', name:'Collector',      c:['#fdba74','#c2410c'], rarity:51, desc:'Save 5 destinations.',                                                goal:()=>[upTo(state.saved.length,5),5]},
     {id:'berliner', icon:'🐻', name:'Echter Berliner', c:['#fca5a5','#991b1b'], rarity:8,  desc:'Check in at 10 destinations. Ick bin een Berliner!',                 goal:()=>[upTo(state.visited.length,10),10]},
     {id:'complete', icon:'🏆', name:'Completionist',   c:['#fde047','#a16207'], rarity:2,  desc:'Check in at every destination in the app.',                          goal:()=>[upTo(state.visited.length,PLACES.length),PLACES.length]},
@@ -714,6 +844,44 @@
     {name:'Tom R.',   av:'🐸', badges:['first','runway']},
   ];
   const MY_AV = '<img src="' + document.querySelector('.pf-av').src + '" alt="">';
+
+  // ---------- Meetups data (demo: no backend, people and chats are simulated) ----------
+  const PEOPLE = {
+    mia:{name:'Mia K.', av:'🦊'}, jonas:{name:'Jonas W.', av:'🐻'}, ana:{name:'Ana P.', av:'🐼'}, tom:{name:'Tom R.', av:'🐸'},
+    lea:{name:'Lea S.', av:'🦋'}, kenji:{name:'Kenji T.', av:'🐯'}, priya:{name:'Priya N.', av:'🦉'}, carlos:{name:'Carlos D.', av:'🐙'},
+    emma:{name:'Emma L.', av:'🐧'}, noah:{name:'Noah F.', av:'🦁'},
+  };
+  const ME = {name:'You', av:MY_AV, me:true};
+  // Start times are relative to today so the demo meetups are always upcoming.
+  const at = (days, h, m=0) => { const d = new Date(); d.setDate(d.getDate() + days); d.setHours(h, m, 0, 0); return d.getTime(); };
+  const later = t => t > Date.now() ? t : Math.ceil((Date.now() + 36e5) / 18e5) * 18e5;   // already past: 1 h from now, on the half hour
+  // people[0] is the host; chat seeds are [person, text, minutes before the chat is first opened]
+  const MEETUPS = [
+    {id:'m1', title:'Sunset picnic on the runways', placeId:'tempelhof', start:later(at(0,18)), max:10, people:['mia','kenji','lea','carlos'],
+     desc:'Bring a blanket and something to share. We meet at the Columbiadamm entrance and walk out onto the old runway for sunset. Kites welcome!',
+     chat:[['mia','Hi all! I\'ll bring a big blanket and some Club-Mate 🧉',1500],['kenji','Nice! I can bring snacks. Which entrance exactly?',1497],
+           ['mia','Columbiadamm, next to the old tower. Look for the orange kite 🪁',1494],['lea','Perfect, see you there!',95]]},
+    {id:'m2', title:'Street-art walk along the Wall', placeId:'eastside', start:at(1,10), max:8, people:['jonas','ana','priya'],
+     desc:'A slow walk along the 1.3 km of murals, with stops at the famous ones. Coffee afterwards at the Spree. Good shoes recommended.',
+     chat:[['jonas','Morning walk tomorrow! We start at Ostbahnhof side ☀️',190],['ana','Can\'t wait to see the Fraternal Kiss in person',186],
+           ['priya','I\'ll be 5 min late, start without me 🙈',40]]},
+    {id:'m3', title:'Morning at the Neues Museum', placeId:'museuminsel', start:at(2,11), max:6, people:['ana','emma'],
+     desc:'Let\'s see Nefertiti together, then grab lunch nearby. Book your own time-slot ticket online, we meet at the entrance.',
+     chat:[['ana','Hi! I booked the 11:00 slot 🎟️',1300],['emma','Same! Is there a student discount?',1296],['ana','Yes, bring your student card',1295]]},
+    {id:'m4', title:'Picnic & karaoke afternoon', placeId:'mauerpark', start:at(3,15), max:20, people:['carlos','tom','noah','lea','jonas','mia'],
+     desc:'Picnic on the hill in Mauerpark and singing in the stone amphitheatre if the weather is good. Shy singers welcome too 🎤',
+     chat:[['carlos','Who\'s brave enough to sing? 🎤',2000],['tom','Only if someone does a duet with me',1997],['noah','I\'m in for ABBA 🙌',1990],
+           ['lea','I\'ll bring a speaker in case it\'s quiet',300],['carlos','Legend!',299]]},
+    {id:'m5', title:'Sundowner at the TV Tower', placeId:'tvtower', start:at(4,19), max:4, people:['priya','emma','noah','kenji'],
+     desc:'Watch the sun go down from 200 m up. Small group, the time slot is already booked for four people.',
+     chat:[['priya','Tickets are booked for all 4 of us ✅',3000],['kenji','Thanks Priya! I\'ll pay you back',2996],['emma','Meet at the bottom 15 min before?',2990],['noah','👍',2989]]},
+    {id:'m6', title:'Coffee & courtyard crawl', placeId:'hackesche', start:at(9,10,30), max:8, people:['emma','tom'],
+     desc:'Explore all eight courtyards of the Hackesche Höfe, little shops and galleries included, with coffee breaks in between.',
+     chat:[['emma','Planning a cosy coffee morning ☕',130],['tom','Do you know a good bakery there?',126],['emma','Yes, I\'ll show you my favourite one 🥐',125]]},
+  ];
+  MEETUPS.forEach(m => m.host = m.people[0]);
+  const REPLIES = ['Sounds great! 🙌','Haha yes 😄','See you there!','Count me in 👍','Good idea!','Can\'t wait 🤩','Welcome! Glad you\'re joining 👋',
+                   'Perfect, thanks for letting us know','Same here 😊','Love it 💚','I\'ll be there a bit early','Nice, the more the merrier!'];
   const byBadge = id => BADGES.find(b => b.id === id);
   const isEarned = id => !!state.unlocked[id];
   const myBadges = () => BADGES.filter(b => isEarned(b.id)).map(b => b.id);
@@ -737,7 +905,11 @@
   const TABS = ['home','explore','book','saved','profile'];
   // Routes live in the URL hash (#home, #place/brandenburg …) so reload, refresh and the
   // browser/phone back button all work. opts.replace = don't add a history entry.
-  const SCREENS = ['login','home','explore','book','saved','profile','achievements','detail'];
+  const SCREENS = ['login','home','explore','book','saved','profile','achievements','detail','meetups','meetup','chat'];
+  const hashFor = name => name === 'detail' ? 'place/' + state.detailId
+    : name === 'meetups' && state.mtPlace ? 'meetups/' + state.mtPlace
+    : name === 'meetup' ? 'meetup/' + state.meetupId
+    : name === 'chat' ? 'meetup/' + state.meetupId + '/chat' : name;
   const loggedIn = () => { try { return !!localStorage.getItem('ee_session'); } catch (e) { return state.session; } };
   let navIdx = (history.state && history.state.i) || 0;   // how deep we are inside the app
   function setHash(h, replace) {
@@ -753,23 +925,35 @@
     if (name !== 'login' && !loggedIn()) { name = 'login'; opts.fromHistory = false; opts.replace = true; }
     if (name === 'login' && loggedIn()) { name = 'home'; opts.fromHistory = false; opts.replace = true; }
     if (name === 'detail' && state.current !== 'detail') state.prev = state.current;
-    if (!opts.fromHistory) setHash(name === 'detail' ? 'place/' + state.detailId : name, opts.replace || state.current === name);
+    if (!opts.fromHistory) setHash(hashFor(name), opts.replace || state.current === name);
     state.current = name;
     try { sessionStorage.setItem('ee_last', location.hash); } catch (e) {}
     $$('.screen').forEach(s => s.classList.toggle('active', s.id === name));
     $('#nav').classList.toggle('show', TABS.includes(name));
     $$('#nav button').forEach(b => b.classList.toggle('active', b.dataset.go === name));
+    document.querySelectorAll('.scroll').forEach(s => s.scrollTop = 0);   // before rendering: the chat then scrolls to its newest message
     if (name === 'home') renderHome();
     if (name === 'explore') renderExplore(opts.q);
     if (name === 'saved') renderSaved();
     if (name === 'profile') renderProfile();
     if (name === 'achievements') renderAchievements();
     if (name === 'book') { if (!opts.keepView) { stopRide(); state.bookView = 'hub'; } renderBook(); }
-    document.querySelectorAll('.scroll').forEach(s => s.scrollTop = 0);
+    if (name === 'meetups') renderMeetups();
+    if (name === 'meetup') renderMeetup();
+    if (name === 'chat') renderChat();
   }
   document.addEventListener('click', e => {
     const g = e.target.closest('[data-go]');
     if (g) { go(g.dataset.go); return; }
+    const jn = e.target.closest('[data-join]');
+    if (jn) { toggleJoin(jn.dataset.join); return; }
+    const mt = e.target.closest('[data-meetup]');
+    if (mt) { openMeetup(mt.dataset.meetup); return; }
+    const ms = e.target.closest('[data-meetups]');
+    if (ms) { openMeetups(ms.dataset.meetups); return; }
+    const mf = e.target.closest('[data-mtf]');
+    if (mf) { state.mtFilter = mf.dataset.mtf; renderMeetups(); return; }
+    if (e.target.closest('[data-mtnew]')) { createSheet(); return; }
     const p = e.target.closest('[data-place]');
     if (p) { openDetail(p.dataset.place); return; }
     const bk = e.target.closest('[data-book]');
@@ -837,6 +1021,7 @@
         <div class="btns">
           <button class="btn" id="checkBtn" ${isVisited?'disabled':''}>${isVisited ? '✓ Visited' : '📍 Check in here'}</button>
           <button class="btn save-btn ${isSaved?'saved':''}" id="saveBtn">${isSaved ? '✓ Saved' : 'Save Location'}</button>
+          <button class="btn ghost" data-meetups="${p.id}">👥 Find a meetup here${(n => n ? ` (${n})` : '')(upcomingMeetups().filter(m => m.placeId === id).length)}</button>
           <button class="btn ghost" data-book="taxi" data-dest="${p.id}">🚕 Get a taxi here</button>
         </div>
       </div>`;
@@ -883,6 +1068,8 @@
     $('#miniBadges').innerHTML = order.slice(0, 7).map(b => badgeHTML(b, isEarned(b.id))).join('');
     const rank = leaderboard().findIndex(r => r.me) + 1;
     $('#achRank').textContent = `#${rank} among ${FRIENDS.length + 1} friends · tap to see all badges`;
+    const nj = upcomingMeetups().filter(m => joinedM(m)).length;
+    $('#pfMeetups').textContent = nj ? `${nj} joined` : '';
     $('#darkSwitch').classList.toggle('on', state.dark);
     $('#langVal').textContent = state.lang + ' ›';
   }
@@ -996,6 +1183,7 @@
     if (c === 'explore') renderExplore();
     if (c === 'saved') renderSaved();
     if (c === 'profile') renderProfile();
+    if (c === 'meetups') renderMeetups();
     if (c === 'detail') { const h = $('#detailBody .hero'); if (h) h.style.background = bg(byId(state.detailId)); }
   }
   async function loadImages() {
@@ -1297,11 +1485,267 @@
     };
   }
 
+  // ---------- Meetups (EE-28) & group chat (EE-20): simulated, stored in localStorage only ----------
+  state.mtFilter = 'all'; state.mtPlace = ''; state.typing = {};
+  const allMeetups = () => [...MEETUPS, ...state.myMeetups];
+  const byMeetup = id => allMeetups().find(m => m.id === id);
+  const upcomingMeetups = () => allMeetups().filter(m => m.start > Date.now() - 2 * 36e5);   // hide meetups that started over 2 h ago
+  const isMine = m => m.host === 'me';
+  const joinedM = m => state.joined.includes(m.id);
+  const person = k => k === 'me' ? ME : PEOPLE[k];
+  const going = m => [...m.people.map(person), ...(joinedM(m) && !isMine(m) ? [ME] : [])];
+  const ymd = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  const dayDiff = t => Math.round((new Date(t).setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / 864e5);
+  // "Today, 18:00" · "Tomorrow, 10:00" · "Sat 7 Nov, 15:00"
+  function whenText(t, long) {
+    const d = new Date(t), dd = dayDiff(t), time = pad(d.getHours()) + ':' + pad(d.getMinutes());
+    if (t <= Date.now()) return 'Happening now · started ' + time;
+    const full = d.toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'});
+    if (dd === 0 || dd === 1) return (dd ? 'Tomorrow' : 'Today') + ', ' + time + (long ? ' · ' + full : '');
+    return full + ', ' + time;
+  }
+  const MT_FILTERS = [['all','All'],['today','Today'],['week','This week'],['joined','Joined']];
+  function mtList() {
+    const endToday = new Date().setHours(24,0,0,0), endWeek = endToday + 6 * 864e5;
+    return upcomingMeetups()
+      .filter(m => !state.mtPlace || m.placeId === state.mtPlace)
+      .filter(m => ({all:true, today:m.start < endToday, week:m.start < endWeek, joined:joinedM(m)})[state.mtFilter])
+      .sort((a, b) => a.start - b.start);
+  }
+  const avHTML = x => `<span class="pav">${x.av}</span>`;   // x.av is an emoji, or the profile <img> for the user
+  function joinBtn(m, cls) {
+    if (isMine(m)) return `<span class="${cls} host">★ Hosting</span>`;
+    if (joinedM(m)) return `<button class="${cls} ghost" data-join="${m.id}">Leave</button>`;
+    if (going(m).length >= m.max) return `<button class="${cls}" disabled>Full</button>`;
+    return `<button class="${cls}" data-join="${m.id}">Join</button>`;
+  }
+  function mtCard(m) {
+    const p = byId(m.placeId), g = going(m), j = joinedM(m);
+    return `
+      <div class="card mt-card" data-meetup="${m.id}" role="button" tabindex="0">
+        <div class="img" style="background:${bg(p, true)}"><span class="when">${whenText(m.start)}</span></div>
+        <div class="body">
+          <h4>${esc(m.title)}</h4>
+          <p>📍 ${esc(p.name)} · ${esc(p.area)}</p>
+          <div class="mt-foot"><span class="stack">${g.slice(0, 4).map(avHTML).join('')}</span>
+            <span class="going ${j ? 'in' : ''}">${j ? '✓ ' : ''}${g.length} / ${m.max} going</span>${joinBtn(m, 'pill')}</div>
+        </div>
+      </div>`;
+  }
+  function openMeetups(place, opts={}) {
+    state.mtPlace = byId(place) ? place : '';
+    if (state.mtPlace) state.mtFilter = 'all';
+    go('meetups', opts);
+  }
+  function renderMeetups() {
+    const p = state.mtPlace && byId(state.mtPlace);
+    $('#mtChips').innerHTML = MT_FILTERS.map(([k, l]) => `<button data-mtf="${k}" class="${state.mtFilter === k ? 'on' : ''}">${l}</button>`).join('');
+    $('#mtPlace').innerHTML = p ? `📍 Meetups at <b>${esc(p.name)}</b> · <a data-meetups="">Show all</a>` : '';
+    $('#mtPlace').style.display = p ? '' : 'none';
+    const list = mtList();
+    const none = state.mtFilter === 'joined' ? 'You haven\'t joined a meetup yet.' : p ? 'No meetups planned here yet.' : 'No meetups match this filter.';
+    $('#mtList').innerHTML = list.length ? list.map(mtCard).join('') :
+      `<div class="empty">${none}<br><br><button class="pill" data-mtnew>+ Create a meetup</button></div>`;
+  }
+  function openMeetup(id, opts={}) {
+    if (!byMeetup(id)) { toast('This meetup no longer exists'); return openMeetups('', {replace:true}); }
+    state.meetupId = id;
+    go('meetup', opts);
+  }
+  function renderMeetup() {
+    const m = byMeetup(state.meetupId); if (!m) return;
+    const p = byId(m.placeId), g = going(m), host = person(m.host), j = joinedM(m);
+    const last = j ? chatOf(m).slice(-1)[0] : null;
+    $('#meetupBody').innerHTML = `
+      <div class="hero" style="background:${bg(p)}"></div>
+      <div class="detail">
+        <h2>${esc(m.title)}</h2>
+        <div class="loc"><span class="ico">➤</span><span><a class="plink" data-place="${p.id}">${esc(p.name)}</a><br>${esc(p.addr)}</span></div>
+        <div class="info"><span class="ico">◷</span>${whenText(m.start, true)}</div>
+        <div class="info"><span class="ico">★</span>Hosted by ${isMine(m) ? 'you' : `${host.av} ${esc(host.name)}`}</div>
+        <div class="info"><span class="ico">◉</span>${g.length} / ${m.max} going${g.length >= m.max ? ' · full' : ''}</div>
+        <div class="btns" style="margin-top:var(--s4)">${isMine(m) ? '' : joinBtn(m, 'btn')}</div>
+        <h3>About this meetup</h3>
+        <p>${esc(m.desc)}</p>
+        <h3>Who's going <small>${g.length} / ${m.max}</small></h3>
+        <div class="plist">${g.map(x => `<div>${avHTML(x)}<span class="n">${esc(x.name)}</span>${x === host ? '<span class="htag">Host</span>' : ''}</div>`).join('')}</div>
+        <h3>Group chat</h3>
+        ${j ? `<button class="chat-link" id="chatLink"><span class="ic">💬</span>
+                 <span class="nm"><b>Group chat · ${g.length} ${g.length === 1 ? 'person' : 'people'}</b><small>${last ? esc((last.me ? 'You' : last.n) + ': ' + last.x) : 'No messages yet – say hi 👋'}</small></span><span class="chev">›</span></button>`
+            : `<button class="chat-link locked" id="chatLink"><span class="ic">🔒</span>
+                 <span class="nm"><b>Join to chat</b><small>Only people who joined can read and write messages.</small></span></button>`}
+        <p class="note">Demo: chat is simulated</p>
+        ${isMine(m) ? '<div class="btns"><button class="btn ghost" id="mtCancel" style="color:var(--danger)">Cancel meetup</button></div>' : ''}
+      </div>`;
+    $('#chatLink').onclick = () => j ? openChat(m.id) : toast('Join the meetup to unlock the group chat');
+    const c = $('#mtCancel'); if (c) c.onclick = () => cancelSheet(m);
+  }
+  function toggleJoin(id) {
+    const m = byMeetup(id); if (!m || isMine(m)) return;
+    const i = state.joined.indexOf(id);
+    if (i >= 0) { state.joined.splice(i, 1); persist(); toast('You left “' + m.title + '”'); }
+    else {
+      if (going(m).length >= m.max) return toast('Sorry, this meetup is full');
+      state.joined.push(id);
+      const fresh = checkUnlocks();
+      if (fresh.length) queueUnlocks(fresh); else toast('You\'re in! Say hi in the group chat 👋');
+    }
+    if (state.current === 'meetups') renderMeetups();
+    if (state.current === 'meetup') renderMeetup();
+  }
+  function cancelSheet(m) {
+    openSheet(`
+      <div class="big-emoji">🗑️</div>
+      <h3>Cancel this meetup?</h3>
+      <p>“${esc(m.title)}” and its group chat will be removed.</p>
+      <button class="btn" id="mtDel" style="background:var(--danger)">Cancel meetup</button>
+      <button class="btn ghost" data-close>Keep it</button>`);
+    $('#mtDel').onclick = () => {
+      state.myMeetups = state.myMeetups.filter(x => x.id !== m.id);
+      state.joined = state.joined.filter(id => id !== m.id);
+      delete state.chats[m.id]; persist();
+      closeSheet(true); openMeetups('', {replace:true}); toast('Meetup cancelled');
+    };
+  }
+  function createSheet() {
+    const now = new Date(), tmr = new Date(Date.now() + 864e5);
+    const pre = state.current === 'meetups' && state.mtPlace ? state.mtPlace : state.current === 'detail' ? state.detailId : 'brandenburg';
+    let max = 6;
+    openSheet(`
+      <h3>New meetup</h3>
+      <p>Plan an activity and meet other travelers.</p>
+      <div class="fgroup"><label for="mtTitle">Title</label><input class="field" id="mtTitle" maxlength="40" placeholder="e.g. Sunset walk by the Spree" autocomplete="off"></div>
+      <div class="fgroup"><label for="mtWhere">Place</label><select class="field" id="mtWhere">${PLACES.map(p => `<option value="${p.id}" ${p.id === pre ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></div>
+      <div class="row2">
+        <div class="fgroup"><label for="mtDate">Date</label><input class="field" type="date" id="mtDate" value="${ymd(tmr)}" min="${ymd(now)}"></div>
+        <div class="fgroup"><label for="mtTime">Time</label><input class="field" type="time" id="mtTime" value="18:00" step="300"></div>
+      </div>
+      <div class="fgroup"><label>Max people</label><div class="stepper"><button id="mtMinus" aria-label="Fewer">−</button><b id="mtMax">${max}</b><button id="mtPlus" aria-label="More">+</button></div></div>
+      <div class="fgroup"><label for="mtNote">Short note</label><textarea class="field" id="mtNote" maxlength="160" rows="3" placeholder="What's the plan? Where exactly do you meet?"></textarea></div>
+      <div class="err" id="mtErr"></div>
+      <button class="btn" id="mtCreate">Create meetup</button>
+      <button class="btn ghost" data-close>Cancel</button>
+      <p class="demo">Demo: the meetup is only saved on this device.</p>`);
+    $('#mtMinus').onclick = () => { max = Math.max(2, max - 1); $('#mtMax').textContent = max; };
+    $('#mtPlus').onclick = () => { max = Math.min(20, max + 1); $('#mtMax').textContent = max; };
+    $$('.sheet .field').forEach(f => f.addEventListener('input', () => { f.classList.remove('bad'); $('#mtErr').style.display = 'none'; }));
+    $('#mtCreate').onclick = () => {
+      const title = $('#mtTitle').value.trim(), note = $('#mtNote').value.trim(), date = $('#mtDate').value, time = $('#mtTime').value;
+      const start = date && time ? new Date(date + 'T' + time).getTime() : NaN;
+      const fail = (el, msg) => { $$('.sheet .field').forEach(f => f.classList.remove('bad')); el.classList.add('bad'); el.focus();
+                                  const e = $('#mtErr'); e.textContent = msg; e.style.display = 'block'; };
+      if (title.length < 3) return fail($('#mtTitle'), 'Give your meetup a title (at least 3 characters).');
+      if (!date) return fail($('#mtDate'), 'Please pick a date.');
+      if (!time || isNaN(start)) return fail($('#mtTime'), 'Please pick a start time.');
+      if (start < Date.now() + 5 * 6e4) return fail($('#mtTime'), 'That time has already passed – pick a time in the future.');
+      if (start > Date.now() + 365 * 864e5) return fail($('#mtDate'), 'Please pick a date within the next year.');
+      if (max < 2 || max > 20) return fail($('#mtMax'), 'Max people must be between 2 and 20.');
+      const m = {id:'u' + Date.now().toString(36), title, placeId:$('#mtWhere').value, start, max, host:'me', people:['me'],
+                 desc:note || 'No description yet – ask in the group chat!'};
+      state.myMeetups.push(m); state.joined.push(m.id);
+      const fresh = checkUnlocks();
+      closeSheet(true);
+      openMeetup(m.id);
+      if (fresh.length) setTimeout(() => queueUnlocks(fresh), 300); else toast('Meetup created 🎉');
+    };
+  }
+
+  // ----- group chat -----
+  function chatOf(m) {
+    if (!state.chats[m.id]) {   // seed once, the first time someone who joined looks at it
+      const now = Date.now();
+      state.chats[m.id] = (m.chat || []).map(([k, x, ago]) => ({n:PEOPLE[k].name, av:PEOPLE[k].av, x, t:now - ago * 6e4}));
+      persist();
+    }
+    return state.chats[m.id];
+  }
+  function openChat(id, opts={}) {
+    const m = byMeetup(id);
+    if (!m) return openMeetup(id, opts);
+    if (!joinedM(m)) { toast('Join the meetup to chat'); return openMeetup(id, {replace:true}); }
+    state.meetupId = id;
+    go('chat', opts);
+  }
+  function stamp(t) {
+    const dd = dayDiff(t), d = new Date(t);
+    const day = dd === 0 ? 'Today' : dd === -1 ? 'Yesterday' : d.toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'});
+    return day + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+  const sameAuthor = (a, b) => !!a.me === !!b.me && a.n === b.n;
+  const GAP = 30 * 6e4;   // a new time separator after 30 min of silence
+  function msgHTML(x, first, last, fresh) {
+    const cls = `msg${x.me ? ' me' : ''}${first ? ' first' : ''}${fresh ? ' new' : ''}`;
+    if (x.me) return `<div class="${cls}"><div class="b">${esc(x.x)}</div></div>`;
+    return `<div class="${cls}"><span class="pav${last ? '' : ' hide'}">${x.av}</span><div class="bw">${first ? `<span class="who">${esc(x.n)}</span>` : ''}` +
+           (x.typing ? '<div class="b typing" aria-label="typing"><i></i><i></i><i></i></div>' : `<div class="b">${esc(x.x)}</div>`) + '</div></div>';
+  }
+  function renderChat(freshLast) {
+    const m = byMeetup(state.meetupId); if (!m) return;
+    const msgs = chatOf(m), g = going(m);
+    $('#chatTitle').textContent = m.title;
+    $('#chatSub').textContent = `${g.length} ${g.length === 1 ? 'person' : 'people'} · ${whenText(m.start)}`;
+    let html = `<p class="sys">💬 Group chat for “${esc(m.title)}”<br>Demo: chat is simulated</p>`;
+    if (!msgs.length) html += `<p class="sys">${g.length > 1 ? 'No messages yet – say hi 👋' : 'Nobody else has joined yet. Write the first message for when they do 👋'}</p>`;
+    msgs.forEach((x, i) => {
+      const prev = msgs[i - 1], next = msgs[i + 1], brk = !prev || x.t - prev.t > GAP;
+      if (brk) html += `<div class="day">${stamp(x.t)}</div>`;
+      html += msgHTML(x, brk || !sameAuthor(prev, x), !next || !sameAuthor(next, x) || next.t - x.t > GAP, freshLast && i === msgs.length - 1);
+    });
+    const ty = state.typing[m.id];
+    if (ty) html += msgHTML({...ty, typing:true}, true, true, true);
+    $('#chatMsgs').innerHTML = html;
+    scrollChat();
+  }
+  const scrollChat = () => { const s = $('#chatMsgs'); s.scrollTop = s.scrollHeight; };
+  function simulateReply(m) {
+    const pool = m.people.filter(k => k !== 'me');
+    if (!pool.length || state.typing[m.id]) return;      // nobody to answer, or someone is already typing
+    const who = PEOPLE[pool[Math.random() * pool.length | 0]], text = REPLIES[Math.random() * REPLIES.length | 0];
+    const onChat = () => state.current === 'chat' && state.meetupId === m.id;
+    setTimeout(() => {
+      state.typing[m.id] = {n:who.name, av:who.av};
+      if (onChat()) renderChat();
+      setTimeout(() => {
+        delete state.typing[m.id];
+        if (!byMeetup(m.id) || !joinedM(m)) return;
+        chatOf(m).push({n:who.name, av:who.av, x:text, t:Date.now()}); persist();
+        if (onChat()) renderChat(true); else toast(`💬 ${who.name}: ${text}`);
+      }, 700 + Math.random() * 1600);
+    }, 400);                                               // reply arrives 1.1–2.7 s after sending
+  }
+  const updateSend = () => { $('#chatSend').disabled = !$('#chatInput').value.trim(); };
+  $('#chatInput').addEventListener('input', updateSend);
+  $('#chatSend').addEventListener('pointerdown', e => e.preventDefault());   // keep the keyboard open after tapping send
+  $('#chatForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const inp = $('#chatInput'), text = inp.value.trim(), m = byMeetup(state.meetupId);
+    if (!text || !m || !joinedM(m)) return;
+    chatOf(m).push({me:true, x:text, t:Date.now()}); persist();
+    inp.value = ''; updateSend();
+    renderChat(true);
+    simulateReply(m);
+  });
+  // Keyboard: Android resizes the page (interactive-widget=resizes-content); iOS only shrinks the
+  // visual viewport, so there the chat is pinned to the visible area and the input stays above the keyboard.
+  if (window.visualViewport) {
+    const vv = window.visualViewport;
+    const onVV = () => {
+      const open = window.innerHeight - vv.height * vv.scale > 80;
+      document.body.classList.toggle('kb-open', open);
+      document.body.style.setProperty('--vvh', vv.height + 'px');
+      document.body.style.setProperty('--vvt', vv.offsetTop + 'px');
+      if (state.current === 'chat') scrollChat();
+    };
+    vv.addEventListener('resize', onVV); vv.addEventListener('scroll', onVV);
+  }
+
   // ---------- Behavior ----------
   function route() {
     closeSheet(true);
     const h = decodeURIComponent(location.hash.slice(1));
     if (h.startsWith('place/')) openDetail(h.slice(6), {fromHistory:true});
+    else if (h === 'meetups' || h.startsWith('meetups/')) openMeetups(h.slice(8), {fromHistory:true});
+    else if (h.startsWith('meetup/')) { const [id, sub] = h.slice(7).split('/'); (sub === 'chat' ? openChat : openMeetup)(id, {fromHistory:true}); }
     else go(h || (loggedIn() ? 'home' : 'login'), {fromHistory:true});
   }
   window.addEventListener('popstate', e => { navIdx = (e.state && e.state.i) || 0; route(); });
@@ -1362,6 +1806,7 @@
   setOnline();
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && $('#sheet').classList.contains('show')) closeSheet();
+    if (e.key === 'Enter' && e.target.matches('div[data-meetup]')) e.target.click();   // meetup cards are divs (they contain a Join button)
   });
 
   applyTheme();

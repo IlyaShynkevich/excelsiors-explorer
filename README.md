@@ -29,14 +29,16 @@ as a working web app that runs in any phone browser.
 | Area | What you can do |
 |------|-----------------|
 | 🔐 **Login** | Demo sign-in that stays logged in after a reload |
-| 🏠 **Home** | Greeting, search, popular sights, recently viewed, quick buttons for flights and taxis |
+| 🏠 **Home** | Greeting, search, popular sights, recently viewed, quick buttons for flights, taxis and meetups |
 | 🔎 **Explore** | Live search across **19 Berlin places** with real photos, history, addresses, opening hours and prices |
-| 📍 **Place details** | Check in, save the place, or call a taxi straight to it |
+| 📍 **Place details** | Check in, save the place, find a meetup there, or call a taxi straight to it |
 | ✈️ **Flights** | Search flights to and from Berlin BER (14 European cities), choose passengers and class, get a booking reference |
 | 🚕 **Taxi** | Pick-up and destination, Eco / Standard / XL with price estimate, schedule a ride or watch the driver arrive live |
 | 🧾 **My bookings** | All flights and rides with their booking references |
+| 👥 **Meetups** | Planned activities at Berlin sights with filters (All, Today, This week, Joined), join or leave, see who is going, and create your own meetup |
+| 💬 **Group chat** | iOS-style chat for each meetup, only for people who joined; other travelers reply automatically (simulated) and messages are kept after a reload |
 | 🔖 **Saved** | Your saved destinations |
-| 🏅 **Achievements** | **15 badges** unlocked by checking in and booking, a friends leaderboard, side-by-side comparison and a "Flex it" share button |
+| 🏅 **Achievements** | **17 badges** unlocked by checking in, booking and joining or hosting meetups, a friends leaderboard, side-by-side comparison and a "Flex it" share button |
 | 👤 **Profile** | Avatar, recent destinations, achievements summary, dark mode, log out |
 
 **Works like an app on the phone:** every screen has its own URL, so reload and the back button work as expected.
@@ -45,7 +47,7 @@ There is also pull-to-refresh, an offline banner, and you can install it via *Ad
 **iOS-style design:** large titles, frosted top and tab bars, grouped settings lists and light/dark mode, tested on phones from 320 to 430 px wide.
 On a laptop the app is shown inside a phone frame; on a real phone it runs full-screen.
 
-> ⚠️ **Demo only.** Login, flights, prices, drivers and friends are simulated. No real bookings or payments are made.
+> ⚠️ **Demo only.** Login, flights, prices, drivers, friends, meetups and the group chat are simulated (there is no backend, nothing is sent to other people). No real bookings or payments are made.
 
 ## Try it
 
@@ -56,12 +58,13 @@ On a laptop the app is shown inside a phone frame; on a real phone it runs full-
 **Tips for a demo**
 - Open a place → **📍 Check in here** to unlock badges
 - Book a flight to Berlin, then tap **🚕 Book a taxi from BER**
+- Home → **👥 Meetups** → join one to unlock the group chat, or tap **+** to host your own
 - Profile → Achievements → **Reset progress (demo)** to start over
 
 ## Tech stack
 
 - **HTML, CSS and vanilla JavaScript** in one self-contained file (`index.html`), with no frameworks, dependencies or build step
-- **localStorage** for login state, saved places, badges and bookings (stored per browser)
+- **localStorage** for login state, saved places, badges, bookings, meetups and chat messages (stored per browser)
 - **Wikimedia Commons** photos loaded from each place's Wikipedia article
 - **Vercel** hosting, which redeploys on every push to `main`
 
