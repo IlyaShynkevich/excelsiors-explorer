@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://excelsiors-explorer.netlify.app/"><b>▶ Open the live demo</b></a>
+  <a href="https://excelsiors-explorer.vercel.app/"><b>▶ Open the live demo</b></a>
 </p>
 
 ---
@@ -46,7 +46,7 @@ There is also pull-to-refresh, an offline banner, and you can install it via *Ad
 
 ## Try it
 
-**Online:** <https://excelsiors-explorer.netlify.app/>
+**Online:** <https://excelsiors-explorer.vercel.app/>
 
 **Demo login:** any email (e.g. `test@test.com`) and any password.
 
@@ -60,7 +60,7 @@ There is also pull-to-refresh, an offline banner, and you can install it via *Ad
 - **HTML, CSS and vanilla JavaScript** in one self-contained file (`index.html`), with no frameworks, dependencies or build step
 - **localStorage** for login state, saved places, badges and bookings (stored per browser)
 - **Wikimedia Commons** photos loaded from each place's Wikipedia article
-- **Netlify** hosting, which redeploys on every push to `main`
+- **Vercel** hosting, which redeploys on every push to `main`
 
 ## Run locally
 
