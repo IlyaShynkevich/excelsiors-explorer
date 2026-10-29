@@ -152,8 +152,9 @@
 
   /* detail */
   #detail .scroll{padding:0}
-  #detail .appbar{background:none;border:0;-webkit-backdrop-filter:none;backdrop-filter:none;pointer-events:none}
-  #detail .appbar .back{pointer-events:auto;top:calc(var(--safe-t) + var(--s2));bottom:auto;left:var(--gl);height:var(--tap);border-radius:50%;background:var(--mat);
+  /* overflow:visible: the round back button sits lower than the bar's 44px height and was clipped */
+  #detail .appbar{background:none;border:0;-webkit-backdrop-filter:none;backdrop-filter:none;pointer-events:none;overflow:visible;z-index:6}
+  #detail .appbar .back{pointer-events:auto;top:calc(var(--safe-t) + var(--s2));bottom:auto;left:var(--gl);width:var(--tap);height:var(--tap);border-radius:50%;background:var(--mat);
                         -webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);box-shadow:var(--sh-1);font-size:32px}
   .hero{height:clamp(250px,72vw,310px)}
   .detail{position:relative;margin-top:calc(-1 * var(--r-lg));background:var(--bg);border-radius:var(--r-lg) var(--r-lg) 0 0;
