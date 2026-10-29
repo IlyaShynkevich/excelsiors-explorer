@@ -42,6 +42,9 @@ as a working web app that runs in any phone browser.
 **Works like an app on the phone:** every screen has its own URL, so reload and the back button work as expected.
 There is also pull-to-refresh, an offline banner, and you can install it via *Add to Home screen*.
 
+**iOS-style design:** large titles, frosted top and tab bars, grouped settings lists and light/dark mode, tested on phones from 320 to 430 px wide.
+On a laptop the app is shown inside a phone frame; on a real phone it runs full-screen.
+
 > ⚠️ **Demo only.** Login, flights, prices, drivers and friends are simulated. No real bookings or payments are made.
 
 ## Try it
