@@ -3,14 +3,14 @@
 // browser/phone back button all work. opts.replace = don't add a history entry.
 import { useLayoutEffect } from 'react';
 import { ui, emit, toast, closeSheet } from '../state/appStore.js';
-import { getUser, loggedIn } from '../state/userData.js';
+import { getUser, loggedIn, needsOnboarding, markOnboarded } from '../state/userData.js';
 import { lastRoute } from '../state/storage.js';
 import { byId } from '../data/places.js';
 import { stopRide } from '../state/booking.js';
 import { byMeetup, joinedM } from '../state/meetups.js';
 
 export const TABS = ['home','explore','book','saved','profile'];
-const SCREENS = ['login','signup','home','explore','book','saved','profile','editProfile','achievements','detail','meetups','meetup','chat'];
+const SCREENS = ['login','signup','home','explore','book','saved','profile','editProfile','achievements','detail','meetups','meetup','chat','interests'];
 const PUBLIC = ['login','signup'];   // the only screens you can see while logged out
 const hashFor = name => name === 'detail' ? 'place/' + ui.detailId
   : name === 'editProfile' ? 'profile/edit'
@@ -41,9 +41,17 @@ export function go(name, opts = {}) {
   lastRoute.set(location.hash);
   if (name === 'login') { const u = getUser(); if (u && !ui.login.email) ui.login.email = u.email; }
   if (name === 'explore' && typeof opts.q === 'string') ui.exploreQ = opts.q;
+  if (name === 'explore' && opts.cats) { ui.ex = {...ui.ex, cats: opts.cats, open: false, diet: [], view: 'list', sel: ''}; ui.exploreQ = ''; }
   if (name === 'book' && !opts.keepView) { stopRide(); ui.bookView = 'hub'; }
   if (name === 'chat') ui.chatFresh = false;
   emit();
+}
+
+// After sign-in / sign-up: the interests screen the first time (once per browser profile), else Home.
+export function enterApp() {
+  if (!needsOnboarding()) return go('home', {replace:true});
+  markOnboarded();   // shown once: Skip, Continue, back or a reload never bring it up again on its own
+  go('interests', {replace:true});
 }
 
 export function openDetail(id, opts = {}) {

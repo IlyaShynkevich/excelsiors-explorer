@@ -6,6 +6,7 @@
 import { store, lastRoute, DATA_KEY, SESSION_KEY } from './storage.js';
 import { AVATARS, DEFAULT_PROFILE } from '../data/avatars.js';
 import { BADGES } from '../data/badges.js';
+import { INTERESTS } from '../data/places.js';
 
 // What a new browser starts with (the demo traveler already has some progress)
 export const freshData = () => ({
@@ -14,7 +15,7 @@ export const freshData = () => ({
   unlocked: {first:'2026-09-28', view:'2026-10-12', collector:'2026-10-01'},
   bookings: [], dark: false,
   joined: [], myMeetups: [], chats: {},   // meetups: joined ids, meetups the user created, chat messages per meetup id
-  account: null, profile: {...DEFAULT_PROFILE},
+  account: null, profile: {...DEFAULT_PROFILE, interests: []},
 });
 // The user's data. Always the same object (deleteUser resets it in place), so modules can import it.
 export const user = freshData();
@@ -23,7 +24,10 @@ let session = '';
 const str = (v, max, def) => typeof v === 'string' ? v.trim().slice(0, max) : def;
 const cleanProfile = p => (p = p && typeof p === 'object' ? p : {}, {
   name: str(p.name, 30, '') || DEFAULT_PROFILE.name, bio: str(p.bio, 140, DEFAULT_PROFILE.bio), city: str(p.city, 40, ''),
-  avatar: AVATARS.some(a => a.id === p.avatar) ? p.avatar : DEFAULT_PROFILE.avatar });
+  avatar: AVATARS.some(a => a.id === p.avatar) ? p.avatar : DEFAULT_PROFILE.avatar,
+  // older saved profiles have no interests yet: none picked, and the onboarding screen still to come
+  interests: Array.isArray(p.interests) ? INTERESTS.map(i => i[0]).filter(id => p.interests.includes(id)) : [],
+  onboarded: !!p.onboarded });
 const cleanAccount = a => a && typeof a.email === 'string' && typeof a.pw === 'string' ? {email:a.email, pw:a.pw, created:str(a.created, 10, '')} : null;
 
 // Old saved data has no meetups, account or profile yet: those get defaults.
@@ -63,11 +67,16 @@ export function signUp({name, email, pw}) {
   if (a) return a.email === email ? 'You already have an account with this email. Sign in instead.'
                                   : 'This browser already has an account (demo: one per browser). Sign in with it, or delete it in the profile first.';
   saveUser({email, pw});
-  saveProfile({name, bio: user.profile.bio === DEFAULT_PROFILE.bio ? '' : user.profile.bio});   // don't inherit the demo bio
+  // don't inherit the demo bio; a new account picks its own interests (onboarding after the first sign-up)
+  saveProfile({name, bio: user.profile.bio === DEFAULT_PROFILE.bio ? '' : user.profile.bio, interests: [], onboarded: false});
   setSession(email);
   return '';
 }
-export const getProfile = () => ({...user.profile});
+export const getProfile = () => ({...user.profile, interests: [...user.profile.interests]});
+// Onboarding interests: shown after the first sign-up, and once on the first demo login
+export const needsOnboarding = () => !user.profile.onboarded;
+export const markOnboarded = () => saveProfile({onboarded: true});
+export const saveInterests = interests => saveProfile({interests});
 export function saveProfile(changes) { user.profile = cleanProfile({...user.profile, ...changes}); persist(); syncMe(); return getProfile(); }
 // Removes everything this user stored in the browser and logs out.
 export function deleteUser() {

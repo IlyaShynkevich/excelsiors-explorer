@@ -1,7 +1,7 @@
 import logo from '../assets/logo.png';
 import { ui, emit } from '../state/appStore.js';
 import { getUser, signIn } from '../state/userData.js';
-import { go } from '../hooks/useHashRouter.js';
+import { go, enterApp } from '../hooks/useHashRouter.js';
 
 export function Login() {
   const f = ui.login, u = getUser();
@@ -13,7 +13,7 @@ export function Login() {
     f.err = msg;
     if (msg) return emit();
     f.pw = '';
-    go('home', {replace:true});
+    enterApp();
   };
   return (
     <section className="screen active" id="login">

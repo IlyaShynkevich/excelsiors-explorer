@@ -1,4 +1,4 @@
-// The 19 Berlin places. Photos are free-licensed lead images from Wikimedia Commons.
+// The 27 Berlin places (19 sights + 8 food places). Photos are free-licensed lead images from Wikimedia Commons.
 const grad = (a,b,c) => `linear-gradient(160deg,${a},${b}${c?','+c:''})`;
 const P = (id, name, area, addr, km, wiki, g, short, about, hours, fee) => ({id, name, area, addr, km, wiki, g, short, about, hours, fee});
 export const PLACES = [
@@ -97,7 +97,88 @@ export const PLACES = [
     ['Opened in 1906, the Hackesche Höfe are Germany\'s largest closed courtyard complex. The first courtyard is decorated with colourful glazed tiles in the Art Nouveau style.',
      'Today the courtyards mix small shops, galleries, cafés, a theatre and a cinema, and people still live on the upper floors.'],
     'Courtyards open daily','Free'),
+  // ---------- food & drink (EE-43 dietary filter). `wiki` with "de:" links to the German Wikipedia; '' = no article ----------
+  P('curry36','Curry 36','Kreuzberg','Mehringdamm 36, 10961 Berlin',3.6,'de:Curry 36',grad('#fb923c','#c2410c','#431407'),
+    'A cult currywurst stand at Mehringdamm, open until late and always busy.',
+    ['Curry 36 has served Berlin\'s favourite street food since 1981: a sliced sausage with curry ketchup and curry powder, with or without skin, plus chips.',
+     'You eat standing at the counter, Berlin style. There is also a meat-free sausage.'],
+    'Daily 10:00 AM – 2:00 AM','€ – snacks'),
+  P('mustafas','Mustafa\'s Gemüse Kebap','Kreuzberg','Mehringdamm 32, 10961 Berlin',3.6,'',grad('#facc15','#16a34a','#7c2d12'),
+    'A famous kebab stand with roasted vegetables, feta and lemon, and a queue to match.',
+    ['Mustafa\'s became known for its chicken and vegetable döner, filled with grilled vegetables, potatoes, feta and a squeeze of lemon.',
+     'Expect to queue, especially in the evening. The vegetarian version is just as popular as the chicken one.'],
+    'Daily 10:00 AM – 2:00 AM','€ – snacks'),
+  P('konnopke','Konnopke\'s Imbiss','Prenzlauer Berg','Schönhauser Allee 44B, 10435 Berlin',2.1,'de:Konnopke’s Imbiß',grad('#fde047','#dc2626','#1c1917'),
+    'A family-run currywurst stand under the elevated U2 line, around since 1930.',
+    ['Konnopke\'s is one of the oldest snack stands in Berlin. In GDR times it was famous across East Berlin for its currywurst.',
+     'It sits right under the viaduct of the U2 at Eberswalder Straße, so trains rumble overhead while you eat.'],
+    'Mon – Fri 10:00 AM – 8:00 PM, Sat 11:00 AM – 8:00 PM, closed Sundays','€ – snacks'),
+  P('markthalle','Markthalle Neun','Kreuzberg','Eisenbahnstraße 42/43, 10997 Berlin',2.5,'de:Markthalle IX',grad('#fcd34d','#92400e','#1e3a8a'),
+    'A historic market hall from 1891 with food stalls, local producers and Street Food Thursday.',
+    ['The hall was one of Berlin\'s 14 municipal market halls. Since 2011 it has been run as a market for regional food, small bakeries and stalls.',
+     'On Thursday evenings it hosts Street Food Thursday, with dishes from all over the world.'],
+    'Mon – Sat 12:00 – 6:00 PM, Thu until 10:00 PM, closed Sundays','€–€€ – market stalls'),
+  P('einstein','Café Einstein Stammhaus','Schöneberg','Kurfürstenstraße 58, 10785 Berlin',4.5,'de:Café Einstein Stammhaus',grad('#e7e5e4','#a16207','#292524'),
+    'A Viennese-style coffee house in a 19th-century villa, known for apple strudel and Wiener Schnitzel.',
+    ['The café opened in 1978 in a villa from 1878 and became a classic of West Berlin, with high ceilings, newspapers and white-jacketed waiters.',
+     'In summer the garden behind the villa is one of the quietest spots in the area.'],
+    'Daily 8:00 AM – midnight','€€ – café & restaurant'),
+  P('burgermeister','Burgermeister','Kreuzberg','Oberbaumstraße 8, 10997 Berlin',3.0,'',grad('#a3e635','#15803d','#1c1917'),
+    'Burgers served from a former public toilet under the U1 tracks at Schlesisches Tor.',
+    ['This small burger bar moved into a 19th-century public toilet under the elevated railway and became one of Kreuzberg\'s best-known late-night spots.',
+     'Order at the window and eat outside under the tracks, just a few steps from the Oberbaum Bridge.'],
+    'Daily 11:00 AM – 2:00 AM','€ – burgers'),
+  P('prater','Prater Garten','Prenzlauer Berg','Kastanienallee 7–9, 10435 Berlin',2.1,'de:Prater (Berlin)',grad('#86efac','#a16207','#422006'),
+    'Berlin\'s oldest beer garden, under old chestnut trees on Kastanienallee.',
+    ['The Prater has existed since 1837 and has been a beer garden, theatre and dance hall. The garden seats hundreds of people under the trees.',
+     'Next to the beer garden there is a restaurant with Berlin dishes that stays open in winter.'],
+    'Mon – Sat 6:00 PM – midnight, Sun 12:00 – midnight','€€ – beer garden & restaurant'),
+  P('letzteinstanz','Zur letzten Instanz','Mitte','Waisenstraße 14–16, 10179 Berlin',0.5,'de:Zur letzten Instanz',grad('#fdba74','#7c2d12','#1c1917'),
+    'Said to be Berlin\'s oldest restaurant, serving traditional Berlin dishes next to the old city wall.',
+    ['A tavern has stood on this spot since 1621. The name ("At the last instance") comes from the nearby court building.',
+     'Classics on the menu include Eisbein (pork knuckle) and Berliner Leber (liver with apple and onions).'],
+    'Tue – Sun 12:00 – 10:00 PM, closed Mondays','€€ – restaurant'),
 ];
+
+// ---------- Categories, interests, opening hours, dietary tags (EE-43) ----------
+export const CATEGORIES = [['sights','Sights'],['museums','Museums'],['parks','Parks'],['food','Food'],['nightlife','Nightlife']];
+export const CAT_LABEL = Object.fromEntries(CATEGORIES);
+export const DIETS = [['vegan','🌱 Vegan'],['vegetarian','🥕 Vegetarian'],['halal','Halal'],['gluten-free','Gluten-free']];
+export const INTERESTS = [['history','🏛️ History'],['streetart','🎨 Street art'],['food','🍴 Food'],['nightlife','🌙 Nightlife'],
+  ['nature','🌳 Nature'],['museums','🖼️ Museums'],['architecture','🏗️ Architecture'],['shopping','🛍️ Shopping']];
+// Opening hours: a simple weekly schedule. '24/7' = always open; otherwise "Mo-Fr 10:00-20:00; Sa 11:00-20:00"
+// (days Mo Tu We Th Fr Sa Su, ranges may pass midnight: "18:00-02:00", days not listed are closed).
+// Demo data, roughly matching the `hours` text; seasonal hours are simplified to one schedule.
+// [categories, interests, opening hours, dietary tags (food only, indicative)]
+const META = {
+  brandenburg:   [['sights'], ['history','architecture'], '24/7'],
+  reichstag:     [['sights'], ['history','architecture'], 'Mo-Su 08:00-24:00'],
+  eastside:      [['sights'], ['streetart','history'], '24/7'],
+  tvtower:       [['sights'], ['architecture'], 'Mo-Su 10:00-22:00'],
+  museuminsel:   [['museums','sights'], ['museums','history','architecture'], 'Tu-We 10:00-18:00; Th 10:00-20:00; Fr-Su 10:00-18:00'],
+  dom:           [['sights'], ['architecture','history'], 'Mo-Sa 09:00-18:00; Su 12:00-18:00'],
+  checkpoint:    [['sights'], ['history'], '24/7'],
+  memorial:      [['sights'], ['history'], '24/7'],
+  wallmemorial:  [['sights','museums'], ['history'], 'Mo-Su 08:00-22:00'],
+  tempelhof:     [['parks'], ['nature','history'], 'Mo-Su 07:00-19:00'],
+  tiergarten:    [['parks'], ['nature'], '24/7'],
+  gendarmenmarkt:[['sights'], ['architecture'], '24/7'],
+  charlottenburg:[['museums','sights'], ['history','architecture','museums','nature'], 'Tu-Su 10:00-17:30'],
+  mauerpark:     [['parks','nightlife'], ['nature','streetart','shopping'], '24/7'],
+  kadewe:        [['sights'], ['shopping','food'], 'Mo-Sa 10:00-20:00'],
+  potsdamer:     [['sights','nightlife'], ['architecture'], '24/7'],
+  oberbaum:      [['sights'], ['architecture','history'], '24/7'],
+  zoo:           [['parks'], ['nature'], 'Mo-Su 09:00-17:00'],
+  hackesche:     [['sights','nightlife'], ['architecture','shopping','nightlife'], 'Mo-Su 08:00-22:00'],
+  curry36:       [['food','nightlife'], ['food','nightlife'], 'Mo-Su 10:00-02:00', ['vegetarian']],
+  mustafas:      [['food'], ['food'], 'Mo-Su 10:00-02:00', ['vegetarian','halal']],
+  konnopke:      [['food'], ['food','history'], 'Mo-Fr 10:00-20:00; Sa 11:00-20:00', ['vegan','vegetarian']],
+  markthalle:    [['food'], ['food','shopping','architecture'], 'Mo-We 12:00-18:00; Th 12:00-22:00; Fr-Sa 12:00-18:00', ['vegan','vegetarian','halal','gluten-free']],
+  einstein:      [['food'], ['food','architecture'], 'Mo-Su 08:00-24:00', ['vegetarian']],
+  burgermeister: [['food','nightlife'], ['food','nightlife'], 'Mo-Su 11:00-02:00', ['vegan','vegetarian']],
+  prater:        [['food','nightlife'], ['food','nightlife','history'], 'Mo-Sa 18:00-24:00; Su 12:00-24:00', ['vegetarian']],
+  letzteinstanz: [['food'], ['food','history'], 'Tu-Su 12:00-22:00', ['gluten-free']],
+};
 // Free-licensed photos from Wikimedia Commons (lead images of each place's Wikipedia article)
 export const PHOTOS = {
   brandenburg: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a6/Brandenburger_Tor_abends.jpg/960px-Brandenburger_Tor_abends.jpg',
@@ -119,8 +200,35 @@ export const PHOTOS = {
   oberbaum: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9c/Oberbaumbr%C3%BCcke_mit_U-Bahn.jpg/960px-Oberbaumbr%C3%BCcke_mit_U-Bahn.jpg',
   zoo: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/89/Berlin_Elefantentor_09-2017.jpg/960px-Berlin_Elefantentor_09-2017.jpg',
   hackesche: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Hackesche_h%C3%B6fe_berlin.jpg/960px-Hackesche_h%C3%B6fe_berlin.jpg',
+  // food places: free-licensed photos from Wikimedia Commons (CC BY-SA / CC0)
+  curry36: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7f/Berlin-Curry_36.jpg/960px-Berlin-Curry_36.jpg',
+  mustafas: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/Berlin_-_Mustafa%27s_Gem%C3%BCse-Kebap_neu.jpg/960px-Berlin_-_Mustafa%27s_Gem%C3%BCse-Kebap_neu.jpg',
+  konnopke: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6d/Konnopke_Imbiss_2014_1.jpg/960px-Konnopke_Imbiss_2014_1.jpg',
+  markthalle: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Berlin%2C_Kreuzberg%2C_Eisenbahnstrasse_42-43%2C_Markthalle_IX.jpg/960px-Berlin%2C_Kreuzberg%2C_Eisenbahnstrasse_42-43%2C_Markthalle_IX.jpg',
+  einstein: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/TiergartenKurf%C3%BCrstenstra%C3%9FeCafeEinstein.jpg/960px-TiergartenKurf%C3%BCrstenstra%C3%9FeCafeEinstein.jpg',
+  burgermeister: 'https://upload.wikimedia.org/wikipedia/commons/4/4e/Burgermeister-Schlesisches-Tor_zugeschnitten.jpg',
+  prater: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/Pratergarten_Berlin_Kastanienallee.JPG/960px-Pratergarten_Berlin_Kastanienallee.JPG',
+  letzteinstanz: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/Zur_letzten_Instanz_Restaurant_Berlin_2026-09-29.jpg/960px-Zur_letzten_Instanz_Restaurant_Berlin_2026-09-29.jpg',
 };
-PLACES.forEach(p => { p.img = PHOTOS[p.id]; });
+const DAYS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+// "Mo-Fr 10:00-20:00; Sa 11:00-20:00" → 7 lists (index 0 = Sunday) of [from, to] minutes; `to` > 1440 = past midnight
+export function parseHours(spec) {
+  const week = DAYS.map(() => []);
+  if (spec === '24/7') return DAYS.map(() => [[0, 1440]]);
+  spec.split(';').forEach(part => {
+    const [days, range] = part.trim().split(/\s+/);
+    const [a, b = a] = days.split('-').map(d => DAYS.indexOf(d));
+    let [from, to] = range.split('-').map(toMin);
+    if (to <= from) to += 1440;
+    for (let i = a; ; i = (i + 1) % 7) { week[i].push([from, to]); if (i === b) break; }
+  });
+  return week;
+}
+PLACES.forEach(p => {
+  const [cats, tags, oh, diet] = META[p.id];
+  Object.assign(p, {img: PHOTOS[p.id], cats, tags, oh, week: parseHours(oh), diet: diet || []});
+});
 export const byId = id => PLACES.find(p => p.id === id);
 export const POPULAR = ['brandenburg','tvtower','eastside','museuminsel'];
 export const RECENT = ['reichstag','tempelhof','hackesche'];

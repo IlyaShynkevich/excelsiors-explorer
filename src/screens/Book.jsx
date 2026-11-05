@@ -91,7 +91,8 @@ function TaxiForm() {
   const t = ui.tx;
   const set = (k, x) => { t[k] = x; emit(); };
   const opts = <>{EXTRA_SPOTS.map(([id, n]) => <option key={id} value={id}>{n}</option>)}
-    <optgroup label="Berlin sights">{PLACES.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</optgroup></>;
+    <optgroup label="Berlin sights">{PLACES.filter(p => !p.cats.includes('food')).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</optgroup>
+    <optgroup label="Food & drink">{PLACES.filter(p => p.cats.includes('food')).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</optgroup></>;
   const same = t.from === t.to, km = same ? 0 : roadKm(t.from, t.to), mins = Math.round(km * 2.6 + 4);
   const when = w => {
     t.when = w;

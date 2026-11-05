@@ -5,7 +5,9 @@ import { upcomingMeetups } from '../state/meetups.js';
 import { go, goBack, openBooking, openMeetups, TABS } from '../hooks/useHashRouter.js';
 import { byId } from '../data/places.js';
 import { bg } from '../lib/format.js';
+import { isOpenNow } from '../lib/hours.js';
 import { BackButton } from '../components/AppBar.jsx';
+import { DietTags } from '../components/PlaceMeta.jsx';
 
 export function PlaceDetail() {
   const p = byId(ui.detailId);
@@ -20,7 +22,10 @@ export function PlaceDetail() {
 
 function Body({ p }) {
   const isSaved = user.saved.includes(p.id), isVisited = user.visited.includes(p.id);
-  const n = upcomingMeetups().filter(m => m.placeId === p.id).length;
+  const n = upcomingMeetups().filter(m => m.placeId === p.id).length, open = isOpenNow(p);
+  // wiki: "Title" (English Wikipedia), "de:Title" (German) or '' (no article)
+  const [lang, title] = p.wiki.startsWith('de:') ? ['de', p.wiki.slice(3)] : ['en', p.wiki];
+  const wiki = title && `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g,'_'))}`;
   return (<>
     <div className="hero" style={{background: bg(p)}}></div>
     <div className="detail">
@@ -29,10 +34,11 @@ function Body({ p }) {
       <h3>About</h3>
       {p.about.map((t, i) => <p key={i}>{t}</p>)}
       <h3>Visitor Information</h3>
-      <div className="info"><span className="ico">◷</span>{p.hours}</div>
+      <div className="info"><span className="ico">◷</span><span>{p.hours}<br /><span className={'oc ' + (open ? 'is-open' : 'is-closed')}>{open ? 'Open now' : 'Closed now'}</span></span></div>
       <div className="info"><span className="ico">€</span>{p.fee}</div>
       <p className="note">Opening hours and prices can change. Check the official website before you go.</p>
-      <a className="wiki" href={`https://en.wikipedia.org/wiki/${encodeURIComponent(p.wiki.replace(/ /g,'_'))}`} target="_blank" rel="noopener">More info on Wikipedia ↗</a>
+      {p.diet.length > 0 && <><h3>Dietary options</h3><DietTags p={p} note /></>}
+      {wiki && <a className="wiki" href={wiki} target="_blank" rel="noopener">{lang === 'de' ? 'More info on Wikipedia (German) ↗' : 'More info on Wikipedia ↗'}</a>}
       <p className="note">Photo: Wikimedia Commons (free licence)</p>
       <div className="btns">
         <button className="btn" id="checkBtn" disabled={isVisited} onClick={() => checkIn(p.id)}>{isVisited ? '✓ Visited' : '📍 Check in here'}</button>

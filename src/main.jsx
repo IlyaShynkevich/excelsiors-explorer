@@ -6,6 +6,7 @@ import './styles/screens.css';
 import './styles/booking.css';
 import './styles/sheet.css';
 import './styles/meetups-chat.css';
+import './styles/explore.css';
 import { App } from './App.jsx';
 
 // The Lego avatar picture is used through a CSS variable (.av-lego)

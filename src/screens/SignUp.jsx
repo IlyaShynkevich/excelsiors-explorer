@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef } from 'react';
 import { ui, emit, toast } from '../state/appStore.js';
 import { signUp } from '../state/userData.js';
-import { go } from '../hooks/useHashRouter.js';
+import { go, enterApp } from '../hooks/useHashRouter.js';
 import { useFieldMessages, checkName, checkEmail, checkPw } from '../hooks/useFieldMessages.js';
 import { FieldMsg } from '../components/FieldMsg.jsx';
 import { AppBar } from '../components/AppBar.jsx';
@@ -30,7 +30,7 @@ export function SignUp() {
     const err = signUp({name, email, pw});
     if (err) { fm.setMsg('suEmail', err); return refs.current.suEmail.focus(); }
     ui.signup = {name: '', email: '', pw: '', show: false};
-    go('home', {replace:true});
+    enterApp();
     toast(`Welcome, ${name}! 🎉 Personalise your profile any time.`);
   };
   const eye = () => { f.show = !f.show; emit(); };

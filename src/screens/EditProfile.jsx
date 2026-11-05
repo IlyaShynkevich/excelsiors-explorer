@@ -8,6 +8,8 @@ import { CITIES } from '../data/booking.js';
 import { AppBar } from '../components/AppBar.jsx';
 import { AvatarImg } from '../components/Avatar.jsx';
 import { FieldMsg } from '../components/FieldMsg.jsx';
+import { FilterChips } from '../components/FilterChips.jsx';
+import { INTERESTS } from '../data/places.js';
 
 export function EditProfile() {
   const [v, setV] = useState(getProfile);   // the form starts from the saved profile every time the screen opens
@@ -18,6 +20,7 @@ export function EditProfile() {
     return {className: 'field', id, ref: el => refs.current[id] = el, 'aria-describedby': id + 'Msg', 'aria-invalid': fm.invalid(id),
             value: v[key], onBlur: w.onBlur, onChange: e => { const x = e.target.value; setV(s => ({...s, [key]: x})); if (w.onInput) w.onInput(e); }};
   };
+  const toggleInterest = k => setV(s => ({...s, interests: s.interests.includes(k) ? s.interests.filter(x => x !== k) : [...s.interests, k]}));
   const pickAvatar = id => { setV(s => ({...s, avatar: id})); avBtns.current[id].focus(); };
   const avKeys = e => {   // radio group: arrow keys move the choice
     const d = {ArrowRight:1, ArrowDown:1, ArrowLeft:-1, ArrowUp:-1}[e.key]; if (!d) return;
@@ -32,7 +35,7 @@ export function EditProfile() {
     errs.forEach(([id, m]) => fm.setMsg(id, m));
     const bad = errs.find(([, m]) => m);
     if (bad) return refs.current[bad[0]].focus();
-    saveProfile({name, bio, city, avatar: v.avatar});
+    saveProfile({name, bio, city, avatar: v.avatar, interests: v.interests});
     toast('Profile saved');
     if (canGoBack()) history.back(); else go('profile', {replace:true});
   };
@@ -60,6 +63,9 @@ export function EditProfile() {
           <input {...field('epCity', 'city', checkCity)} list="epCities" maxLength={40} placeholder="Where are you from?" autoComplete="address-level2" />
           <datalist id="epCities">{['Berlin', ...CITIES.map(c => c[1])].map(c => <option key={c} value={c} />)}</datalist>
           <FieldMsg id="epCity" m={fm.msg('epCity')} />
+          <label id="epIntLabel">Interests <span className="cnt">{`${v.interests.length} selected`}</span></label>
+          <FilterChips id="epInterests" label="Interests" wrap options={INTERESTS} value={v.interests} onChange={toggleInterest} />
+          <p className="fmsg">Used for the “For you” suggestions on Home. Pick 3 or more for the best results.</p>
           <button className="btn" type="submit">Save Changes</button>
         </form>
         <p className="demo">Demo: your profile is only stored in this browser.</p>

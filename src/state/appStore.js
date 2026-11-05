@@ -17,7 +17,8 @@ export const ui = {
   login: {email: '', pw: '', err: ''},
   signup: {name: '', email: '', pw: '', show: false},
   homeQ: '', exploreQ: '', chatDraft: '',
-};
+  // Explore filters (EE-43) + list/map view; `sel` = place previewed on the map
+  ex: {cats: [], open: false, diet: [], view: 'list', sel: ''},};
 
 let version = 0;
 const listeners = new Set();

@@ -8,4 +8,5 @@ export const AVATARS = [
   {id:'pretzel',  label:'Pretzel',  e:'🥨', c:'#ff3b30'},
   {id:'globe',    label:'Globe',    e:'🌍', c:'#0b7a2b'},
 ];
-export const DEFAULT_PROFILE = {name:'Lego Traveler', bio:'Just a guy', city:'', avatar:'lego'};
+// interests: ids from INTERESTS (data/places.js); onboarded: the "What do you like?" screen was shown
+export const DEFAULT_PROFILE = {name:'Lego Traveler', bio:'Just a guy', city:'', avatar:'lego', interests:[], onboarded:false};

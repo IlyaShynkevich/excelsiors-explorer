@@ -8,7 +8,7 @@ export function PullToRefresh() {
   useEffect(() => {
     const ptr = ref.current; let y0 = null, dy = 0, el = null;
     const start = e => {
-      el = e.target.closest('.scroll');
+      el = e.target.closest('.leaflet-container') ? null : e.target.closest('.scroll');   // dragging the map pans it
       y0 = (el && el.scrollTop <= 0 && !sheetOpen()) ? e.touches[0].clientY : null; dy = 0;
     };
     const move = e => {

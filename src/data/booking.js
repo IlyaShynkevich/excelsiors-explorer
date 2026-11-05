@@ -9,6 +9,8 @@ export const COORDS = {
   wallmemorial:[52.5351,13.3903], tempelhof:[52.4730,13.4039], tiergarten:[52.5145,13.3501], gendarmenmarkt:[52.5137,13.3925],
   charlottenburg:[52.5208,13.2957], mauerpark:[52.5433,13.4022], kadewe:[52.5015,13.3411], potsdamer:[52.5096,13.3760],
   oberbaum:[52.5017,13.4457], zoo:[52.5079,13.3378], hackesche:[52.5246,13.4024],
+  curry36:[52.4935,13.3877], mustafas:[52.4938,13.3881], konnopke:[52.5405,13.4122], markthalle:[52.5022,13.4315],
+  einstein:[52.5021,13.3547], burgermeister:[52.5010,13.4417], prater:[52.5403,13.4094], letzteinstanz:[52.5173,13.4136],
 };
 export const EXTRA_SPOTS = [['alex','📍 Current location (Alexanderplatz)'],['hbf','🚉 Berlin Hauptbahnhof'],['ber','✈️ BER Airport']];
 export const SPOT_LABEL = {alex:'Alexanderplatz', hbf:'Berlin Hauptbahnhof', ber:'BER Airport'};

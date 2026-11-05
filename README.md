@@ -29,9 +29,11 @@ as a working web app that runs in any phone browser.
 | Area | What you can do |
 |------|-----------------|
 | 🔐 **Login & sign-up** | Create an account (name, email, password with at least 8 characters) with friendly inline validation, or use the demo sign-in; you stay logged in after a reload |
-| 🏠 **Home** | Greeting, search, popular sights, recently viewed, quick buttons for flights, taxis and meetups |
-| 🔎 **Explore** | Live search across **19 Berlin places** with real photos, history, addresses, opening hours and prices |
-| 📍 **Place details** | Check in, save the place, find a meetup there, or call a taxi straight to it |
+| 🏠 **Home** | Greeting, search, a **5-day Berlin weather forecast** (live from Open-Meteo; a labelled demo forecast if it can't load) with a "Rainy: try indoor places" hint that opens Explore filtered to museums, **For you** suggestions based on your interests, popular sights, recently viewed, quick buttons for flights, taxis and meetups |
+| 🔎 **Explore** | Live search across **27 Berlin places** (19 sights + 8 well-known food places) with real photos, history, addresses, opening hours and prices. **Filters** (EE-43): categories (Sights, Museums, Parks, Food, Nightlife; pick several), **Open now** (checked against the current time in Berlin), and for Food a **Dietary** row (Vegan, Vegetarian, Halal, Gluten-free; a place must have all selected tags). An empty result offers *Reset filters* |
+| 🗺️ **Map view** | List/Map toggle on Explore: an OpenStreetMap map with a pin for every filtered place. Tap a pin for a preview card with photo, category, open status and *View details*. Without internet the map shows a friendly message and the list keeps working |
+| ✨ **Interests** | After the first sign-up (and once on the first demo login) a "What do you like?" screen: pick at least 3 of History, Street art, Food, Nightlife, Nature, Museums, Architecture, Shopping, or skip. Change them any time in Edit Profile |
+| 📍 **Place details** | Open now / closed now, dietary options for food places, check in, save the place, find a meetup there, or call a taxi straight to it |
 | ✈️ **Flights** | Search flights to and from Berlin BER (14 European cities), choose passengers and class, get a booking reference |
 | 🚕 **Taxi** | Pick-up and destination, Eco / Standard / XL with price estimate, schedule a ride or watch the driver arrive live |
 | 🧾 **My bookings** | All flights and rides with their booking references |
@@ -39,7 +41,7 @@ as a working web app that runs in any phone browser.
 | 💬 **Group chat** | iOS-style chat for each meetup, only for people who joined; other travelers reply automatically (simulated) and messages are kept after a reload |
 | 🔖 **Saved** | Your saved destinations |
 | 🏅 **Achievements** | **17 badges** unlocked by checking in, booking and joining or hosting meetups, a friends leaderboard, side-by-side comparison and a "Flex it" share button |
-| 👤 **Profile** | Edit your display name, a short bio (140 characters), home city and avatar (the Lego picture or 6 emoji avatars). Your name and avatar show up in meetups, the group chat and the leaderboard. Also recent destinations, achievements summary, dark mode, log out and **delete account** |
+| 👤 **Profile** | Edit your display name, a short bio (140 characters), home city, interests and avatar (the Lego picture or 6 emoji avatars). Your name and avatar show up in meetups, the group chat and the leaderboard. Also recent destinations, achievements summary, dark mode, log out and **delete account** |
 
 **Works like an app on the phone:** every screen has its own URL, so reload and the back button work as expected.
 There is also pull-to-refresh, an offline banner, and you can install it via *Add to Home screen*.
@@ -47,7 +49,7 @@ There is also pull-to-refresh, an offline banner, and you can install it via *Ad
 **iOS-style design:** large titles, frosted top and tab bars, grouped settings lists and light/dark mode, tested on phones from 320 to 430 px wide.
 On a laptop the app is shown inside a phone frame; on a real phone it runs full-screen.
 
-> ⚠️ **Demo only.** Accounts and profiles are stored only in your browser (one account per browser, with one profile shared by every login there; don't use a real password). Login, flights, prices, drivers, friends, meetups and the group chat are simulated (there is no backend, nothing is sent to other people). No real bookings or payments are made.
+> ⚠️ **Demo only.** Accounts and profiles are stored only in your browser (one account per browser, with one profile shared by every login there; don't use a real password). Login, flights, prices, drivers, friends, meetups and the group chat are simulated. **Opening hours and dietary tags are demo data**: the hours are simplified weekly schedules, and the dietary tags of the food places are indicative only (always check with the venue). If the live weather can't be loaded, the forecast shown is demo data and is labelled as such (there is no backend, nothing is sent to other people). No real bookings or payments are made.
 
 ## Try it
 
@@ -59,6 +61,7 @@ Profile → **Delete Account** removes the account and everything saved in the b
 
 **Tips for a demo**
 - Profile → **Edit Profile** to pick an avatar, then join a meetup and write in its chat to see it there
+- Explore → tap **Food** and then **Vegan** + **Gluten-free**, or switch to **🗺️ Map** and tap a pin
 - Open a place → **📍 Check in here** to unlock badges
 - Book a flight to Berlin, then tap **🚕 Book a taxi from BER**
 - Home → **👥 Meetups** → join one to unlock the group chat, or tap **+** to host your own
@@ -71,6 +74,8 @@ Profile → **Delete Account** removes the account and everything saved in the b
 - **localStorage** for the account, profile, login state, saved places, badges, bookings, meetups and chat messages (stored per browser)
 - **PWA**: web app manifest and a network-first service worker, so the app can be installed and opens offline
 - **Wikimedia Commons** photos loaded from each place's Wikipedia article
+- **[Leaflet](https://leafletjs.com/)** (npm, loaded only when the map opens) with **[OpenStreetMap](https://www.openstreetmap.org/copyright)** tiles for the map view, no API key
+- **[Open-Meteo](https://open-meteo.com/)** free weather API (no key) for the 5-day Berlin forecast
 - **Vercel** hosting: Vercel detects Vite, runs `npm run build` and serves `dist/`, with no extra config. Every push to `main` goes live
 
 ## Run locally
@@ -108,9 +113,9 @@ excelsiors-explorer/
 │   ├── state/               # user data layer (the only code using localStorage), UI store, app actions
 │   ├── hooks/               # useHashRouter (routes + back button), useFieldMessages (form validation)
 │   ├── components/          # app bar, tab bar, bottom sheets, chat bubble, badge, avatars, cards, chips …
-│   ├── screens/             # one file per screen: Login, SignUp, Home, Explore, PlaceDetail, Saved, Profile,
+│   ├── screens/             # one file per screen: Login, SignUp, Interests, Home, Explore, PlaceDetail, Saved, Profile,
 │   │                        #   EditProfile, Achievements, Book, Meetups, MeetupDetail, MeetupChat
-│   ├── lib/format.js        # date, time and price formatting
+│   ├── lib/                 # format.js (dates, times, prices), hours.js ("open now" in Berlin time)
 │   └── styles/              # the CSS, split by area
 ├── legacy/index.old.html    # the previous single-file version, kept until the migration is signed off
 ├── assets/logo.png          # logo used in this README
@@ -132,3 +137,5 @@ Planning in **Jira** (Kanban board) and design in **Miro**.
 - Place photos: [Wikimedia Commons](https://commons.wikimedia.org/), under free licences (see each file's page for author and licence)
 - Place information is based on Wikipedia and official sources; opening hours and prices may change
 - Taxi prices are rough estimates based on the Berlin taxi tariff
+- Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors, map library [Leaflet](https://leafletjs.com/)
+- Weather data by [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0)

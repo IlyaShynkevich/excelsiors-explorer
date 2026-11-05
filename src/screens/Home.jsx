@@ -1,9 +1,18 @@
 import { ui, emit, closeSheet } from '../state/appStore.js';
 import { getProfile } from '../state/userData.js';
 import { go, openBooking, openMeetups } from '../hooks/useHashRouter.js';
-import { byId, POPULAR, RECENT } from '../data/places.js';
+import { byId, POPULAR, RECENT, PLACES } from '../data/places.js';
 import { AvatarImg } from '../components/Avatar.jsx';
 import { PlaceTile } from '../components/PlaceTile.jsx';
+import { WeatherStrip } from '../components/WeatherStrip.jsx';
+
+// "For you": places matching most of the user's interests first (ties keep the data order); without interests, a mix
+const MIX = ['eastside','museuminsel','tiergarten','markthalle','hackesche','curry36','tempelhof','charlottenburg'];
+function forYou(interests) {
+  if (!interests.length) return MIX.map(byId);
+  return PLACES.map((p, i) => ({p, i, s: p.tags.filter(t => interests.includes(t)).length}))
+    .sort((a, b) => b.s - a.s || a.i - b.i).slice(0, 8).map(x => x.p);
+}
 
 export function Home() {
   const p = getProfile();
@@ -25,6 +34,10 @@ export function Home() {
             <button onClick={() => book('taxi')}><span>🚕</span>Get a taxi</button>
             <button onClick={() => openMeetups('')}><span>👥</span>Meetups</button>
           </div>
+          <WeatherStrip />
+          <div className="sec-row"><h3>For you</h3>{p.interests.length > 0 && <button className="link-btn" onClick={() => go('editProfile')}>Edit interests</button>}</div>
+          {!p.interests.length && <p className="sub fy-hint">Tell us what you like and we'll pick places for you. <a className="link-btn" onClick={() => go('editProfile')}>Choose interests</a></p>}
+          <div className="hscroll" id="forYou">{forYou(p.interests).map(x => <PlaceTile key={x.id} p={x} />)}</div>
           <h3>Popular in Berlin</h3>
           <div className="grid" id="popular">{POPULAR.map(id => <PlaceTile key={id} p={byId(id)} />)}</div>
           <h3>Recently Viewed</h3>
