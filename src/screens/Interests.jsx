@@ -17,14 +17,13 @@ export function Interests() {
   return (
     <section className="screen active" id="interests">
       <AppBar>Excelsior Explorer</AppBar>
-      <button className="appbar-action" id="skipBtn" onClick={() => go('home', {replace:true})}>Skip</button>
       <div className="scroll">
         <h1 className="ltitle">What do you like?</h1>
         <p className="hint">Pick at least {MIN_INTERESTS} interests and we'll suggest places in Berlin for you. You can change them later in Edit Profile.</p>
         <FilterChips id="intChips" label="Interests" wrap options={INTERESTS} value={picked} onChange={toggle} />
         <p className="int-count" aria-live="polite">{left ? `Pick ${left} more` : `✓ ${picked.length} selected`}</p>
         <button className="btn" id="intDone" disabled={!!left} onClick={done}>Continue</button>
-        <button className="btn ghost-link" onClick={() => go('home', {replace:true})}>Skip for now</button>
+        <button className="btn ghost-link" id="skipBtn" onClick={() => go('home', {replace:true})}>Skip for now</button>
       </div>
     </section>
   );

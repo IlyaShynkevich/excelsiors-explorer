@@ -85,7 +85,7 @@ Small iOS-style animations that never get in the way (150–350 ms, only `transf
 
 - **Screens:** going forward slides the new screen in from the right while the old one moves slightly to the left (parallax); the back button or browser back slides it out to the right. Switching tabs is a short cross-fade. Reload and deep links open without an animation.
 - **Sheets and pop-ups:** bottom sheets slide up with a soft spring over a fading backdrop and slide out again when closed. A new badge pops in with a small bounce and a light confetti burst (it still waits until a booking sheet has closed).
-- **Feedback:** buttons and cards shrink slightly while pressed, *Save* and *Check in* pop with a check mark, chips and toggles animate their state, and messages ("toasts") slide in from the top.
+- **Feedback:** buttons and cards shrink slightly while pressed, *Save* and *Check in* pop with a check mark, chips and toggles animate their state, and messages ("toasts") slide in just below the top bar and the large title, so they never cover either.
 - **Lists and photos:** places, meetups, bookings, flights and badges fade and rise in one after the other (the first 8). Photos fade in once loaded, with a soft shimmer until then. Changing a filter lets the list glide to its new layout instead of jumping.
 - **Chat, map and more:** new chat messages pop in from the sender's side, map pins drop in, the pin preview slides up, the active tab icon pops, badge progress bars fill up and the weather days fade in.
 

@@ -49,7 +49,8 @@ body{height:100vh;height:100dvh;max-height:100%;font-family:-apple-system,BlinkM
 .screen{display:none;flex:1;flex-direction:column;min-height:0;position:relative}
 .screen.active{display:flex}
 .scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:var(--s4) var(--gr) calc(var(--safe-b) + var(--s6)) var(--gl)}
-.appbar + .scroll{padding-top:calc(var(--safe-t) + var(--bar-h) + var(--s2))}
+/* `~`, not `+`: still matches when a screen puts another element between the bar and the scroll area */
+.appbar ~ .scroll{padding-top:calc(var(--safe-t) + var(--bar-h) + var(--s2))}
 /* tab screens: room for the floating tab bar */
 #home .scroll,#explore .scroll,#book .scroll,#saved .scroll,#profile .scroll{padding-bottom:calc(var(--tab-total) + var(--s6))}  button{font:inherit;cursor:pointer;border:none;background:none;color:inherit;touch-action:manipulation}
 input,select,textarea{font:inherit;color:var(--text)}
@@ -66,11 +67,11 @@ h1,h2,h3,h4{letter-spacing:-.015em;line-height:1.2}
 /* press feedback (only transform and colours animate; box-shadow changes at once) */
 .btn,.card,.tile,.saved-item,.recent-row,.bk-tile,.quick button,.fl,.ride,.lb-row,.badge-cell,.ach-card,.avatar,.swap,
 .stepper button,nav button,.rp-item,.appbar .back,.seg button,.tabs button,.pill,.chips button,.chat-link,.wx-hint,.add-btn,.send,
-.mc-x,.appbar-action,.link-btn{transition:transform var(--dur-fast) var(--ease-out),background-color var(--dur-base),color var(--dur-base)}
+.mc-x,.link-btn{transition:transform var(--dur-fast) var(--ease-out),background-color var(--dur-base),color var(--dur-base)}
 .btn:active:not(:disabled),.card:active,.tile:active,.saved-item:active,.recent-row:active,.bk-tile:active,.quick button:active,
 .fl:active,.ride:active,.lb-row:active,.badge-cell:active,.ach-card:active,.avatar:active,.swap:active,.stepper button:active,
 nav button:active,.rp-item:active,.appbar .back:active,.chips button:active,.chat-link:active,.wx-hint:active,.add-btn:active,
-.mc-x:active,.appbar-action:active,.link-btn:active{transform:scale(var(--press))}
+.mc-x:active,.link-btn:active{transform:scale(var(--press))}
 
 /* compact top bar (frosted) */
 .appbar{position:absolute;top:0;left:0;right:0;z-index:5;height:calc(var(--safe-t) + var(--bar-h));

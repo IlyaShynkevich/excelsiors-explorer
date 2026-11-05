@@ -31,7 +31,7 @@ function Badges() {
       const e = isEarned(b.id), [p, t] = b.goal(user);
       return <button className="badge-cell" key={b.id} onClick={() => openSheet('badge', {b})}><Badge b={b} earned={e} /><b>{b.name}</b><small>{e ? 'Earned' : `${p} / ${t}`}</small></button>;
     })}</div>
-    <p className="alt" style={{marginTop: 'var(--s6)'}}><a id="resetAch" onClick={resetProgress}>Reset progress (demo)</a></p>
+    <p className="alt" style={{marginTop: 'var(--s6)'}}><button type="button" id="resetAch" onClick={resetProgress}>Reset progress (demo)</button></p>
   </>);
 }
 

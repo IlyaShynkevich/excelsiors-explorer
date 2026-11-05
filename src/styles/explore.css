@@ -7,7 +7,7 @@
 .diet-note{margin:0 0 var(--s2)}
 .chips.wrap{flex-wrap:wrap;overflow:visible;margin:0 0 var(--s3);padding:2px 0}
 .count-row{display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
-.link-btn{color:var(--link);font-weight:600;font-size:var(--fs-foot);cursor:pointer;min-height:32px;display:inline-flex;align-items:center}
+.link-btn{color:var(--accent);font-weight:600;font-size:var(--fs-foot);cursor:pointer;min-height:32px;display:inline-flex;align-items:center}
 .pmeta{display:flex;flex-wrap:wrap;gap:var(--s1) var(--s2);font-size:var(--fs-cap);color:var(--muted);margin-bottom:var(--s1)}
 .oc{font-size:var(--fs-cap);font-weight:600;white-space:nowrap}
 .oc::before{content:"●";margin-right:3px;font-size:.8em;vertical-align:1px}
@@ -80,13 +80,11 @@ body.dark .demo-tag{color:#fbbf24;background:rgba(251,191,36,.16)}
 .panel .fy-hint{margin:calc(-1 * var(--s2)) 0 var(--s3)}
 
 /* ---------- Onboarding interests ---------- */
-.appbar-action{position:absolute;top:var(--safe-t);right:calc(var(--gr) - var(--s2));z-index:6;height:var(--bar-h);padding:0 var(--s2);
-               color:var(--accent);font-weight:600;font-size:var(--fs-sub)}
 #interests .chips.wrap{gap:var(--s2) var(--s2)}
 #interests .chips button,#editProfile .chips button{min-height:var(--tap)}
 #interests .scroll > *{max-width:400px;margin-inline:auto}
 .int-count{font-size:var(--fs-foot);color:var(--muted);margin:var(--s2) 0 var(--s4)}
-.btn.ghost-link{background:none;color:var(--link);margin-top:var(--s2)}
+.btn.ghost-link{background:none;color:var(--accent);margin-top:var(--s2)}
 .btn.ghost-link:active:not(:disabled){background:var(--fill)}
 /* scrollIntoView (map preview) stops above the floating tab bar */
 #explore .scroll{scroll-padding-bottom:calc(var(--tab-total) + var(--s3))}

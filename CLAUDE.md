@@ -62,6 +62,10 @@ Mobile-first travel app demo for Berlin: explore sights, save places, check in f
 
 ## Style
 - Brand green `#0b7a2b`, max width 480px, iOS look; centred phone frame on desktop (min-width 601px).
+- Text buttons (actions inside the app: Skip, Reset filters, Sign In, Show password …) are green `var(--accent)`, e.g. `.link-btn`,
+  `.btn.ghost-link`, `.alt button`. `var(--link)` blue is only for real web links that leave the app (Wikipedia, map attribution).
+  Use `<button>` for actions, never `<a>` without `href`.
+- The toast sits below the top bar and the large-title row (`.toast` in `screens.css`), so it never covers a title.
 
 ## Motion
 - Tokens in `base.css` `:root`: `--ease-out` (default), `--ease-in` (leaving), `--ease-in-out` (cross-fades), `--ease-spring` (pops),

@@ -120,7 +120,9 @@
 .rp-item small{display:block;font-size:var(--fs-cap);color:var(--muted);margin-top:var(--s1)}
 #profile .hscroll{margin-bottom:var(--s5)}
 .pf-home{margin-top:var(--s1)}
-.toast{position:fixed;left:50%;top:calc(var(--safe-t) + var(--s2));transform:translate(-50%,calc(-100% - var(--s4) - var(--safe-t)));max-width:calc(100% - var(--s6));
+/* toast: below the top bar and below the row of a large title (.ltitle: margin-top --s1, line-height 1.1), so it never covers either */
+.toast{position:fixed;left:50%;top:calc(var(--safe-t) + var(--bar-h) + var(--s2) + var(--s1) + var(--fs-large) * 1.1 + var(--s2));
+       transform:translate(-50%,calc(-50% - var(--s2)));max-width:calc(100% - var(--s6));
        background:rgba(28,28,30,.92);color:#fff;padding:var(--s3) var(--s4);border-radius:var(--r-lg);font-size:var(--fs-foot);text-align:center;
        -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:var(--sh-2);opacity:0;pointer-events:none;z-index:30}
 .toast.show{opacity:1;transform:translateX(-50%)}

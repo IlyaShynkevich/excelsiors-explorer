@@ -36,7 +36,7 @@ export function Home() {
           </div>
           <WeatherStrip />
           <div className="sec-row"><h3>For you</h3>{p.interests.length > 0 && <button className="link-btn" onClick={() => go('editProfile')}>Edit interests</button>}</div>
-          {!p.interests.length && <p className="sub fy-hint">Tell us what you like and we'll pick places for you. <a className="link-btn" onClick={() => go('editProfile')}>Choose interests</a></p>}
+          {!p.interests.length && <p className="sub fy-hint">Tell us what you like and we'll pick places for you. <button className="link-btn" onClick={() => go('editProfile')}>Choose interests</button></p>}
           <div className="hscroll" id="forYou">{forYou(p.interests).map(x => <PlaceTile key={x.id} p={x} />)}</div>
           <h3>Popular in Berlin</h3>
           <div className="grid" id="popular">{POPULAR.map(id => <PlaceTile key={id} p={byId(id)} />)}</div>

@@ -29,7 +29,7 @@ export function Login() {
           <div className="err" id="loginErr" role="alert" style={f.err ? {display: 'block'} : undefined}>{f.err || 'Please enter a valid email and password.'}</div>
           <button className="btn" type="submit">Sign In</button>
         </form>
-        <p className="alt">No account? <a onClick={() => go('signup')}>Create account</a></p>
+        <p className="alt">No account? <button type="button" onClick={() => go('signup')}>Create account</button></p>
         <p className="demo" id="loginDemo">{u ? 'Demo: sign in with the account created in this browser, or with any other email and password.'
                                               : 'Demo: sign in with any email and password, or create an account.'}</p>
       </div>

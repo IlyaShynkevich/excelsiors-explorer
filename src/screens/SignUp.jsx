@@ -56,7 +56,7 @@ export function SignUp() {
           <FieldMsg id="suPw" m={fm.msg('suPw')} />
           <button className="btn" type="submit">Create Account</button>
         </form>
-        <p className="alt">Already have an account? <a onClick={() => go('login')}>Sign In</a></p>
+        <p className="alt">Already have an account? <button type="button" onClick={() => go('login')}>Sign In</button></p>
         <p className="demo">Demo: your account is only stored in this browser. Please don't use a real password.</p>
       </div>
     </section>
