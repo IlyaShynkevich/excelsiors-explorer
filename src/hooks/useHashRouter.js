@@ -8,6 +8,7 @@ import { lastRoute } from '../state/storage.js';
 import { byId } from '../data/places.js';
 import { stopRide } from '../state/booking.js';
 import { byMeetup, joinedM } from '../state/meetups.js';
+import { navStart } from '../lib/motion.js';
 
 export const TABS = ['home','explore','book','saved','profile'];
 const SCREENS = ['login','signup','home','explore','book','saved','profile','editProfile','achievements','detail','meetups','meetup','chat','interests'];
@@ -27,14 +28,26 @@ function setHash(h, replace) {
   } catch (e) {}
 }
 export const canGoBack = () => navIdx > 0;
-// Back buttons: browser back while there is app history, otherwise go to the fallback screen.
-export const goBack = fallback => canGoBack() ? history.back() : fallback();
+// Back buttons: browser back while there is app history, otherwise go to the fallback screen
+// (that still looks like going back).
+let hint = '', popDir = '';
+export const goBack = fallback => { if (canGoBack()) return history.back(); hint = 'back'; fallback(); };
+
+// Which screen transition to show (see lib/motion.js)
+function navDir(from, to, opts) {
+  const h = hint, p = popDir; hint = popDir = '';
+  if (from === to) return 'none';
+  if (TABS.includes(from) && TABS.includes(to)) return 'tab';
+  if (opts.fromHistory) return p || 'fade';
+  return h || (opts.replace ? 'fade' : 'forward');
+}
 
 export function go(name, opts = {}) {
   if (!SCREENS.includes(name)) { name = 'home'; opts.fromHistory = false; opts.replace = true; }
   if (!PUBLIC.includes(name) && !loggedIn()) { name = 'login'; opts.fromHistory = false; opts.replace = true; }
   if (PUBLIC.includes(name) && loggedIn()) { name = 'home'; opts.fromHistory = false; opts.replace = true; }
   if (name === 'detail' && ui.current !== 'detail') ui.prev = ui.current;
+  navStart(navDir(ui.current, name, opts));
   if (!opts.fromHistory) setHash(hashFor(name), opts.replace || ui.current === name);
   ui.current = name;
   ui.navSeq++;
@@ -97,7 +110,7 @@ function route() {
 // Shows the screen for the current URL on start and follows the browser back/forward buttons.
 export function useHashRouter() {
   useLayoutEffect(() => {
-    const onPop = e => { navIdx = (e.state && e.state.i) || 0; route(); };
+    const onPop = e => { const i = (e.state && e.state.i) || 0; popDir = i < navIdx ? 'back' : 'forward'; navIdx = i; route(); };
     window.addEventListener('popstate', onPop);
     route();
     return () => window.removeEventListener('popstate', onPop);

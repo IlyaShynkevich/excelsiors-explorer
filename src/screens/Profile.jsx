@@ -5,7 +5,8 @@ import { upcomingMeetups, joinedM } from '../state/meetups.js';
 import { go, openDetail, openMeetups } from '../hooks/useHashRouter.js';
 import { BADGES, FRIENDS } from '../data/badges.js';
 import { byId } from '../data/places.js';
-import { bg, niceDate } from '../lib/format.js';
+import { niceDate } from '../lib/format.js';
+import { Photo } from '../components/Photo.jsx';
 import { AppBar } from '../components/AppBar.jsx';
 import { AvatarImg } from '../components/Avatar.jsx';
 import { Badge } from '../components/Badge.jsx';
@@ -54,7 +55,7 @@ export function Profile() {
         <div className="hscroll" id="recentProfile">
           {RECENT_DEST.map(([id, when]) => { const pl = byId(id); return (
             <button className="rp-item" key={id} onClick={() => openDetail(id)}>
-              <div className="tile" style={{background: bg(pl, true)}}>{pl.name}</div>
+              <Photo className="tile" p={pl} shade>{pl.name}</Photo>
               <small>{when}</small>
             </button>); })}
         </div>

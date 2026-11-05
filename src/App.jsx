@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect } from 'react';
 import { ui, useStore, toast, closeSheet, sheetOpen } from './state/appStore.js';
 import { user } from './state/userData.js';
-import { useHashRouter } from './hooks/useHashRouter.js';
+import { useHashRouter, TABS } from './hooks/useHashRouter.js';
+import { navPlay, motionReady } from './lib/motion.js';
 import { TabBar } from './components/TabBar.jsx';
 import { Toast } from './components/Toast.jsx';
 import { BottomSheet } from './components/BottomSheet.jsx';
@@ -31,6 +32,8 @@ const SCREENS = {
 export function App() {
   useStore();
   useHashRouter();
+  // screen transition: the new screen is in the DOM now, before the browser paints
+  useLayoutEffect(() => navPlay(TABS.includes(ui.current)), [ui.navSeq]);
   useLayoutEffect(() => {   // dark mode: body class + browser bar colour
     document.body.classList.toggle('dark', user.dark);
     document.querySelector('meta[name=theme-color]').content = user.dark ? '#121614' : '#0b7a2b';
@@ -43,6 +46,7 @@ export function App() {
     window.addEventListener('offline', setOnline);
     document.addEventListener('keydown', keys);
     setOnline();
+    motionReady();   // screen transitions from now on (not on the first screen after a reload)
     // Keyboard: Android resizes the page (interactive-widget=resizes-content); iOS only shrinks the
     // visual viewport, so there the chat is pinned to the visible area and the input stays above the keyboard.
     const vv = window.visualViewport;
@@ -67,6 +71,8 @@ export function App() {
       {/* a new key on every navigation: the screen starts fresh (scrolled to the top), like before */}
       <Screen key={ui.navSeq} />
       <TabBar current={ui.current} />
+      {/* copy of the previous screen while it animates out (filled by lib/motion.js, never by React) */}
+      <div id="navfx" aria-hidden="true"></div>
     </div>
     <Toast toast={ui.toast} />
     <PullToRefresh />

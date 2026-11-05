@@ -7,7 +7,12 @@ import './styles/booking.css';
 import './styles/sheet.css';
 import './styles/meetups-chat.css';
 import './styles/explore.css';
+import './styles/motion.css';
 import { App } from './App.jsx';
+
+// Test switch for reduced motion: open the app with ?motion=reduce (e.g. /?motion=reduce#home) and it behaves
+// like the OS "Reduce motion" setting is on (styles/motion.css, lib/motion.js).
+if (new URLSearchParams(location.search).get('motion') === 'reduce') document.documentElement.classList.add('reduce-motion');
 
 // The Lego avatar picture is used through a CSS variable (.av-lego)
 document.documentElement.style.setProperty('--lego', `url("${lego}")`);

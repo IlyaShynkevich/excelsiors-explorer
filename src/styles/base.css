@@ -20,7 +20,15 @@
   --fs-large:clamp(28px,8.5vw,34px); --fs-title1:clamp(22px,6.6vw,28px); --fs-title2:clamp(20px,5.8vw,22px);
   --fs-title3:clamp(18px,5.2vw,20px); --fs-headline:clamp(16px,4.5vw,17px); --fs-body:clamp(15px,4.3vw,17px);
   --fs-sub:clamp(14px,3.9vw,15px); --fs-foot:clamp(12px,3.5vw,13px); --fs-cap:clamp(11px,3.1vw,12px);
-  --ease:cubic-bezier(.32,.72,0,1);
+  /* motion: every animation and transition uses these (see motion.css) */
+  --ease-out:cubic-bezier(.32,.72,0,1);          /* iOS-like deceleration: screens, lists, most things */
+  --ease-in:cubic-bezier(.4,0,1,1);              /* leaving: sheets and toasts going away */
+  --ease-in-out:cubic-bezier(.65,0,.35,1);       /* cross-fades */
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);    /* small pops with a bounce: badges, buttons, pins */
+  --ease-spring-soft:cubic-bezier(.22,1.18,.36,1); /* gentle overshoot: sheets, toast, chat bubbles */
+  --dur-fast:150ms; --dur-base:250ms; --dur-slow:350ms; --stagger:30ms;
+  --press:.97;                                   /* scale while pressed */
+  --ease:var(--ease-out);                        /* older name, same curve */
 }
 body.dark{
   --bg:#0b0d0c; --card:#1b1e1c; --surface:#1b1e1c; --fill:rgba(118,118,128,.24); --fill-2:rgba(118,118,128,.36);
@@ -35,7 +43,7 @@ html{height:100%;background:var(--bg);-webkit-text-size-adjust:100%;text-size-ad
    Android, 100dvh can be taller than the window (system nav bar), which pushed the end of every screen out of view. */
 body{height:100vh;height:100dvh;max-height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",Inter,Roboto,"Segoe UI",system-ui,sans-serif;
      font-size:var(--fs-body);line-height:1.4;background:var(--bg);color:var(--text);position:relative;overflow:hidden;
-     -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;transition:background-color .3s,color .3s}
+     -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;transition:background-color var(--dur-slow),color var(--dur-slow)}
 #app{height:100%;display:flex;flex-direction:column;position:relative;overflow:hidden}
 #root{display:contents}   /* React mount point: #app keeps the full height of body */
 .screen{display:none;flex:1;flex-direction:column;min-height:0;position:relative}
@@ -55,12 +63,14 @@ h1,h2,h3,h4{letter-spacing:-.015em;line-height:1.2}
 }
 @media (min-width:601px) and (prefers-color-scheme:dark){ html{background:#151617} }
 
-/* press feedback */
+/* press feedback (only transform and colours animate; box-shadow changes at once) */
 .btn,.card,.tile,.saved-item,.recent-row,.bk-tile,.quick button,.fl,.ride,.lb-row,.badge-cell,.ach-card,.avatar,.swap,
-.stepper button,nav button,.rp-item,.appbar .back,.seg button,.tabs button{transition:transform .12s ease-out,background-color .2s,box-shadow .2s,color .2s}
+.stepper button,nav button,.rp-item,.appbar .back,.seg button,.tabs button,.pill,.chips button,.chat-link,.wx-hint,.add-btn,.send,
+.mc-x,.appbar-action,.link-btn{transition:transform var(--dur-fast) var(--ease-out),background-color var(--dur-base),color var(--dur-base)}
 .btn:active:not(:disabled),.card:active,.tile:active,.saved-item:active,.recent-row:active,.bk-tile:active,.quick button:active,
 .fl:active,.ride:active,.lb-row:active,.badge-cell:active,.ach-card:active,.avatar:active,.swap:active,.stepper button:active,
-nav button:active,.rp-item:active,.appbar .back:active{transform:scale(.97)}
+nav button:active,.rp-item:active,.appbar .back:active,.chips button:active,.chat-link:active,.wx-hint:active,.add-btn:active,
+.mc-x:active,.appbar-action:active,.link-btn:active{transform:scale(var(--press))}
 
 /* compact top bar (frosted) */
 .appbar{position:absolute;top:0;left:0;right:0;z-index:5;height:calc(var(--safe-t) + var(--bar-h));

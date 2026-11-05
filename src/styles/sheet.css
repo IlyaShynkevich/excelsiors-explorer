@@ -1,11 +1,12 @@
 /* bottom sheet */
-.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end;justify-content:center;z-index:20;animation:fade .3s ease-out}
+/* the dimmed background is .sheet-bg::before, so it can fade on its own (motion.css) */
+.sheet-bg{position:fixed;inset:0;display:none;align-items:flex-end;justify-content:center;z-index:20}
+.sheet-bg::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.4)}
 .sheet-bg.show{display:flex}
-@keyframes fade{from{opacity:0}}
-.sheet{position:relative;background:var(--card);width:100%;border-radius:var(--r-lg) var(--r-lg) 0 0;box-shadow:var(--sh-2);
-       padding:var(--s6) var(--gr) calc(var(--safe-b) + var(--s5)) var(--gl);max-height:88%;overflow-y:auto;animation:up .45s var(--ease)}
+/* 2nd shadow: card colour below the sheet, so the spring overshoot never shows a gap at the bottom */
+.sheet{position:relative;background:var(--card);width:100%;border-radius:var(--r-lg) var(--r-lg) 0 0;box-shadow:var(--sh-2),0 80px 0 0 var(--card);
+       padding:var(--s6) var(--gr) calc(var(--safe-b) + var(--s5)) var(--gl);max-height:88%;overflow-y:auto}
 .sheet::before{content:"";position:absolute;top:var(--s2);left:50%;width:36px;height:5px;margin-left:-18px;border-radius:3px;background:var(--fill-2)}
-@keyframes up{from{transform:translateY(100%)}}
 .sheet .badge{width:100px;height:100px;font-size:50px;margin:0 auto var(--s3)}
 .sheet .kicker{text-align:center;color:var(--accent);font-weight:700;font-size:var(--fs-cap);letter-spacing:.08em;text-transform:uppercase;margin-bottom:var(--s1)}
 .sheet h3{text-align:center;font-size:var(--fs-title2);font-weight:700}
@@ -14,8 +15,6 @@
 .btn.ghost{background:var(--fill);color:var(--accent)}
 .btn.danger,.btn.danger:active:not(:disabled){background:var(--danger-fill)}
 .sheet p b{color:var(--text);overflow-wrap:anywhere}
-.pop{animation:pop .55s var(--ease)}
-@keyframes pop{0%{transform:scale(.3) rotate(-20deg)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
 .vs{display:flex;justify-content:space-around;align-items:center;margin:var(--s2) 0 var(--s4);text-align:center}
 .vs .s{font-size:30px;font-weight:800;color:var(--accent)}
 .vs small{font-size:var(--fs-cap);color:var(--muted)}
@@ -27,11 +26,7 @@
 .cmp-head .n{flex:1;padding-left:42px}
 .cmp-head .c{width:48px;text-align:center}
 
-/* accessibility preferences */
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
-  .btn:active,.card:active,.tile:active{transform:none}
-}
+/* accessibility preferences (reduced motion: see the end of motion.css) */
 @media (prefers-reduced-transparency:reduce){
   :root{--mat:#f9f9fb;--panel:#fff} body.dark{--mat:#161817;--panel:#181b19}
 }

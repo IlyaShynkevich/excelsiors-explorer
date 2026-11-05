@@ -40,7 +40,8 @@ export function closeSheet(silent) {
   const wasOpen = ui.sheet.open;
   ui.sheet = {...ui.sheet, open: false}; emit();
   if (silent === true) { if (wasOpen) sheetQueue = []; return; }
-  if (sheetQueue.length) setTimeout(() => showUnlock(sheetQueue.shift()), 250);
+  // the next unlock opens once the closed sheet has slid out (--dur-base, 250 ms)
+  if (sheetQueue.length) setTimeout(() => showUnlock(sheetQueue.shift()), 280);
 }
 export function queueUnlocks(list) { sheetQueue = list.slice(1); showUnlock(list[0]); }
 export const queuePush = list => sheetQueue.push(...list);

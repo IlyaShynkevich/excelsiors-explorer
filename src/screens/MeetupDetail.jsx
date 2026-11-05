@@ -2,7 +2,8 @@ import { ui, toast, openSheet } from '../state/appStore.js';
 import { byMeetup, going, person, isMine, joinedM, chatOf } from '../state/meetups.js';
 import { openChat, openDetail } from '../hooks/useHashRouter.js';
 import { byId } from '../data/places.js';
-import { bg, whenText } from '../lib/format.js';
+import { whenText } from '../lib/format.js';
+import { Photo } from '../components/Photo.jsx';
 import { AppBar } from '../components/AppBar.jsx';
 import { Pav } from '../components/Avatar.jsx';
 import { JoinButton } from '../components/MeetupCard.jsx';
@@ -21,7 +22,7 @@ function Body({ m }) {
   const p = byId(m.placeId), g = going(m), host = person(m.host), j = joinedM(m);
   const last = j ? chatOf(m).slice(-1)[0] : null;
   return (<>
-    <div className="hero" style={{background: bg(p)}}></div>
+    <Photo className="hero" p={p} />
     <div className="detail">
       <h2>{m.title}</h2>
       <div className="loc"><span className="ico">➤</span><span><a className="plink" onClick={() => openDetail(p.id)}>{p.name}</a><br />{p.addr}</span></div>

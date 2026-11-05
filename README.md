@@ -47,6 +47,7 @@ as a working web app that runs in any phone browser.
 There is also pull-to-refresh, an offline banner, and you can install it via *Add to Home screen*.
 
 **iOS-style design:** large titles, frosted top and tab bars, grouped settings lists and light/dark mode, tested on phones from 320 to 430 px wide.
+Short, smooth animations throughout (see [Motion](#motion)), turned off with the system's *Reduce motion* setting.
 On a laptop the app is shown inside a phone frame; on a real phone it runs full-screen.
 
 > ⚠️ **Demo only.** Accounts and profiles are stored only in your browser (one account per browser, with one profile shared by every login there; don't use a real password). Login, flights, prices, drivers, friends, meetups and the group chat are simulated. **Opening hours and dietary tags are demo data**: the hours are simplified weekly schedules, and the dietary tags of the food places are indicative only (always check with the venue). If the live weather can't be loaded, the forecast shown is demo data and is labelled as such (there is no backend, nothing is sent to other people). No real bookings or payments are made.
@@ -77,6 +78,18 @@ Profile → **Delete Account** removes the account and everything saved in the b
 - **[Leaflet](https://leafletjs.com/)** (npm, loaded only when the map opens) with **[OpenStreetMap](https://www.openstreetmap.org/copyright)** tiles for the map view, no API key
 - **[Open-Meteo](https://open-meteo.com/)** free weather API (no key) for the 5-day Berlin forecast
 - **Vercel** hosting: Vercel detects Vite, runs `npm run build` and serves `dist/`, with no extra config. Every push to `main` goes live
+
+## Motion
+
+Small iOS-style animations that never get in the way (150–350 ms, only `transform` and `opacity`, pure CSS, no animation library):
+
+- **Screens:** going forward slides the new screen in from the right while the old one moves slightly to the left (parallax); the back button or browser back slides it out to the right. Switching tabs is a short cross-fade. Reload and deep links open without an animation.
+- **Sheets and pop-ups:** bottom sheets slide up with a soft spring over a fading backdrop and slide out again when closed. A new badge pops in with a small bounce and a light confetti burst (it still waits until a booking sheet has closed).
+- **Feedback:** buttons and cards shrink slightly while pressed, *Save* and *Check in* pop with a check mark, chips and toggles animate their state, and messages ("toasts") slide in from the top.
+- **Lists and photos:** places, meetups, bookings, flights and badges fade and rise in one after the other (the first 8). Photos fade in once loaded, with a soft shimmer until then. Changing a filter lets the list glide to its new layout instead of jumping.
+- **Chat, map and more:** new chat messages pop in from the sender's side, map pins drop in, the pin preview slides up, the active tab icon pops, badge progress bars fill up and the weather days fade in.
+
+**Reduced motion:** with *Reduce motion* turned on in the phone or computer settings, everything changes instantly: no sliding, parallax or confetti (only the chat's typing dots still pulse softly). To try it without changing your settings, open the app with `?motion=reduce`, e.g. <https://excelsiors-explorer.vercel.app/?motion=reduce>, or in Chrome DevTools use *Rendering → Emulate CSS media feature prefers-reduced-motion*.
 
 ## Run locally
 
@@ -111,12 +124,12 @@ excelsiors-explorer/
 │   ├── assets/              # logo, home background, Lego avatar picture
 │   ├── data/                # demo data: places + photos, badges + friends, meetups + chats, flights/taxi, avatars
 │   ├── state/               # user data layer (the only code using localStorage), UI store, app actions
-│   ├── hooks/               # useHashRouter (routes + back button), useFieldMessages (form validation)
+│   ├── hooks/               # useHashRouter (routes + back button), useFieldMessages (form validation), useFlip (list animation)
 │   ├── components/          # app bar, tab bar, bottom sheets, chat bubble, badge, avatars, cards, chips …
 │   ├── screens/             # one file per screen: Login, SignUp, Interests, Home, Explore, PlaceDetail, Saved, Profile,
 │   │                        #   EditProfile, Achievements, Book, Meetups, MeetupDetail, MeetupChat
-│   ├── lib/                 # format.js (dates, times, prices), hours.js ("open now" in Berlin time)
-│   └── styles/              # the CSS, split by area
+│   ├── lib/                 # format.js (dates, times, prices), hours.js ("open now" in Berlin time), motion.js (screen transitions)
+│   └── styles/              # the CSS, split by area (motion.css: all animations)
 ├── legacy/index.old.html    # the previous single-file version, kept until the migration is signed off
 ├── assets/logo.png          # logo used in this README
 └── README.md

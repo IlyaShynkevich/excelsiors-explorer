@@ -1,8 +1,41 @@
+import { useEffect } from 'react';
 import { closeSheet, toast } from '../../state/appStore.js';
 import { user, ME, isEarned, myBadges } from '../../state/userData.js';
 import { BADGES } from '../../data/badges.js';
 import { Badge } from '../Badge.jsx';
 import { avNode } from '../Avatar.jsx';
+import { reducedMotion } from '../../lib/motion.js';
+
+// A light confetti burst from the unlocked badge: ~20 plain DOM pieces in the sheet layer, removed afterwards.
+// Off with reduced motion.
+const COLORS = ['#0b7a2b', '#3cc46a', '#facc15', '#0a84ff', '#ff2d55', '#ff9500'];
+function burst() {
+  const host = document.getElementById('sheet'), badge = host && host.querySelector('.badge.pop');
+  if (!badge || reducedMotion()) return null;
+  const h = host.getBoundingClientRect(), r = badge.getBoundingClientRect();
+  const box = document.createElement('div');
+  box.className = 'confetti';
+  box.setAttribute('aria-hidden', 'true');
+  box.style.left = (r.left + r.width / 2 - h.left) + 'px';
+  box.style.top = (r.top + r.height / 2 - h.top) + 'px';
+  for (let i = 0; i < 20; i++) {
+    const a = (i / 20) * Math.PI * 2 + Math.random() * .3, d = 60 + Math.random() * 70, el = document.createElement('i');
+    el.style.cssText = `--x:${Math.cos(a) * d | 0}px;--y:${(Math.sin(a) * d * .8 - 20) | 0}px;--r:${(Math.random() * 540 - 270) | 0}deg;`
+      + `--d:${Math.random() * 80 | 0}ms;background:${COLORS[i % COLORS.length]}`;
+    box.append(el);
+  }
+  host.append(box);
+  return box;
+}
+function Confetti() {
+  useEffect(() => {
+    let box = null;
+    const t = setTimeout(() => { box = burst(); }, 220);        // when the badge pops (after the sheet slid up)
+    const t2 = setTimeout(() => { if (box) box.remove(); }, 900);
+    return () => { clearTimeout(t); clearTimeout(t2); if (box) box.remove(); };
+  }, []);
+  return null;
+}
 
 async function flex(b) {
   const text = `I just earned the "${b.name}" ${b.icon} badge on Excelsior Explorer! ${myBadges().length}/${BADGES.length} badges collected. Can you beat me?`;
@@ -15,6 +48,7 @@ async function flex(b) {
 export function UnlockSheet({ b }) {
   return (<>
     <Badge b={b} earned cls="pop" />
+    <Confetti />
     <div className="kicker">🎉 Badge unlocked</div>
     <h3>{b.name}</h3>
     <p>{b.desc}<br />{`Only ${b.rarity}% of travelers have this badge.`}</p>

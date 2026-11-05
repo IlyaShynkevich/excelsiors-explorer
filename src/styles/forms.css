@@ -7,7 +7,7 @@ h1.brand{color:var(--accent);text-align:center;font-size:var(--fs-title1);font-w
 label{display:block;font-size:var(--fs-foot);font-weight:600;margin-bottom:var(--s2)}
 .field{display:block;width:100%;min-width:0;height:var(--field-h);border:1px solid var(--border);border-radius:var(--r-sm);padding:0 var(--s3);
        background:var(--card);margin-bottom:var(--s4);outline:none;font-size:max(16px,var(--fs-body));-webkit-appearance:none;appearance:none;
-       transition:border-color .2s,box-shadow .2s}
+       transition:border-color var(--dur-base)}
 .field:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(11,122,43,.18)}
 .btn{width:100%;min-height:var(--field-h);padding:0 var(--s4);border-radius:var(--r);background:var(--green);color:#fff;font-weight:600;
      font-size:var(--fs-body);display:flex;align-items:center;justify-content:center;gap:var(--s2);text-align:center}
@@ -35,7 +35,7 @@ label{display:block;font-size:var(--fs-foot);font-weight:600;margin-bottom:var(-
 .av-lego{background:var(--lego) center/cover no-repeat}
 .av-pick{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s4) var(--s3);justify-items:center;margin:0 0 var(--s5)}
 .av-pick button{width:clamp(52px,15vw,60px);height:clamp(52px,15vw,60px);border-radius:50%;padding:0;font-size:clamp(24px,7vw,28px);
-                box-shadow:0 0 0 3px var(--bg),0 0 0 5px transparent;transition:box-shadow .2s,transform .12s ease-out}
+                box-shadow:0 0 0 3px var(--bg),0 0 0 5px transparent;transition:transform var(--dur-fast) var(--ease-out)}
 .av-pick button[aria-checked=true]{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--accent)}
-.av-pick button:active{transform:scale(.94)}
+.av-pick button:active{transform:scale(var(--press))}
 .av-pick button:focus-visible{outline:2px solid var(--link);outline-offset:6px}

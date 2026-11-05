@@ -27,7 +27,7 @@ function Badges() {
     <div className="ach-head"><div className="big">{n}<span style={{fontSize: '18px', color: 'var(--muted)'}}>{` / ${BADGES.length}`}</span></div>
       <small className="muted">badges collected · check in at places to earn more</small></div>
     <div className="bar"><i style={{width: `${n / BADGES.length * 100}%`}}></i></div>
-    <div className="badge-grid">{BADGES.map(b => {
+    <div className="badge-grid stagger">{BADGES.map(b => {
       const e = isEarned(b.id), [p, t] = b.goal(user);
       return <button className="badge-cell" key={b.id} onClick={() => openSheet('badge', {b})}><Badge b={b} earned={e} /><b>{b.name}</b><small>{e ? 'Earned' : `${p} / ${t}`}</small></button>;
     })}</div>
@@ -39,12 +39,12 @@ const medal = i => ['🥇','🥈','🥉'][i] || (i + 1);
 function Leaderboard() {
   return (<>
     <p className="hint">Friends ranked by badges collected. Tap someone to compare.</p>
-    {leaderboard().map((r, i) => (
+    <div className="stagger">{leaderboard().map((r, i) => (
       <button className={`lb-row ${r.me ? 'me' : ''}`} key={r.me ? 'me' : r.idx} onClick={r.me ? undefined : () => openSheet('compare', {f: r})}>
         <span className="lb-pos">{medal(i)}</span><span className="lb-av">{r.me ? avNode(ME) : r.av}</span>
         <span className="nm"><b>{r.name + (r.me ? ' (you)' : '')}</b><small>{r.badges.map(id => byBadge(id).icon).join(' ') || 'No badges yet'}</small></span>
         <span className="lb-score">{r.badges.length}</span>
       </button>
-    ))}
+    ))}</div>
   </>);
 }

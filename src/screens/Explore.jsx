@@ -1,21 +1,25 @@
+import { useRef } from 'react';
 import { ui, emit } from '../state/appStore.js';
 import { exploreList, filtersOn, toggleCat, toggleDiet, toggleOpen, setView, selectPin, resetFilters } from '../state/explore.js';
 import { CATEGORIES, DIETS } from '../data/places.js';
 import { openDetail } from '../hooks/useHashRouter.js';
-import { bg } from '../lib/format.js';
 import { isOpenNow } from '../lib/hours.js';
 import { AppBar } from '../components/AppBar.jsx';
 import { FilterChips } from '../components/FilterChips.jsx';
 import { PlaceMeta, DietTags } from '../components/PlaceMeta.jsx';
 import { PlaceMap } from '../components/PlaceMap.jsx';
+import { Photo } from '../components/Photo.jsx';
+import { useFlip } from '../hooks/useFlip.js';
 
 export function Explore() {
   const term = ui.exploreQ.trim().toLowerCase(), ex = ui.ex, list = exploreList();
-  const food = ex.cats.includes('food');
+  const food = ex.cats.includes('food'), box = useRef(null);
+  // filter / search changes: the list glides to its new layout instead of jumping
+  useFlip(box, '.count-row, #results > .card, .map-wrap, .empty', list.map(p => p.id).join() + '|' + food + ex.view);
   return (
     <section className="screen active" id="explore">
       <AppBar>Excelsior Explorer</AppBar>
-      <div className="scroll">
+      <div className="scroll" ref={box}>
         <h1 className="ltitle">Explore</h1>
         <input className="search" id="exploreSearch" placeholder="Search destinations..." type="search" value={ui.exploreQ}
                onChange={e => { ui.exploreQ = e.target.value; ui.ex.sel = ''; emit(); }} />
@@ -38,9 +42,9 @@ export function Explore() {
         </div>
         {!list.length ? <Empty term={term} />
           : ex.view === 'map' ? <PlaceMap places={list} sel={ex.sel} onSelect={selectPin} onShowList={() => setView('list')} />
-          : <div id="results">{list.map(p => (
+          : <div id="results" className="stagger">{list.map(p => (
               <button className="card" key={p.id} onClick={() => openDetail(p.id)}>
-                <div className="img" style={{background: bg(p)}}></div>
+                <Photo className="img" p={p} />
                 <div className="body">
                   {p.km ? <span className="km">{p.km + ' km'}</span> : null}
                   <h4>{`${p.name}, ${p.area}`}</h4>

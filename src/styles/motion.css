@@ -1,0 +1,139 @@
+/* ---------- Motion ----------
+   Tokens (--ease-*, --dur-*, --stagger, --press) live in base.css :root; new UI reuses them.
+   Rules: only transform and opacity move, 150–350 ms (looping indicators like the shimmer and the
+   typing dots excepted), nothing blocks taps. Reduced motion: see the end of this file. */
+
+@keyframes fade-in{from{opacity:0}}
+@keyframes fade-out{to{opacity:0}}
+@keyframes rise-in{from{opacity:0;transform:translateY(12px)}}
+
+/* ---------- screen transitions (lib/motion.js) ----------
+   #navfx holds a static copy of the previous screen (.nav-ghost). forward: the new screen slides in from
+   the right over it, the copy moves a bit to the left and dims (parallax); back: the copy slides out to
+   the right over the new screen; tab / fade: the copy fades out. */
+.screen{z-index:1}   /* own layer, so its top bar stays inside it while screens overlap */
+#navfx{position:absolute;inset:0;z-index:0;pointer-events:none}
+#navfx.over{z-index:7}   /* above the tab bar */
+.nav-ghost{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.nav-ghost *,.nav-ghost *::before,.nav-ghost *::after{animation:none !important;transition:none !important}
+.nav-ghost::after,.screen.in-back::after,nav.in-back::after{content:"";position:absolute;inset:0;z-index:10;background:#000;opacity:0;pointer-events:none}
+.nav-ghost.out-forward{animation:nav-under-out var(--dur-slow) var(--ease-out) forwards}
+.nav-ghost.out-forward::after{animation:dim-in var(--dur-slow) var(--ease-out) forwards}
+.nav-ghost.out-back{animation:nav-out-right var(--dur-slow) var(--ease-out) forwards}
+.nav-ghost.out-tab{animation:fade-out var(--dur-fast) var(--ease-in-out) forwards}
+.nav-ghost.out-fade{animation:fade-out var(--dur-base) var(--ease-in-out) forwards}
+.screen.in-forward{background:var(--bg)}
+.screen.in-forward,nav.in-forward{animation:nav-in-right var(--dur-slow) var(--ease-out)}
+.screen.in-back,nav.in-back{animation:nav-under-in var(--dur-slow) var(--ease-out)}
+.screen.in-back::after,nav.in-back::after{animation:dim-out var(--dur-slow) var(--ease-out)}
+.in-forward,.in-back,.nav-ghost{will-change:transform}
+@keyframes nav-in-right{from{transform:translateX(100%)}}
+@keyframes nav-out-right{to{transform:translateX(100%)}}
+@keyframes nav-under-out{to{transform:translateX(-30%)}}
+@keyframes nav-under-in{from{transform:translateX(-30%)}}
+@keyframes dim-in{to{opacity:.12}}
+@keyframes dim-out{from{opacity:.12}}
+
+/* Booking hub ↔ flight / taxi steps, Achievements tabs: the new content fades up */
+#bookBody,#achBody > *{animation:rise-in var(--dur-base) var(--ease-out) backwards}
+
+/* ---------- bottom sheets ---------- */
+.sheet-bg.show::before{animation:fade-in var(--dur-slow) var(--ease-out)}
+.sheet-bg.show .sheet{animation:sheet-up var(--dur-slow) var(--ease-spring-soft)}
+.sheet-bg.closing{pointer-events:none}   /* no double taps on a sheet that is going away */
+.sheet-bg.closing::before{animation:fade-out var(--dur-base) var(--ease-in) forwards}
+.sheet-bg.closing .sheet{animation:sheet-down var(--dur-base) var(--ease-in) forwards}
+.sheet-in{animation:fade-in var(--dur-fast) var(--ease-out)}   /* new content in an open sheet (flight → confirmed) */
+@keyframes sheet-up{from{transform:translateY(100%)}}
+@keyframes sheet-down{to{transform:translateY(100%)}}
+
+/* badge unlock: the badge pops in with a bounce, then a light confetti burst (BadgeSheets.jsx) */
+.pop{animation:badge-pop var(--dur-slow) var(--ease-spring) 120ms backwards}
+@keyframes badge-pop{from{opacity:0;transform:scale(.3) rotate(-20deg)}}
+.confetti{position:absolute;width:0;height:0;z-index:2;pointer-events:none}
+.confetti i{position:absolute;left:-4px;top:-3px;width:8px;height:6px;border-radius:2px;opacity:0;
+            animation:confetti var(--dur-slow) var(--ease-out) var(--d,0ms) forwards}
+@keyframes confetti{
+  0%{opacity:1;transform:translate(0,0) rotate(0) scale(.5)}
+  70%{opacity:1}
+  100%{opacity:0;transform:translate(var(--x),var(--y)) rotate(var(--r)) scale(1)}
+}
+
+/* ---------- feedback ---------- */
+/* Save / Check in: the button pops and the check mark scales in (PlaceDetail.jsx .bump) */
+.btn.bump{animation:btn-pop var(--dur-slow) var(--ease-spring)}
+.btn .ck{display:inline-block}
+.btn.bump .ck{animation:check-in var(--dur-slow) var(--ease-spring) 60ms backwards}
+@keyframes btn-pop{from{transform:scale(.94)}}
+@keyframes check-in{from{opacity:0;transform:scale(0) rotate(-45deg)}}
+.chips button,.seg button,.tabs button{transition:transform var(--dur-fast) var(--ease-out),background-color var(--dur-fast),color var(--dur-fast)}
+/* toast: slides down from the top, fades out */
+.toast{transition:opacity var(--dur-base) var(--ease-in),transform 0s linear var(--dur-base)}
+.toast.show{transition:opacity var(--dur-fast) linear,transform var(--dur-slow) var(--ease-spring-soft)}
+
+/* ---------- lists and photos ---------- */
+/* list items fade and rise in one after the other; from the 9th on without delay */
+.stagger > *{animation:rise-in var(--dur-base) var(--ease-out) backwards}
+.stagger > :nth-child(2){animation-delay:calc(var(--stagger) * 1)}
+.stagger > :nth-child(3){animation-delay:calc(var(--stagger) * 2)}
+.stagger > :nth-child(4){animation-delay:calc(var(--stagger) * 3)}
+.stagger > :nth-child(5){animation-delay:calc(var(--stagger) * 4)}
+.stagger > :nth-child(6){animation-delay:calc(var(--stagger) * 5)}
+.stagger > :nth-child(7){animation-delay:calc(var(--stagger) * 6)}
+.stagger > :nth-child(8){animation-delay:calc(var(--stagger) * 7)}
+.diet-row,.map-wrap,.empty{animation:fade-in var(--dur-base) var(--ease-out)}
+
+/* place photos (Photo.jsx): the gradient is the element's own background, the photo is ::before and
+   fades in once loaded; until then a soft shimmer (::after) sweeps over the gradient */
+.photo{position:relative;isolation:isolate;overflow:hidden}
+.photo::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--photo);opacity:0;transition:opacity var(--dur-slow) var(--ease-out)}
+.photo.ph-loaded::before{opacity:1}
+.photo.ph-loading::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(100deg,transparent 25%,rgba(255,255,255,.22) 50%,transparent 75%);animation:shimmer 1.3s ease-in-out infinite}
+@keyframes shimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+
+/* ---------- chat ---------- */
+/* a new message pops in from its sender's side (yours from the right) */
+.msg.new .b{animation:bub-in var(--dur-base) var(--ease-spring-soft) backwards;transform-origin:0 100%}
+.msg.me.new .b{transform-origin:100% 100%;--bub-x:12px}
+@keyframes bub-in{from{opacity:0;transform:translateX(var(--bub-x,-12px)) scale(.6)}}
+
+/* ---------- map ---------- */
+.ex-pin span{animation:pin-drop var(--dur-slow) var(--ease-spring) var(--d,0ms) backwards}
+@keyframes pin-drop{from{opacity:0;transform:translateY(-22px) rotate(-45deg) scale(.7)}}
+.map-card{animation:card-up var(--dur-base) var(--ease-spring-soft)}
+@keyframes card-up{from{opacity:0;transform:translateY(24px)}}
+
+/* ---------- progress and misc ---------- */
+nav button.active svg{animation:tab-pop var(--dur-slow) var(--ease-spring)}
+@keyframes tab-pop{from{transform:scale(.78)}}
+/* badge progress bars grow from 0 to their value when they appear */
+.bar i{transform-origin:0 50%;animation:bar-fill var(--dur-slow) var(--ease-out) 100ms backwards}
+@keyframes bar-fill{from{transform:scaleX(0)}}
+.wx-days:not(.loading) .wx-day{animation:rise-in var(--dur-base) var(--ease-out) backwards}
+.wx-days:not(.loading) .wx-day:nth-child(2){animation-delay:calc(var(--stagger) * 1)}
+.wx-days:not(.loading) .wx-day:nth-child(3){animation-delay:calc(var(--stagger) * 2)}
+.wx-days:not(.loading) .wx-day:nth-child(4){animation-delay:calc(var(--stagger) * 3)}
+.wx-days:not(.loading) .wx-day:nth-child(5){animation-delay:calc(var(--stagger) * 4)}
+
+/* ---------- reduced motion ----------
+   The OS setting, or ?motion=reduce in the URL to test it (main.jsx). Everything is instant: no slides,
+   no parallax, no confetti (lib/motion.js and the confetti also check it). Only the typing dots and
+   the weather placeholder keep a soft opacity pulse, so you can still see something is happening. */
+@media (prefers-reduced-motion:reduce){
+  :root{--press:1}
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;animation-delay:0s !important;
+                       transition-duration:.01ms !important;transition-delay:0s !important;scroll-behavior:auto !important}
+  .confetti,.photo.ph-loading::after{display:none}
+  .b.typing i,.wx-days.loading i{animation:soft-pulse 1.2s ease-in-out infinite alternate !important}
+  .b.typing i:nth-child(2){animation-delay:.2s !important}
+  .b.typing i:nth-child(3){animation-delay:.4s !important}
+}
+:root.reduce-motion{--press:1}
+.reduce-motion *,.reduce-motion *::before,.reduce-motion *::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;animation-delay:0s !important;
+                     transition-duration:.01ms !important;transition-delay:0s !important;scroll-behavior:auto !important}
+.reduce-motion .confetti,.reduce-motion .photo.ph-loading::after{display:none}
+.reduce-motion .b.typing i,.reduce-motion .wx-days.loading i{animation:soft-pulse 1.2s ease-in-out infinite alternate !important}
+.reduce-motion .b.typing i:nth-child(2){animation-delay:.2s !important}
+.reduce-motion .b.typing i:nth-child(3){animation-delay:.4s !important}
+@keyframes soft-pulse{from{opacity:1}to{opacity:.3}}

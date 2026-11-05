@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { COORDS } from '../data/booking.js';
 import { byId } from '../data/places.js';
 import { openDetail } from '../hooks/useHashRouter.js';
-import { bg } from '../lib/format.js';
+import { Photo } from './Photo.jsx';
+import { reducedMotion } from '../lib/motion.js';
 import { isOpenNow } from '../lib/hours.js';
 import { PlaceMeta } from './PlaceMeta.jsx';
 
@@ -48,8 +49,10 @@ export function PlaceMap({ places, sel, onSelect, onShowList }) {
     if (!map) return;
     layer.clearLayers(); m.current.markers = {};
     const pts = places.filter(p => COORDS[p.id]);
-    pts.forEach(p => {
-      const icon = L.divIcon({className: 'ex-pin', html: `<span><i>${pinFor(p)}</i></span>`, iconSize: [34, 34], iconAnchor: [17, 41]});
+    const still = reducedMotion();
+    pts.forEach((p, i) => {
+      const d = still || i >= 8 ? 0 : i * 30;   // pins drop in (motion.css), the first 8 one after the other
+      const icon = L.divIcon({className: 'ex-pin', html: `<span style="--d:${d}ms"><i>${pinFor(p)}</i></span>`, iconSize: [34, 34], iconAnchor: [17, 41]});
       const mk = L.marker(COORDS[p.id], {icon, title: p.name, alt: p.name, keyboard: true, riseOnHover: true})
         .on('click', () => onSelect(p.id)).addTo(layer);
       m.current.markers[p.id] = mk;
@@ -82,8 +85,8 @@ export function PlaceMap({ places, sel, onSelect, onShowList }) {
         </div>
       )}
       {p && (
-        <div className="map-card" ref={card} role="dialog" aria-label={p.name}>
-          <div className="thumb" style={{background: bg(p)}}></div>
+        <div className="map-card" key={p.id} ref={card} role="dialog" aria-label={p.name}>
+          <Photo className="thumb" p={p} />
           <div className="mc-body">
             <b>{p.name}</b>
             <PlaceMeta p={p} open={isOpenNow(p)} />

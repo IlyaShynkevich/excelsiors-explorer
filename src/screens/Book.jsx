@@ -22,7 +22,7 @@ export function Book() {
       </div>
       <div className="scroll">
         <h1 className="ltitle" id="bookTitle">{TITLES[v]}</h1>
-        <div id="bookBody"><View /></div>
+        <div id="bookBody" key={v}><View /></div>
       </div>
     </section>
   );
@@ -36,11 +36,11 @@ function Hub() {
       <button className="bk-tile" style={{background: 'linear-gradient(145deg,#facc15,#ca8a04)'}} onClick={() => setBookView('taxi')}><span className="em">🚕</span><span><b>Taxi</b><small>Anywhere in Berlin</small></span></button>
     </div>
     <h3 className="sec">My bookings</h3>
-    {list.length ? list.map((b, i) => (
+    {list.length ? <div className="stagger">{list.map((b, i) => (
       <div className="bk-item" key={i}><span className="ic">{b.type === 'flight' ? '✈️' : '🚕'}</span>
         <span className="nm"><b>{b.title}</b><small>{b.sub}</small></span>
         <span className="amt"><b>{fmtEur(b.price)}</b><br /><span className="st">{b.ref}</span></span></div>
-    )) : <p className="hint">No bookings yet. Book a flight to Berlin or grab a taxi to your next sight!</p>}
+    ))}</div> : <p className="hint">No bookings yet. Book a flight to Berlin or grab a taxi to your next sight!</p>}
   </>);
 }
 
@@ -73,7 +73,7 @@ function FlightResults() {
   const f = ui.fl, [A, B] = flightRoute(), res = flightResults(f);
   return (<>
     <p className="hint">{`${A} → ${B} · ${niceDate(f.date)} · ${f.pax} passenger${f.pax > 1 ? 's' : ''} · ${f.cls === 'biz' ? 'Business' : 'Economy'}`}</p>
-    {res.map((r, i) => (
+    <div className="stagger">{res.map((r, i) => (
       <button className="fl" key={i} data-flight={i} onClick={() => openSheet('flight', {r})}>
         <div className="air"><span><b>{r.airline}</b>{' · ' + r.no}</span>{i === 0 && <span className="fl-badge">CHEAPEST</span>}</div>
         <div className="times">
@@ -83,7 +83,7 @@ function FlightResults() {
         </div>
         <div className="price">{fmtEur(r.price * f.pax) + ' '}<small>{f.pax > 1 ? `(${fmtEur(r.price)} p.p.)` : 'total'}</small></div>
       </button>
-    ))}
+    ))}</div>
   </>);
 }
 

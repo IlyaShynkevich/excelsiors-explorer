@@ -1,7 +1,8 @@
 import { going, isMine, joinedM, toggleJoin } from '../state/meetups.js';
 import { openMeetup } from '../hooks/useHashRouter.js';
 import { byId } from '../data/places.js';
-import { bg, whenText } from '../lib/format.js';
+import { whenText } from '../lib/format.js';
+import { Photo } from './Photo.jsx';
 import { AvatarStack } from './Avatar.jsx';
 
 // Join / Leave / Full / Hosting; cls is 'pill' (cards) or 'btn' (meetup page)
@@ -19,7 +20,7 @@ export function MeetupCard({ m }) {
   const open = () => openMeetup(m.id);
   return (
     <div className="card mt-card" role="button" tabIndex={0} onClick={open} onKeyDown={e => { if (e.key === 'Enter' && e.target === e.currentTarget) open(); }}>
-      <div className="img" style={{background: bg(p, true)}}><span className="when">{whenText(m.start)}</span></div>
+      <Photo className="img" p={p} shade><span className="when">{whenText(m.start)}</span></Photo>
       <div className="body">
         <h4>{m.title}</h4>
         <p>{`📍 ${p.name} · ${p.area}`}</p>

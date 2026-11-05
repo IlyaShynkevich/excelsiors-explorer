@@ -12,7 +12,8 @@ Mobile-first travel app demo for Berlin: explore sights, save places, check in f
   body classes `dark`, `is-offline`, `kb-open` (iOS keyboard, `--vvh/--vvt`).
 - `src/screens/`: one file per screen. `src/components/`: shared pieces (AppBar/BackButton, TabBar, BottomSheet + `sheets/`,
   ChatBubble, Badge, Avatar/Pav/AvatarStack, MeetupCard/JoinButton, FilterChips (single or multi-select), Stepper, FieldMsg, PlaceTile,
-  PlaceMeta/DietTags, PlaceMap (Leaflet), WeatherStrip, Toast, PullToRefresh).
+  PlaceMeta/DietTags, PlaceMap (Leaflet), WeatherStrip, Toast, PullToRefresh, Photo (place photo: fades in once loaded, shimmer until then)).
+  Place photos are rendered with `<Photo p={p} [shade] [as="button"]>` (not `style={{background: bg(p)}}`).
 - `src/data/`: demo data constants (`PLACES` incl. 8 food places, `PHOTOS`, `CATEGORIES`, `DIETS`, `INTERESTS`, weather `demoForecast`/`wmo`, `BADGES`, `FRIENDS`, `PEOPLE`, `MEETUPS` + seed chats, `REPLIES`,
   `CITIES`, `AIRLINES`, `RIDES`, `DRIVERS`, `COORDS`, `AVATARS`), the seeded flight generator and `taxiFare`.
 - `src/lib/format.js`: date/time/price helpers and `bg(place)` backgrounds. `src/lib/hours.js`: `isOpenNow(place)` in Berlin time.
@@ -61,6 +62,20 @@ Mobile-first travel app demo for Berlin: explore sights, save places, check in f
 
 ## Style
 - Brand green `#0b7a2b`, max width 480px, iOS look; centred phone frame on desktop (min-width 601px).
+
+## Motion
+- Tokens in `base.css` `:root`: `--ease-out` (default), `--ease-in` (leaving), `--ease-in-out` (cross-fades), `--ease-spring` (pops),
+  `--ease-spring-soft` (sheets, toast, bubbles), `--dur-fast` 150ms / `--dur-base` 250ms / `--dur-slow` 350ms, `--stagger` 30ms, `--press` (.97).
+  **New UI must reuse these tokens** (no raw durations or curves) and only animate `transform`/`opacity` (colours at most; never
+  width/height/top/left, box-shadow or filter). Keep 150–350 ms; nothing may block taps.
+- All animations live in `src/styles/motion.css` (imported last). Shared keyframes: `fade-in`, `fade-out`, `rise-in`.
+  Lists: add `className="stagger"` to the container (first 8 children staggered). Filtered lists: `useFlip(scrollRef, selector, key)`.
+- Screen transitions: `lib/motion.js`. `go()` calls `navStart(dir)` (a static copy of the old screen goes into `#navfx`), App calls
+  `navPlay()` in a layout effect. Direction comes from `navDir()` in the router: tab↔tab = cross-fade, `fromHistory` = back/forward from
+  `navIdx`, `goBack()` fallback = back, `replace` = fade, same screen = none. No transition on the first render (reload / deep link).
+- Sheets: `BottomSheet` keeps the last sheet mounted with `.closing` until it slid out; the unlock queue waits 280 ms after `closeSheet()`.
+- Reduced motion (OS setting or `?motion=reduce` → `html.reduce-motion`): everything instant, no ghost/parallax/confetti/FLIP.
+  JS checks `reducedMotion()` from `lib/motion.js`; the CSS block is at the end of `motion.css`.
 - Must work on phones: test at ~375/390px and at 320px (no horizontal overflow).
 
 ## Demo data
@@ -80,4 +95,6 @@ Mobile-first travel app demo for Berlin: explore sights, save places, check in f
 - `npm run build` must succeed (also catches syntax errors).
 - `npm run preview` and check in a browser / Playwright at 375px and 320px, light and dark: screenshots of the changed screens,
   no console errors, no horizontal overflow, back button and hard reload on the changed routes.
+- Mid-animation screenshots: pause with `document.getAnimations().forEach(a => { a.pause(); a.currentTime = t; })`.
+  Reduced motion: Playwright `reducedMotion: 'reduce'` or `?motion=reduce`.
 - While `legacy/index.old.html` exists, screenshots can be compared against it (serve it with `public/` next to it).

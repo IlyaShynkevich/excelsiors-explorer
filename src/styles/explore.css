@@ -27,7 +27,7 @@
 .map-wrap .leaflet-container{font:inherit;font-size:var(--fs-cap);background:var(--fill)}
 .ex-pin{background:none;border:0}
 .ex-pin span{display:grid;place-items:center;width:34px;height:34px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);background:var(--card);
-          box-shadow:0 0 0 2px var(--green),0 3px 8px rgba(0,0,0,.3);transition:transform .15s,background-color .15s}
+          box-shadow:0 0 0 2px var(--green),0 3px 8px rgba(0,0,0,.3);transition:transform var(--dur-fast) var(--ease-out),background-color var(--dur-fast)}
 .ex-pin span{font-size:16px;line-height:1}
 .ex-pin i{font-style:normal;transform:rotate(45deg)}
 .ex-pin.on span{background:var(--green);transform:rotate(-45deg) scale(1.18)}
@@ -76,7 +76,6 @@ body.dark .demo-tag{color:#fbbf24;background:rgba(251,191,36,.16)}
 .wx-hint b{display:block;font-size:var(--fs-sub);font-weight:600}
 .wx-hint small{display:block;font-size:var(--fs-cap);color:var(--muted)}
 .wx-hint::after{content:"›";font-size:22px;color:var(--muted)}
-.wx-hint:active{transform:scale(.98)}
 .sec-row{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2)}
 .panel .fy-hint{margin:calc(-1 * var(--s2)) 0 var(--s3)}
 
