@@ -2,10 +2,10 @@ import { useRef, useState } from 'react';
 import { ui, emit, toast, openSheet } from '../state/appStore.js';
 import { setBookView, flightRoute, requestTaxi, cancelRide, getBookings, BOOK_PARENT, flightList, setFlightSort, toggleFilter, resetFilters,
          FLIGHT_FILTERS, HOTEL_SORTS, HOTEL_FILTERS, hotelList, hotelOffersFor, hotelNights, hotelCityName, setHotelSort, setHotelDates, openHotel } from '../state/booking.js';
-import { goBack } from '../hooks/useHashRouter.js';
+import { go, goBack, openTripItem } from '../hooks/useHashRouter.js';
 import { useFlip } from '../hooks/useFlip.js';
 import { CITIES, EXTRA_SPOTS, RIDES, roadKm, taxiFare, spotName } from '../data/booking.js';
-import { byHotel, starText, hotelUnits } from '../data/hotels.js';
+import { HOTELS, byHotel, starText, hotelUnits, hotelSpot } from '../data/hotels.js';
 import { PLACES } from '../data/places.js';
 import { fmtEur, hm, dur, niceDate, tomorrow, today, addDays, plural } from '../lib/format.js';
 import { BackButton } from '../components/AppBar.jsx';
@@ -46,12 +46,12 @@ function Hub() {
       <button className="bk-tile" id="hotelTile" style={{background: 'linear-gradient(145deg,#f472b6,#9d174d)'}} onClick={() => setBookView('hotels')}><span className="em">🏨</span><span><b>Hotels</b><small>Compare prices in Berlin</small></span></button>
       <button className="bk-tile wide" style={{background: 'linear-gradient(145deg,#facc15,#ca8a04)'}} onClick={() => setBookView('taxi')}><span className="em">🚕</span><span><b>Taxi</b><small>Anywhere in Berlin</small></span></button>
     </div>
-    <h3 className="sec">My bookings</h3>
+    <div className="sec-row"><h3 className="sec">My bookings</h3><button className="link-btn" id="toTrip" onClick={() => go('trip')}>Trip overview</button></div>
     {list.length ? <div className="stagger" id="myBookings">{list.map(b => (
-      <div className="bk-item" key={b.ref + b.created} data-type={b.type}><span className="ic">{ICONS[b.type]}</span>
+      <button className={'bk-item' + (b.status === 'Cancelled' ? ' cancelled' : '')} key={b.ref + b.created} data-type={b.type} onClick={() => openTripItem(b.ref)}><span className="ic">{ICONS[b.type]}</span>
         <span className="nm"><b>{b.title}</b><small>{b.sub}</small>
           {b.provider && <small className="via">{`via ${b.provider} · ${b.status}`}</small>}</span>
-        <span className="amt"><b>{fmtEur(b.price)}</b><br /><span className="st">{b.ref}</span></span></div>
+        <span className="amt"><b>{fmtEur(b.price)}</b><br /><span className="st">{b.ref}</span></span></button>
     ))}</div> : <p className="hint">No bookings yet. Book a flight to Berlin or grab a taxi to your next sight!</p>}
   </>);
 }
@@ -196,7 +196,8 @@ function TaxiForm() {
   const set = (k, x) => { t[k] = x; emit(); };
   const opts = <>{EXTRA_SPOTS.map(([id, n]) => <option key={id} value={id}>{n}</option>)}
     <optgroup label="Berlin sights">{PLACES.filter(p => !p.cats.includes('food')).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</optgroup>
-    <optgroup label="Food & drink">{PLACES.filter(p => p.cats.includes('food')).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</optgroup></>;
+    <optgroup label="Food & drink">{PLACES.filter(p => p.cats.includes('food')).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</optgroup>
+    <optgroup label="Hotels">{HOTELS.map(h => <option key={h.id} value={hotelSpot(h)}>{h.name}</option>)}</optgroup></>;
   const same = t.from === t.to, km = same ? 0 : roadKm(t.from, t.to), mins = Math.round(km * 2.6 + 4);
   const when = w => {
     t.when = w;

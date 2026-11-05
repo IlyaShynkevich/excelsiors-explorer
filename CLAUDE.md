@@ -2,7 +2,8 @@
 
 ## What this is
 **Excelsiors Explorer**: university semester project (Agile / Design Thinking course), group of 3.
-Mobile-first travel app demo for Berlin: explore sights, save places, check in for badges, book flights, hotels and taxis (comparing fictional providers), join meetups and group chats.
+Mobile-first travel app demo for Berlin: explore sights, save places, check in for badges, book flights, hotels and taxis (comparing fictional providers), join meetups and group chats,
+then see the whole trip in one timeline (change / cancel bookings, weather per day, simulated reminders and directions).
 
 ## Architecture
 - **React 18 + Vite**, plain JavaScript (no TypeScript), no UI libraries, no router library. Don't add any unless explicitly asked.
@@ -20,6 +21,8 @@ Mobile-first travel app demo for Berlin: explore sights, save places, check in f
   Stage 2 "Book": `FLIGHT_PROVIDERS` + `flightOffers(r, f)` (`data/booking.js`), `HOTELS` + `HOTEL_PROVIDERS` + `hotelOffers(h, s)` (`data/hotels.js`).
   Providers are **fictional** (made-up names, never real companies); offers are seeded (`seeded()`), so the same search shows the same prices.
   Hotels: real well-known Berlin hotels with Commons photos, plus 2 fictional ones (`fictional: true`, no photo). `stars: 0` = hostel (price per bed).
+  Each hotel has `ll` [lat, lon]; `hotels.js` registers them as taxi spots `'ht-<id>'` in `COORDS`/`SPOT_LABEL` (`hotelSpot(h)`), so taxis and directions work from/to hotels.
+  Stage 3: `kmBetween(a, b)` (straight line) and `directions(fromSpot, toSpot)` in `data/booking.js` (walk 5 km/h, transit 20 km/h + 8 min, both on km × 1.3; taxi = `taxiFare`).
 - `src/lib/format.js`: date/time/price helpers and `bg(place)` backgrounds. `src/lib/hours.js`: `isOpenNow(place)` in Berlin time.
 - Places: each gets `cats` (Explore categories), `tags` (interests), `oh` (weekly schedule string, `'24/7'` = always open, parsed into `week`)
   and `diet` (food only, indicative) from the `META` table in `places.js`. Coordinates for the map and taxi live in `COORDS` (`data/booking.js`).
@@ -31,7 +34,7 @@ Mobile-first travel app demo for Berlin: explore sights, save places, check in f
 - `src/state/storage.js`: the **only** code that touches localStorage/sessionStorage (`store.get/set/del`, `lastRoute`).
 - `src/state/userData.js`: the user data layer. **All user data goes through these named functions**:
   `getSession/setSession/clearSession`, `getUser/saveUser`, `signIn`, `signUp`, `getProfile/saveProfile`, `deleteUser`,
-  `createBooking/getBookings/getBooking/cancelBooking`,
+  `createBooking/getBookings/getBooking/cancelBooking/updateBooking`, `getReminderSettings/setRemindersOn/setRemindersDemo/markRemindersRead`,
   plus `needsOnboarding/markOnboarded/saveInterests`, `persist()` and `checkUnlocks()`. Data lives in the `user` object, saved under `'ee_berlin'`; the session (email) under `'ee_session'`.
   Keep the keys and data shapes: old saved data (missing fields) must still load with defaults (`freshData()`, `cleanProfile()`).
 - One account per browser. Its email needs the right password; any other email always falls back to the demo login (any password).
@@ -42,18 +45,27 @@ Mobile-first travel app demo for Berlin: explore sights, save places, check in f
 - Bookings (flight, hotel, taxi) share one shape: `{type, ref, status ('Confirmed'|'Cancelled'), provider, price, cheapest, title, sub,
   start, end ('YYYY-MM-DDTHH:MM' local, for a later trip overview), created, details}`; `cleanBooking()` fills defaults for old saved bookings.
   `cheapest` = the cheapest offer in the list was booked (Smart Saver badge).
+  `cancelBooking(ref, {refund, fee})` keeps the booking (status 'Cancelled', price 0) and stores `details.paid/refund/cancelFee`;
+  `updateBooking(ref, changes)` changes provider/price/title/sub/start/end/details of a confirmed booking (`details.changes`, `details.changeFee`).
+- Reminder settings live in `user.reminders = {on, demo, read: [ids]}` (`cleanReminders()` defaults for old data: on, not demo, none read).
 - Actions: `state/booking.js` (`setBookView`, `flightList`, `hotelList`, `bookFlight`, `bookHotel`, `requestTaxi`, `addBooking` → unlock queue), `state/meetups.js` (incl. chat + simulated replies), `state/achievements.js`,
-  `state/explore.js` (search + filters in `ui.ex`, `exploreList()`), `state/weather.js` (Open-Meteo fetch, demo fallback, session-only).
+  `state/explore.js` (search + filters in `ui.ex`, `exploreList()`), `state/weather.js` (Open-Meteo fetch, demo fallback, session-only),
+  `state/trip.js` (Stage 3: `tripItems()/tripDays()` = bookings + joined meetups by day, hotels as check-in + check-out entries; `tripEntry(id)`;
+  `changeQuote(b, v)`/`confirmChange` reuse the flight/hotel generators (same provider if it has an offer), change fee 25/15 € unless free cancellation;
+  `cancelTerms(b)`/`confirmCancel`: free cancellation = full refund, non-refundable = only taxes & fees back, taxi free; `directionsStart()` = hotel of the current/next stay or Alexanderplatz),
+  `state/reminders.js` (`dueReminders()` from the trip: flight −2 h, taxi −15 min, meetup −1 h, hotel −1 day; shown once due on the real clock, or all upcoming in demo mode; id includes the start time).
+  `hooks/useClock.js` re-renders Home/Trip/Reminders every 30 s so reminders appear without navigation.
 - The signed-in user in meetups/chat/leaderboard is the `ME` object (`userData.js`); render avatars with `<AvatarImg>`/`avNode()`.
 - Demo data stays in constants in `src/data/`; never put user data there.
 
 ## Routing
 - Hash routes: `#login`, `#signup`, `#interests`, `#home`, `#explore`, `#book`, `#saved`, `#profile`, `#profile/edit`, `#achievements`,
   `#place/<id>`, `#meetups`, `#meetups/<placeId>`, `#meetup/<id>`, `#meetup/<id>/chat`,
+  `#trip` (timeline), `#trip/<id>` (booking ref, or `m-<meetupId>` for a joined meetup; unknown id → `#trip`), `#reminders`,
   Book steps: `#book/flights`, `#book/flights/results`, `#book/taxi`, `#book/hotels`, `#book/hotels/results`, `#book/hotel/<id>`
   (`#book/ride` and unknown steps open the hub). `setBookView(v)` pushes a step (`go('book', {keepView, push})`), `{replace:true}` after a booking.
   Search forms and filters live in unsaved `ui.fl`/`ui.ht`, so a reload shows the default search.
-- `src/hooks/useHashRouter.js`: `go()`, `openDetail/openMeetups/openMeetup/openChat/openBooking`, `navIdx` + `canGoBack/goBack`
+- `src/hooks/useHashRouter.js`: `go()`, `openDetail/openMeetups/openMeetup/openChat/openBooking/openTripItem`, `navIdx` + `canGoBack/goBack`
   (back buttons use browser back while there is app history), popstate handling. `go('explore', {cats})` opens Explore with category filters. Every `go()` bumps `ui.navSeq`, which remounts the screen.
 - Only `login`/`signup` are reachable while logged out. The chat is only reachable for joined meetups.
 
@@ -80,16 +92,22 @@ Mobile-first travel app demo for Berlin: explore sights, save places, check in f
 - The toast sits below the top bar and the large-title row (`.toast` in `screens.css`), so it never covers a title.
 
 ## Motion
-- Tokens in `base.css` `:root`: `--ease-out` (default), `--ease-in` (leaving), `--ease-in-out` (cross-fades), `--ease-spring` (pops),
-  `--ease-spring-soft` (sheets, toast, bubbles), `--dur-fast` 150ms / `--dur-base` 250ms / `--dur-slow` 350ms, `--stagger` 30ms, `--press` (.97).
+- Tokens in `base.css` `:root` (calmer timing, about 1.5x the first version): `--ease-out` (default), `--ease-in` (leaving), `--ease-in-out` (cross-fades),
+  `--ease-spring` (pops), `--ease-spring-soft` (sheets, toast, bubbles), `--ease-nav` (screen slides: soft start), `--ease-pop` (badge: gentler bounce).
+  Base durations `--dur-fast` 150ms (press feedback, chips) / `--dur-base` 350ms / `--dur-slow` 500ms, `--stagger` 60ms, `--press` (.97).
+  Role durations: `--dur-nav` 480ms (slide forward/back), `--dur-tab` 300ms (tab cross-fade), `--dur-sheet-in` 450ms / `--dur-sheet-out` 350ms,
+  `--dur-pop` 550ms (+180ms delay), `--dur-photo` 400ms, `--dur-flip` 400ms (useFlip), `--dur-confetti` 1300ms, `--dur-toast` 350ms.
   **New UI must reuse these tokens** (no raw durations or curves) and only animate `transform`/`opacity` (colours at most; never
-  width/height/top/left, box-shadow or filter). Keep 150–350 ms; nothing may block taps.
+  width/height/top/left, box-shadow or filter). Keep 150–550 ms (confetti 1.3 s); nothing may block taps.
+  JS timers that wait for an animation read the tokens with `motionMs('sheet-out')` (`lib/motion.js`; 0 with reduced motion), never raw numbers.
 - All animations live in `src/styles/motion.css` (imported last). Shared keyframes: `fade-in`, `fade-out`, `rise-in`.
   Lists: add `className="stagger"` to the container (first 8 children staggered). Filtered lists: `useFlip(scrollRef, selector, key)`.
 - Screen transitions: `lib/motion.js`. `go()` calls `navStart(dir)` (a static copy of the old screen goes into `#navfx`), App calls
   `navPlay()` in a layout effect. Direction comes from `navDir()` in the router: tab↔tab = cross-fade, `fromHistory` = back/forward from
   `navIdx`, `goBack()` fallback = back, `replace` = fade, same screen = none. No transition on the first render (reload / deep link).
-- Sheets: `BottomSheet` keeps the last sheet mounted with `.closing` until it slid out; the unlock queue waits 280 ms after `closeSheet()`.
+- Sheets: `BottomSheet` keeps the last sheet mounted with `.closing` until it slid out, then calls `sheetClosed()` (`appStore.js`):
+  only then (plus a 60 ms pause) the next badge unlock in the queue opens, so a pop-up never cuts a closing sheet short.
+  To show pop-ups after a sheet you close yourself, `queuePush()` them before/after `closeSheet()`.
 - Reduced motion (OS setting or `?motion=reduce` → `html.reduce-motion`): everything instant, no ghost/parallax/confetti/FLIP.
   JS checks `reducedMotion()` from `lib/motion.js`; the CSS block is at the end of `motion.css`.
 - Must work on phones: test at ~375/390px and at 320px (no horizontal overflow).

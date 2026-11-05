@@ -4,7 +4,7 @@ import { user, ME, isEarned, myBadges } from '../../state/userData.js';
 import { BADGES } from '../../data/badges.js';
 import { Badge } from '../Badge.jsx';
 import { avNode } from '../Avatar.jsx';
-import { reducedMotion } from '../../lib/motion.js';
+import { reducedMotion, motionMs } from '../../lib/motion.js';
 
 // A light confetti burst from the unlocked badge: ~20 plain DOM pieces in the sheet layer, removed afterwards.
 // Off with reduced motion.
@@ -30,8 +30,10 @@ function burst() {
 function Confetti() {
   useEffect(() => {
     let box = null;
-    const t = setTimeout(() => { box = burst(); }, 220);        // when the badge pops (after the sheet slid up)
-    const t2 = setTimeout(() => { if (box) box.remove(); }, 900);
+    // when the badge pops (180 ms delay + about half of --dur-pop), removed after --dur-confetti (+ the 80 ms spread)
+    const at = 180 + motionMs('pop') * .45;
+    const t = setTimeout(() => { box = burst(); }, at);
+    const t2 = setTimeout(() => { if (box) box.remove(); }, at + motionMs('confetti') + 150);
     return () => { clearTimeout(t); clearTimeout(t2); if (box) box.remove(); };
   }, []);
   return null;

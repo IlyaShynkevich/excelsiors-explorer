@@ -19,7 +19,7 @@
 
 Excelsiors Explorer helps travellers explore a city and plan their trip in one place.
 Our demo city is **Berlin**: users browse real sights, save favourites, book a flight to BER,
-grab a taxi to the next attraction and unlock badges for the places they visit.
+grab a taxi to the next attraction, see their whole trip day by day and unlock badges for the places they visit.
 
 The app was first designed as a clickable prototype on our Miro board, then implemented
 as a working web app that runs in any phone browser.
@@ -33,11 +33,15 @@ as a working web app that runs in any phone browser.
 | 🔎 **Explore** | Live search across **27 Berlin places** (19 sights + 8 well-known food places) with real photos, history, addresses, opening hours and prices. **Filters** (EE-43): categories (Sights, Museums, Parks, Food, Nightlife; pick several), **Open now** (checked against the current time in Berlin), and for Food a **Dietary** row (Vegan, Vegetarian, Halal, Gluten-free; a place must have all selected tags). An empty result offers *Reset filters* |
 | 🗺️ **Map view** | List/Map toggle on Explore: an OpenStreetMap map with a pin for every filtered place. Tap a pin for a preview card with photo, category, open status and *View details* (also when the map is partly below the bottom of the screen). Without internet the map shows a friendly message and the list keeps working |
 | ✨ **Interests** | After the first sign-up (and once on the first demo login) a "What do you like?" screen: pick at least 3 of History, Street art, Food, Nightlife, Nature, Museums, Architecture, Shopping, or skip. Change them any time in Edit Profile |
-| 📍 **Place details** | Open now / closed now, dietary options for food places, check in, save the place, find a meetup there, or call a taxi straight to it |
+| 📍 **Place details** | Open now / closed now, dietary options for food places, check in, save the place, find a meetup there, get **directions** or call a taxi straight to it |
 | ✈️ **Flights** | Search flights to and from Berlin BER (14 European cities), choose passengers and class. **Compare providers** (Stage 2 "Book"): every flight is offered by 4–6 fictional booking sites at different prices and terms (checked bag included or not, free cancellation or not), cheapest first with a **Cheapest** tag and a "Save €X vs the most expensive" line. Sort the flights by *Cheapest*, *Fastest* or *Fewest stops*, filter by *Baggage included* and *Free cancellation*. The confirmation shows the provider and a price breakdown (base fare, taxes & fees, baggage). The same search always shows the same offers |
 | 🏨 **Hotels** | Search by city, check-in/check-out and guests (only Berlin has hotels in the demo). **10 Berlin hotels and hostels** with photo, area, stars, description and amenities; each is offered by 3–5 fictional providers (breakfast or room only, free cancellation or non-refundable), with the same Cheapest tag and savings line. Sort by price or stars, filter *Under €120/night*, *4 stars and up*, *Free cancellation*, *Breakfast*. The confirmation shows nights × rate, taxes & fees (incl. Berlin City Tax) and the provider |
 | 🚕 **Taxi** | Pick-up and destination, Eco / Standard / XL with price estimate, schedule a ride or watch the driver arrive live |
-| 🧾 **My bookings** | All flights, hotel stays and rides with provider, price, status and booking reference. Each booking is saved with its type, provider, price, start and end date/time and a reference, ready for a later trip overview |
+| 🧾 **My bookings** | All flights, hotel stays and rides with provider, price, status and booking reference; tap one to open it in the trip overview (cancelled bookings are shown muted) |
+| 🧳 **My Trip** (Stage 3, EE-38) | One **timeline** of all flights, hotel stays (check-in and check-out), taxis and joined meetups, grouped by day, with time, provider or place, status and an icon per type. Each day shows the **Berlin forecast** when it is within the 5-day window (otherwise "Forecast available closer to the trip") and on rainy days (≥ 60 %) a "Rainy: try indoor places" link to museums. Open from Home, Profile or My bookings; empty state with shortcuts to Explore and Book |
+| ✏️ **Change or cancel** | A booking's detail shows its reference, route or address, provider, price and status. **Change booking**: another day (flight), other dates (hotel) or another time (taxi), with the new demo price, a change fee for non-flexible offers and the price difference before you confirm. **Cancel booking**: the refund terms of the booked offer (free cancellation = full refund, non-refundable = only taxes & fees back, taxis free); afterwards it shows as *Cancelled* everywhere |
+| 🔔 **Reminders** (simulated) | A bell on Home with an in-app list: flight 2 hours before, taxi 15 minutes before, meetup 1 hour before, hotel check-in the day before, shown once that time has come. Mark as read, turn them off in Profile, or use **Demo: show reminders now** to see all upcoming ones at once. No push notifications, no permission request |
+| 🧭 **Directions** (simulated) | From a place, a hotel booking or a meetup: walking time (5 km/h), public transport estimate (U-Bahn / S-Bahn / bus, demo) and taxi fare, starting at your hotel (or Alexanderplatz), with the distance in km and "Get a taxi here" |
 | 👥 **Meetups** | Planned activities at Berlin sights with filters (All, Today, This week, Joined), join or leave, see who is going, and create your own meetup |
 | 💬 **Group chat** | iOS-style chat for each meetup, only for people who joined; other travelers reply automatically (simulated) and messages are kept after a reload |
 | 🔖 **Saved** | Your saved destinations |
@@ -51,7 +55,7 @@ There is also pull-to-refresh, an offline banner, and you can install it via *Ad
 Short, smooth animations throughout (see [Motion](#motion)), turned off with the system's *Reduce motion* setting.
 On a laptop the app is shown inside a phone frame; on a real phone it runs full-screen.
 
-> ⚠️ **Demo only.** Accounts and profiles are stored only in your browser (one account per browser, with one profile shared by every login there; don't use a real password). Login, flights, hotels, prices, drivers, friends, meetups and the group chat are simulated. **Opening hours and dietary tags are demo data**: the hours are simplified weekly schedules, and the dietary tags of the food places are indicative only (always check with the venue). If the live weather can't be loaded, the forecast shown is demo data and is labelled as such (there is no backend, nothing is sent to other people). **Booking providers and their prices are demo data**: the provider names (TicketBär, Spree Fares, BettBörse, Kiez Stays …) are made up, the prices are simulated ("demo prices"), and no real provider is contacted. The hotels are real, well-known Berlin hotels except *Spreeblick Hotel* and *Pension Kastanie*, which are fictional. No real bookings or payments are made.
+> ⚠️ **Demo only.** Accounts and profiles are stored only in your browser (one account per browser, with one profile shared by every login there; don't use a real password). Login, flights, hotels, prices, drivers, friends, meetups, the group chat, trip reminders and directions are simulated (reminders only appear inside the app; directions are estimates from the straight-line distance, not real routes). **Opening hours and dietary tags are demo data**: the hours are simplified weekly schedules, and the dietary tags of the food places are indicative only (always check with the venue). If the live weather can't be loaded, the forecast shown is demo data and is labelled as such (there is no backend, nothing is sent to other people). **Booking providers and their prices are demo data**: the provider names (TicketBär, Spree Fares, BettBörse, Kiez Stays …) are made up, the prices are simulated ("demo prices"), and no real provider is contacted. The hotels are real, well-known Berlin hotels except *Spreeblick Hotel* and *Pension Kastanie*, which are fictional. No real bookings or payments are made.
 
 ## Try it
 
@@ -68,13 +72,16 @@ Profile → **Delete Account** removes the account and everything saved in the b
 - Book a flight to Berlin from the **cheapest provider** (Smart Saver badge), then tap **🚕 Book a taxi from BER**
 - Book → Hotels: compare providers for a Berlin hotel, try the filters and the *Stars* sort
 - Home → **👥 Meetups** → join one to unlock the group chat, or tap **+** to host your own
+- Book a flight, a hotel and a taxi and join a meetup, then Home → **🧳 My Trip**: open a booking to **change** or **cancel** it
+- Profile → **Demo: show reminders now**, then tap the 🔔 bell on Home
+- Open a place or your hotel booking → **🧭 Directions**
 - Profile → Achievements → **Reset progress (demo)** to start over
 
 ## Tech stack
 
 - **React 18 + Vite**, plain JavaScript (no TypeScript, no UI or router library); hash routing in a small custom hook
 - **CSS** in `src/styles/` (iOS-style design tokens, light and dark mode)
-- **localStorage** for the account, profile, login state, saved places, badges, bookings, meetups and chat messages (stored per browser)
+- **localStorage** for the account, profile, login state, saved places, badges, bookings, meetups, chat messages and reminder settings (stored per browser)
 - **PWA**: web app manifest and a network-first service worker, so the app can be installed and opens offline
 - **Wikimedia Commons** photos loaded from each place's Wikipedia article
 - **[Leaflet](https://leafletjs.com/)** (npm, loaded only when the map opens) with **[OpenStreetMap](https://www.openstreetmap.org/copyright)** tiles for the map view, no API key
@@ -83,10 +90,24 @@ Profile → **Delete Account** removes the account and everything saved in the b
 
 ## Motion
 
-Small iOS-style animations that never get in the way (150–350 ms, only `transform` and `opacity`, pure CSS, no animation library):
+Calm iOS-style animations that never get in the way (only `transform` and `opacity`, pure CSS, no animation library). All timings are shared design tokens in `src/styles/base.css`; taps always work immediately, even in the middle of a transition:
 
-- **Screens:** going forward slides the new screen in from the right while the old one moves slightly to the left (parallax); the back button or browser back slides it out to the right. Switching tabs is a short cross-fade. Reload and deep links open without an animation.
-- **Sheets and pop-ups:** bottom sheets slide up with a soft spring over a fading backdrop and slide out again when closed. A new badge pops in with a small bounce and a light confetti burst (it still waits until a booking sheet has closed).
+| What | Duration | Token |
+|------|----------|-------|
+| Screen slide forward / back (soft ease-out) | 480 ms | `--dur-nav`, `--ease-nav` |
+| Tab cross-fade | 300 ms | `--dur-tab` |
+| Bottom sheet in / out | 450 ms / 350 ms | `--dur-sheet-in`, `--dur-sheet-out` |
+| Badge pop-up (gentle bounce, after 180 ms) | 550 ms | `--dur-pop`, `--ease-pop` |
+| Press feedback (kept quick) | 150 ms | `--dur-fast` |
+| List items one after the other | 60 ms per item | `--stagger` |
+| Photo fade-in · filtered list glide | 400 ms | `--dur-photo`, `--dur-flip` |
+| Confetti | 1.3 s | `--dur-confetti` |
+| Toast in / out | 350 ms | `--dur-toast` |
+| Other fades and pops | 350 / 500 ms | `--dur-base`, `--dur-slow` |
+
+
+- **Screens:** going forward slides the new screen in from the right while the old one moves slightly to the left (parallax); the back button or browser back slides it out to the right. Switching tabs is a cross-fade. Reload and deep links open without an animation.
+- **Sheets and pop-ups:** bottom sheets slide up with a soft spring over a fading backdrop and slide out again when closed. A new badge pops in with a small bounce and a light confetti burst (it waits until a booking sheet has completely slid out).
 - **Feedback:** buttons and cards shrink slightly while pressed, *Save* and *Check in* pop with a check mark, chips and toggles animate their state, and messages ("toasts") slide in just below the top bar and the large title, so they never cover either.
 - **Lists and photos:** places, meetups, bookings, flights, hotels and badges fade and rise in one after the other (the first 8). Photos fade in once loaded, with a soft shimmer until then. Changing a filter lets the list glide to its new layout instead of jumping.
 - **Chat, map and more:** new chat messages pop in from the sender's side, map pins drop in, the pin preview slides up, the active tab icon pops, badge progress bars fill up and the weather days fade in.
@@ -126,10 +147,10 @@ excelsiors-explorer/
 │   ├── assets/              # logo, home background, Lego avatar picture
 │   ├── data/                # demo data: places + photos, badges + friends, meetups + chats, flights/taxi + providers, hotels, avatars
 │   ├── state/               # user data layer (the only code using localStorage), UI store, app actions
-│   ├── hooks/               # useHashRouter (routes + back button), useFieldMessages (form validation), useFlip (list animation)
+│   ├── hooks/               # useHashRouter (routes + back button), useFieldMessages (form validation), useFlip (list animation), useClock
 │   ├── components/          # app bar, tab bar, bottom sheets, chat bubble, badge, avatars, cards, chips …
 │   ├── screens/             # one file per screen: Login, SignUp, Interests, Home, Explore, PlaceDetail, Saved, Profile,
-│   │                        #   EditProfile, Achievements, Book, Meetups, MeetupDetail, MeetupChat
+│   │                        #   EditProfile, Achievements, Book, Meetups, MeetupDetail, MeetupChat, Trip (+ detail), Reminders
 │   ├── lib/                 # format.js (dates, times, prices), hours.js ("open now" in Berlin time), motion.js (screen transitions)
 │   └── styles/              # the CSS, split by area (motion.css: all animations)
 ├── legacy/index.old.html    # the previous single-file version, kept until the migration is signed off

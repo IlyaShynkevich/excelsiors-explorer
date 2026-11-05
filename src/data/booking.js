@@ -15,13 +15,23 @@ export const COORDS = {
 export const EXTRA_SPOTS = [['alex','📍 Current location (Alexanderplatz)'],['hbf','🚉 Berlin Hauptbahnhof'],['ber','✈️ BER Airport']];
 export const SPOT_LABEL = {alex:'Alexanderplatz', hbf:'Berlin Hauptbahnhof', ber:'BER Airport'};
 export const spotName = id => SPOT_LABEL[id] || (byId(id) || {name:id}).name;
-export function roadKm(a, b) {
-  const [la1, lo1] = COORDS[a], [la2, lo2] = COORDS[b], R = 6371, r = Math.PI / 180;
-  const d = 2 * R * Math.asin(Math.sqrt(Math.sin((la2 - la1) * r / 2) ** 2 + Math.cos(la1 * r) * Math.cos(la2 * r) * Math.sin((lo2 - lo1) * r / 2) ** 2));
-  return Math.max(1, d * 1.3);                       // ~30% detour for real streets
+// Straight-line distance in km between two [lat, lon] points
+export function kmBetween([la1, lo1], [la2, lo2]) {
+  const R = 6371, r = Math.PI / 180;
+  return 2 * R * Math.asin(Math.sqrt(Math.sin((la2 - la1) * r / 2) ** 2 + Math.cos(la1 * r) * Math.cos(la2 * r) * Math.sin((lo2 - lo1) * r / 2) ** 2));
 }
+export const DETOUR = 1.3;                           // ~30% detour for real streets
+export const roadKm = (a, b) => Math.max(1, kmBetween(COORDS[a], COORDS[b]) * DETOUR);
 // Berlin taxi tariff (approx.): €4.30 base, €2.80/km for the first 7 km, €2.10/km after that.
 export const taxiFare = km => 4.3 + Math.min(km, 7) * 2.8 + Math.max(0, km - 7) * 2.1;
+// Directions (simulated, no routing API): estimates from the straight-line distance between spots a and b.
+// Walking 5 km/h and public transport 20 km/h on the street distance (+30 %), plus 8 min to reach a stop and wait.
+export const WALK_KMH = 5, TRANSIT_KMH = 20, TRANSIT_WAIT = 8;
+export function directions(a, b) {
+  const km = kmBetween(COORDS[a], COORDS[b]), road = km * DETOUR, taxiKm = Math.max(1, road);
+  return {km, walk: Math.max(1, Math.round(road / WALK_KMH * 60)), transit: Math.round(TRANSIT_WAIT + road / TRANSIT_KMH * 60),
+          taxi: Math.round(taxiKm * 2.6 + 4), fare: taxiFare(taxiKm)};
+}
 export const RIDES = [
   {id:'eco', ic:'🔋', name:'Eco',      note:'Electric car · up to 4',     f:0.95},
   {id:'std', ic:'🚕', name:'Standard', note:'Classic Berlin taxi · up to 4', f:1},

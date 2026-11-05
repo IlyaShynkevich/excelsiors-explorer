@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ui, closeSheet } from '../state/appStore.js';
+import { ui, closeSheet, openSheet } from '../state/appStore.js';
 import { user } from '../state/userData.js';
 import { checkIn, toggleSave } from '../state/achievements.js';
 import { upcomingMeetups } from '../state/meetups.js';
@@ -52,6 +52,7 @@ function Body({ p }) {
         <button className={`btn save-btn ${isSaved ? 'saved' : ''}${sav.className}`} id="saveBtn" onAnimationEnd={sav.onAnimationEnd}
                 onClick={() => { setBump('save'); toggleSave(p.id); }}>{isSaved ? ck('Saved') : 'Save Location'}</button>
         <button className="btn ghost" onClick={() => openMeetups(p.id)}>{`👥 Find a meetup here${n ? ` (${n})` : ''}`}</button>
+        <button className="btn ghost" id="dirBtn" onClick={() => openSheet('directions', {to: p.id, name: p.name})}>🧭 Directions</button>
         <button className="btn ghost" onClick={() => { closeSheet(); openBooking('taxi', p.id); }}>🚕 Get a taxi here</button>
       </div>
     </div>

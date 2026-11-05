@@ -1,14 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
-import { closeSheet } from '../state/appStore.js';
+import { closeSheet, sheetClosed } from '../state/appStore.js';
+import { motionMs } from '../lib/motion.js';
 import { UnlockSheet, BadgeSheet, CompareSheet } from './sheets/BadgeSheets.jsx';
 import { FlightConfirmSheet, FlightDoneSheet, HotelConfirmSheet, HotelDoneSheet, TaxiScheduledSheet } from './sheets/BookingSheets.jsx';
 import { CreateMeetupSheet, CancelMeetupSheet } from './sheets/MeetupSheets.jsx';
 import { DeleteAccountSheet } from './sheets/AccountSheets.jsx';
+import { ChangeBookingSheet, CancelBookingSheet, DirectionsSheet } from './sheets/TripSheets.jsx';
 
 const SHEETS = {
   unlock: UnlockSheet, badge: BadgeSheet, compare: CompareSheet,
   flight: FlightConfirmSheet, flightDone: FlightDoneSheet, hotel: HotelConfirmSheet, hotelDone: HotelDoneSheet, taxiScheduled: TaxiScheduledSheet,
   createMeetup: CreateMeetupSheet, cancelMeetup: CancelMeetupSheet, deleteAccount: DeleteAccountSheet,
+  changeBooking: ChangeBookingSheet, cancelBooking: CancelBookingSheet, directions: DirectionsSheet,
 };
 
 // Bottom sheet over a dimmed background; tap the background (or press Escape, see App) to close.
@@ -20,8 +23,8 @@ export function BottomSheet({ sheet }) {
   const [doneId, setDoneId] = useState(-1);   // id of the sheet whose slide-out has finished
   const closing = !sheet.open && !!last.current && last.current.id === sheet.id && doneId !== sheet.id;
   const s = sheet.open || closing ? last.current : null, Content = s && SHEETS[s.kind];
-  const done = () => setDoneId(sheet.id);
-  useEffect(() => { if (closing) { const t = setTimeout(done, 450); return () => clearTimeout(t); } }, [closing, sheet.id]);   // fallback
+  const done = () => { if (doneId === sheet.id) return; setDoneId(sheet.id); sheetClosed(); };   // slid out: the unlock queue may continue
+  useEffect(() => { if (closing) { const t = setTimeout(done, motionMs('sheet-out') + 150); return () => clearTimeout(t); } }, [closing, sheet.id]);   // fallback
   return (
     <div className={'sheet-bg' + (s ? ' show' : '') + (closing ? ' closing' : '')} id="sheet"
          onClick={e => { if (!closing && e.target === e.currentTarget) closeSheet(); }}>

@@ -29,7 +29,8 @@ function Body({ m }) {
       <div className="info"><span className="ico">◷</span>{whenText(m.start, true)}</div>
       <div className="info"><span className="ico">★</span><span>Hosted by <Pav x={host} cls="in" />{' ' + host.name + (host.me ? ' (you)' : '')}</span></div>
       <div className="info"><span className="ico">◉</span>{`${g.length} / ${m.max} going${g.length >= m.max ? ' · full' : ''}`}</div>
-      <div className="btns" style={{marginTop: 'var(--s4)'}}>{!isMine(m) && <JoinButton m={m} cls="btn" />}</div>
+      <div className="btns" style={{marginTop: 'var(--s4)'}}>{!isMine(m) && <JoinButton m={m} cls="btn" />}
+        <button className="btn ghost" id="mtDirections" onClick={() => openSheet('directions', {to: p.id, name: p.name})}>🧭 Directions</button></div>
       <h3>About this meetup</h3>
       <p>{m.desc}</p>
       <h3>Who's going <small>{`${g.length} / ${m.max}`}</small></h3>

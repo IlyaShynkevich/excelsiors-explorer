@@ -5,12 +5,20 @@ const ROOT = document.documentElement;
 export const reducedMotion = () =>
   ROOT.classList.contains('reduce-motion') || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
 
+// A duration token from base.css :root in ms, e.g. motionMs('sheet-out') reads --dur-sheet-out.
+// 0 with reduced motion, so JS timers that wait for an animation don't wait at all.
+export function motionMs(name) {
+  if (reducedMotion()) return 0;
+  const v = getComputedStyle(ROOT).getPropertyValue('--dur-' + name).trim(), n = parseFloat(v) || 0;
+  return /\ds$/.test(v) && !/ms$/.test(v) ? n * 1000 : n;
+}
+
 // ---------- Screen transitions ----------
 // go() calls navStart(dir) while the old screen is still in the DOM: it is copied into #navfx as a static,
 // inert picture (the real screens read the global state, so the old one can't stay mounted). App calls
 // navPlay() right after the new screen is in the DOM, before the browser paints.
 // dir: 'forward' (new screen slides in from the right), 'back' (the old one slides out to the right),
-// 'tab' / 'fade' (short cross-fade) or 'none' (no animation, e.g. tapping the current tab again).
+// 'tab' / 'fade' (cross-fade) or 'none' (no animation, e.g. tapping the current tab again).
 let ready = false, pending = null, timer = 0;
 export const motionReady = () => { ready = true; };   // not on the first render after a (re)load
 const SLIDE = ['in-forward', 'in-back'];
@@ -51,5 +59,5 @@ export function navPlay(navShown) {
   p.ghost.classList.add('out-' + p.dir);
   if (slide) [scr, navShown && nav].forEach(el => el && el.classList.add('in-' + p.dir));
   p.ghost.addEventListener('animationend', e => { if (e.target === p.ghost && fx.contains(p.ghost)) finish(); });
-  timer = setTimeout(finish, 500);   // fallback, e.g. if the tab is in the background
+  timer = setTimeout(finish, motionMs(slide ? 'nav' : p.dir === 'tab' ? 'tab' : 'base') + 150);   // fallback, e.g. if the tab is in the background
 }

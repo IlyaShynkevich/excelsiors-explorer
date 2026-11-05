@@ -22,11 +22,14 @@ import { Meetups } from './screens/Meetups.jsx';
 import { MeetupDetail } from './screens/MeetupDetail.jsx';
 import { MeetupChat, scrollChat } from './screens/MeetupChat.jsx';
 import { Interests } from './screens/Interests.jsx';
+import { Trip, TripItem } from './screens/Trip.jsx';
+import { Reminders } from './screens/Reminders.jsx';
 
 const SCREENS = {
   interests: Interests,
   login: Login, signup: SignUp, home: Home, explore: Explore, detail: PlaceDetail, saved: Saved, profile: Profile,
   editProfile: EditProfile, achievements: Achievements, book: Book, meetups: Meetups, meetup: MeetupDetail, chat: MeetupChat,
+  trip: Trip, tripItem: TripItem, reminders: Reminders,
 };
 
 export function App() {

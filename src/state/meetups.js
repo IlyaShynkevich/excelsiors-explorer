@@ -1,5 +1,5 @@
 // ---------- Meetups (EE-28) & group chat (EE-20): simulated, stored in localStorage only ----------
-import { ui, emit, toast, queueUnlocks, closeSheet } from './appStore.js';
+import { ui, emit, toast, queueUnlocks, queuePush, closeSheet } from './appStore.js';
 import { user, persist, checkUnlocks, ME } from './userData.js';
 import { MEETUPS, PEOPLE, REPLIES } from '../data/meetups.js';
 import { openMeetup, openMeetups } from '../hooks/useHashRouter.js';
@@ -40,7 +40,7 @@ export function createMeetup({title, placeId, start, max, note}) {
   const fresh = checkUnlocks();
   closeSheet(true);
   openMeetup(m.id);
-  if (fresh.length) setTimeout(() => queueUnlocks(fresh), 300); else toast('Meetup created 🎉');
+  if (fresh.length) queuePush(fresh); else toast('Meetup created 🎉');   // the pop-ups open once the sheet has slid out
 }
 export function cancelMeetup(m) {
   user.myMeetups = user.myMeetups.filter(x => x.id !== m.id);

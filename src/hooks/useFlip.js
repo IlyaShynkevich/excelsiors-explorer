@@ -26,7 +26,7 @@ export function useFlip(ref, sel, key) {
     if (!moved.length || reducedMotion()) return moved.forEach(reset);
     box.offsetHeight;   // apply the start positions, then let them go
     moved.forEach(el => {
-      el.style.transition = 'transform var(--dur-base) var(--ease-out),opacity var(--dur-base) var(--ease-out)';
+      el.style.transition = 'transform var(--dur-flip) var(--ease-out),opacity var(--dur-flip) var(--ease-out)';
       el.style.transform = el.style.opacity = '';
       el.addEventListener('transitionend', () => { el.style.transition = ''; }, {once: true});
     });

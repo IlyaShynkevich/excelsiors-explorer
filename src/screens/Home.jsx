@@ -5,6 +5,9 @@ import { byId, POPULAR, RECENT, PLACES } from '../data/places.js';
 import { AvatarImg } from '../components/Avatar.jsx';
 import { PlaceTile } from '../components/PlaceTile.jsx';
 import { WeatherStrip } from '../components/WeatherStrip.jsx';
+import { upcomingTrip, timeOf, dayLabel } from '../state/trip.js';
+import { unreadCount } from '../state/reminders.js';
+import { useClock } from '../hooks/useClock.js';
 
 // "For you": places matching most of the user's interests first (ties keep the data order); without interests, a mix
 const MIX = ['eastside','museuminsel','tiergarten','markthalle','hackesche','curry36','tempelhof','charlottenburg'];
@@ -15,12 +18,17 @@ function forYou(interests) {
 }
 
 export function Home() {
-  const p = getProfile();
+  useClock();   // reminders become due on the real clock
+  const p = getProfile(), n = unreadCount(), next = upcomingTrip()[0];
   const book = view => { closeSheet(); openBooking(view); };
   return (
     <section className="screen active" id="home">
       <div className="home-top">
         <button className="avatar" id="homeAv" aria-label="Profile" onClick={() => go('profile')}><AvatarImg id={p.avatar} /></button>
+        <button className="bell" id="homeBell" aria-label={'Reminders' + (n ? `, ${n} unread` : '')} onClick={() => go('reminders')}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>
+          {n > 0 && <span className="bell-n">{n > 9 ? '9+' : n}</span>}
+        </button>
       </div>
       <div className="scroll">
         <div className="panel">
@@ -34,6 +42,9 @@ export function Home() {
             <button onClick={() => book('taxi')}><span>🚕</span>Get a taxi</button>
             <button onClick={() => openMeetups('')}><span>👥</span>Meetups</button>
           </div>
+          <button className="chat-link trip-cta" id="homeTrip" onClick={() => go('trip')}><span className="ic" aria-hidden="true">🧳</span>
+            <span className="nm"><b>My Trip</b><small>{next ? `Next: ${next.title} · ${dayLabel(next.t)}, ${timeOf(next.t)}` : 'Your bookings and meetups, day by day'}</small></span>
+            <span className="chev">›</span></button>
           <WeatherStrip />
           <div className="sec-row"><h3>For you</h3>{p.interests.length > 0 && <button className="link-btn" onClick={() => go('editProfile')}>Edit interests</button>}</div>
           {!p.interests.length && <p className="sub fy-hint">Tell us what you like and we'll pick places for you. <button className="link-btn" onClick={() => go('editProfile')}>Choose interests</button></p>}

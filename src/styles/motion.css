@@ -1,7 +1,9 @@
 /* ---------- Motion ----------
    Tokens (--ease-*, --dur-*, --stagger, --press) live in base.css :root; new UI reuses them.
-   Rules: only transform and opacity move, 150–350 ms (looping indicators like the shimmer and the
-   typing dots excepted), nothing blocks taps. Reduced motion: see the end of this file. */
+   Rules: only transform and opacity move, 150–550 ms (confetti 1.3 s; looping indicators like the shimmer
+   and the typing dots excepted), nothing blocks taps. Reduced motion: see the end of this file.
+   Role tokens: --dur-nav (slides), --dur-tab, --dur-sheet-in/-out, --dur-pop, --dur-photo, --dur-flip,
+   --dur-confetti, --dur-toast; JS timers read them with motionMs() (lib/motion.js). */
 
 @keyframes fade-in{from{opacity:0}}
 @keyframes fade-out{to{opacity:0}}
@@ -17,15 +19,15 @@
 .nav-ghost{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
 .nav-ghost *,.nav-ghost *::before,.nav-ghost *::after{animation:none !important;transition:none !important}
 .nav-ghost::after,.screen.in-back::after,nav.in-back::after{content:"";position:absolute;inset:0;z-index:10;background:#000;opacity:0;pointer-events:none}
-.nav-ghost.out-forward{animation:nav-under-out var(--dur-slow) var(--ease-out) forwards}
-.nav-ghost.out-forward::after{animation:dim-in var(--dur-slow) var(--ease-out) forwards}
-.nav-ghost.out-back{animation:nav-out-right var(--dur-slow) var(--ease-out) forwards}
-.nav-ghost.out-tab{animation:fade-out var(--dur-fast) var(--ease-in-out) forwards}
+.nav-ghost.out-forward{animation:nav-under-out var(--dur-nav) var(--ease-nav) forwards}
+.nav-ghost.out-forward::after{animation:dim-in var(--dur-nav) var(--ease-nav) forwards}
+.nav-ghost.out-back{animation:nav-out-right var(--dur-nav) var(--ease-nav) forwards}
+.nav-ghost.out-tab{animation:fade-out var(--dur-tab) var(--ease-in-out) forwards}
 .nav-ghost.out-fade{animation:fade-out var(--dur-base) var(--ease-in-out) forwards}
 .screen.in-forward{background:var(--bg)}
-.screen.in-forward,nav.in-forward{animation:nav-in-right var(--dur-slow) var(--ease-out)}
-.screen.in-back,nav.in-back{animation:nav-under-in var(--dur-slow) var(--ease-out)}
-.screen.in-back::after,nav.in-back::after{animation:dim-out var(--dur-slow) var(--ease-out)}
+.screen.in-forward,nav.in-forward{animation:nav-in-right var(--dur-nav) var(--ease-nav)}
+.screen.in-back,nav.in-back{animation:nav-under-in var(--dur-nav) var(--ease-nav)}
+.screen.in-back::after,nav.in-back::after{animation:dim-out var(--dur-nav) var(--ease-nav)}
 .in-forward,.in-back,.nav-ghost{will-change:transform}
 @keyframes nav-in-right{from{transform:translateX(100%)}}
 @keyframes nav-out-right{to{transform:translateX(100%)}}
@@ -38,21 +40,21 @@
 #bookBody,#achBody > *{animation:rise-in var(--dur-base) var(--ease-out) backwards}
 
 /* ---------- bottom sheets ---------- */
-.sheet-bg.show::before{animation:fade-in var(--dur-slow) var(--ease-out)}
-.sheet-bg.show .sheet{animation:sheet-up var(--dur-slow) var(--ease-spring-soft)}
+.sheet-bg.show::before{animation:fade-in var(--dur-sheet-in) var(--ease-out)}
+.sheet-bg.show .sheet{animation:sheet-up var(--dur-sheet-in) var(--ease-spring-soft)}
 .sheet-bg.closing{pointer-events:none}   /* no double taps on a sheet that is going away */
-.sheet-bg.closing::before{animation:fade-out var(--dur-base) var(--ease-in) forwards}
-.sheet-bg.closing .sheet{animation:sheet-down var(--dur-base) var(--ease-in) forwards}
-.sheet-in{animation:fade-in var(--dur-fast) var(--ease-out)}   /* new content in an open sheet (flight → confirmed) */
+.sheet-bg.closing::before{animation:fade-out var(--dur-sheet-out) var(--ease-in) forwards}
+.sheet-bg.closing .sheet{animation:sheet-down var(--dur-sheet-out) var(--ease-in) forwards}
+.sheet-in{animation:fade-in var(--dur-base) var(--ease-out)}   /* new content in an open sheet (flight → confirmed) */
 @keyframes sheet-up{from{transform:translateY(100%)}}
 @keyframes sheet-down{to{transform:translateY(100%)}}
 
 /* badge unlock: the badge pops in with a bounce, then a light confetti burst (BadgeSheets.jsx) */
-.pop{animation:badge-pop var(--dur-slow) var(--ease-spring) 120ms backwards}
+.pop{animation:badge-pop var(--dur-pop) var(--ease-pop) 180ms backwards}
 @keyframes badge-pop{from{opacity:0;transform:scale(.3) rotate(-20deg)}}
 .confetti{position:absolute;width:0;height:0;z-index:2;pointer-events:none}
 .confetti i{position:absolute;left:-4px;top:-3px;width:8px;height:6px;border-radius:2px;opacity:0;
-            animation:confetti var(--dur-slow) var(--ease-out) var(--d,0ms) forwards}
+            animation:confetti var(--dur-confetti) var(--ease-out) var(--d,0ms) forwards}
 @keyframes confetti{
   0%{opacity:1;transform:translate(0,0) rotate(0) scale(.5)}
   70%{opacity:1}
@@ -68,8 +70,8 @@
 @keyframes check-in{from{opacity:0;transform:scale(0) rotate(-45deg)}}
 .chips button,.seg button,.tabs button{transition:transform var(--dur-fast) var(--ease-out),background-color var(--dur-fast),color var(--dur-fast)}
 /* toast: slides down from the top, fades out */
-.toast{transition:opacity var(--dur-base) var(--ease-in),transform 0s linear var(--dur-base)}
-.toast.show{transition:opacity var(--dur-fast) linear,transform var(--dur-slow) var(--ease-spring-soft)}
+.toast{transition:opacity var(--dur-toast) var(--ease-in),transform 0s linear var(--dur-toast)}
+.toast.show{transition:opacity var(--dur-toast) var(--ease-out),transform var(--dur-toast) var(--ease-spring-soft)}
 
 /* ---------- lists and photos ---------- */
 /* list items fade and rise in one after the other; from the 9th on without delay */
@@ -86,7 +88,7 @@
 /* place photos (Photo.jsx): the gradient is the element's own background, the photo is ::before and
    fades in once loaded; until then a soft shimmer (::after) sweeps over the gradient */
 .photo{position:relative;isolation:isolate;overflow:hidden}
-.photo::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--photo);opacity:0;transition:opacity var(--dur-slow) var(--ease-out)}
+.photo::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--photo);opacity:0;transition:opacity var(--dur-photo) var(--ease-out)}
 .photo.ph-loaded::before{opacity:1}
 .photo.ph-loading::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
   background:linear-gradient(100deg,transparent 25%,rgba(255,255,255,.22) 50%,transparent 75%);animation:shimmer 1.3s ease-in-out infinite}

@@ -26,7 +26,16 @@
   --ease-in-out:cubic-bezier(.65,0,.35,1);       /* cross-fades */
   --ease-spring:cubic-bezier(.34,1.56,.64,1);    /* small pops with a bounce: badges, buttons, pins */
   --ease-spring-soft:cubic-bezier(.22,1.18,.36,1); /* gentle overshoot: sheets, toast, chat bubbles */
-  --dur-fast:150ms; --dur-base:250ms; --dur-slow:350ms; --stagger:30ms;
+  --ease-nav:cubic-bezier(.3,.45,.15,1);         /* screen slides: soft start, long calm deceleration */
+  --ease-pop:cubic-bezier(.3,1.32,.5,1);         /* badge unlock: a gentler bounce than --ease-spring */
+  /* durations (about 1.5x the first version, calmer); press feedback stays quick */
+  --dur-fast:150ms; --dur-base:350ms; --dur-slow:500ms; --stagger:60ms;
+  --dur-nav:480ms;                               /* screen slide forward / back */
+  --dur-tab:300ms;                               /* tab cross-fade */
+  --dur-sheet-in:450ms; --dur-sheet-out:350ms;   /* bottom sheets (the unlock queue waits for sheet-out) */
+  --dur-pop:550ms;                               /* badge unlock pop */
+  --dur-photo:400ms; --dur-flip:400ms;           /* photo fade-in, filtered list glide (useFlip) */
+  --dur-confetti:1300ms; --dur-toast:350ms;
   --star:#b7791f;                                /* hotel stars */
   --press:.97;                                   /* scale while pressed */
   --ease:var(--ease-out);                        /* older name, same curve */

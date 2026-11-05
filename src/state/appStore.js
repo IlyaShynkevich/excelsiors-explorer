@@ -2,10 +2,11 @@
 // Code changes `ui` (or the user data) and then calls emit(); App re-renders through useStore().
 import { useSyncExternalStore } from 'react';
 import { tomorrow, addDays } from '../lib/format.js';
+import { motionMs } from '../lib/motion.js';
 
 export const ui = {
   current: 'login', prev: 'explore', navSeq: 0,   // navSeq changes on every go(): the screen is rendered fresh
-  detailId: '', meetupId: '', mtFilter: 'all', mtPlace: '',
+  detailId: '', meetupId: '', mtFilter: 'all', mtPlace: '', tripId: '',   // tripId: booking ref or 'm-' + meetup id (#trip/<id>)
   lang: 'English', achTab: 'badges',
   bookView: 'hub', ride: null,
   // flight search; sort + filters of the results (Stage 2: provider comparison)
@@ -43,9 +44,12 @@ export function closeSheet(silent) {
   const wasOpen = ui.sheet.open;
   ui.sheet = {...ui.sheet, open: false}; emit();
   if (silent === true) { if (wasOpen) sheetQueue = []; return; }
-  // the next unlock opens once the closed sheet has slid out (--dur-base, 250 ms)
-  if (sheetQueue.length) setTimeout(() => showUnlock(sheetQueue.shift()), 280);
+  // the next unlock opens once the closed sheet has fully slid out: BottomSheet calls sheetClosed() then
+  if (!wasOpen && sheetQueue.length) setTimeout(nextUnlock, 0);
 }
+// Called by BottomSheet when a closed sheet has finished sliding out (--dur-sheet-out); a short pause, then the next unlock
+export const sheetClosed = () => { if (sheetQueue.length) setTimeout(nextUnlock, Math.min(60, motionMs('sheet-out'))); };
+function nextUnlock() { if (!ui.sheet.open && sheetQueue.length) showUnlock(sheetQueue.shift()); }
 export function queueUnlocks(list) { sheetQueue = list.slice(1); showUnlock(list[0]); }
 export const queuePush = list => sheetQueue.push(...list);
 const showUnlock = b => openSheet('unlock', {b});
