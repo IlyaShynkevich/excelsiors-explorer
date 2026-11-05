@@ -6,12 +6,13 @@ import { FlightConfirmSheet, FlightDoneSheet, HotelConfirmSheet, HotelDoneSheet,
 import { CreateMeetupSheet, CancelMeetupSheet } from './sheets/MeetupSheets.jsx';
 import { DeleteAccountSheet } from './sheets/AccountSheets.jsx';
 import { ChangeBookingSheet, CancelBookingSheet, DirectionsSheet } from './sheets/TripSheets.jsx';
+import { ArrivalSheet } from './sheets/ArrivalSheet.jsx';
 
 const SHEETS = {
   unlock: UnlockSheet, badge: BadgeSheet, compare: CompareSheet,
   flight: FlightConfirmSheet, flightDone: FlightDoneSheet, hotel: HotelConfirmSheet, hotelDone: HotelDoneSheet, taxiScheduled: TaxiScheduledSheet,
   createMeetup: CreateMeetupSheet, cancelMeetup: CancelMeetupSheet, deleteAccount: DeleteAccountSheet,
-  changeBooking: ChangeBookingSheet, cancelBooking: CancelBookingSheet, directions: DirectionsSheet,
+  changeBooking: ChangeBookingSheet, cancelBooking: CancelBookingSheet, directions: DirectionsSheet, arrival: ArrivalSheet,
 };
 
 // Bottom sheet over a dimmed background; tap the background (or press Escape, see App) to close.

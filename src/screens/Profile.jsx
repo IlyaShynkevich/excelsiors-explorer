@@ -4,6 +4,8 @@ import { leaderboard } from '../state/achievements.js';
 import { upcomingMeetups, joinedM } from '../state/meetups.js';
 import { upcomingTrip } from '../state/trip.js';
 import { remindersOn, remindersDemo, toggleReminders, toggleRemindersDemo } from '../state/reminders.js';
+import { here } from '../state/location.js';
+import { demoDays, appToday, nextDemoDay, resetDemoDate } from '../state/clock.js';
 import { go, openDetail, openMeetups } from '../hooks/useHashRouter.js';
 import { BADGES, FRIENDS } from '../data/badges.js';
 import { byId } from '../data/places.js';
@@ -46,6 +48,7 @@ export function Profile() {
         <div className="list mt-entry">
           <button onClick={() => openMeetups('')}><span className="ico">👥</span>Travel Meetups<span className="muted" id="pfMeetups">{nj ? `${nj} joined` : ''}</span></button>
           <button id="pfTrip" onClick={() => go('trip')}><span className="ico">🧳</span>My Trip<span className="muted">{nt ? `${nt} upcoming` : ''}</span></button>
+          <button id="pfLoc" onClick={() => go('location')}><span className="ico">📍</span>Where am I?<span className="muted">{here().name}</span></button>
         </div>
         <h3 className="sec">Profile Settings</h3>
         <div className="list">
@@ -63,6 +66,14 @@ export function Profile() {
           <button className="item" id="remOpen" onClick={() => go('reminders')}><span className="l"><span className="ico">☰</span>Show reminders</span><span className="muted">›</span></button>
         </div>
         <p className="hint pf-rem">Simulated, inside the app only: flight 2 h, taxi 15 min, meetup 1 h before, hotel check-in the day before. The demo switch shows all upcoming reminders right away.</p>
+        <h3 className="sec">Demo Date</h3>
+        <div className="settings demo-date">
+          <button className="item" id="nextDay" onClick={nextDemoDay}><span className="l"><span className="ico">⏭</span>Demo: simulate next day</span>
+            <span className="muted">{niceDate(appToday())}</span></button>
+          <button className="item" id="resetDay" disabled={!demoDays()} onClick={resetDemoDate}><span className="l"><span className="ico">↺</span>Reset demo date</span>
+            <span className="muted">{demoDays() ? `+${demoDays()} day${demoDays() > 1 ? 's' : ''}` : 'Today'}</span></button>
+        </div>
+        <p className="hint pf-rem">Moves the app's date forward for the daily challenges, the streak and the reminders.</p>
         <h3 className="sec">Recent Destinations</h3>
         <div className="hscroll" id="recentProfile">
           {RECENT_DEST.map(([id, when]) => { const pl = byId(id); return (

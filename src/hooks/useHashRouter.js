@@ -14,7 +14,7 @@ import { navStart } from '../lib/motion.js';
 
 export const TABS = ['home','explore','book','saved','profile'];
 const SCREENS = ['login','signup','home','explore','book','saved','profile','editProfile','achievements','detail','meetups','meetup','chat','interests',
-                 'trip','tripItem','reminders'];
+                 'trip','tripItem','reminders','location'];
 const PUBLIC = ['login','signup'];   // the only screens you can see while logged out
 // Book steps (ui.bookView) ↔ #book/<path>. The live ride can't be restored, so #book/ride opens the hub.
 const BOOK_PATHS = {flights:'flights', results:'flights/results', taxi:'taxi', ride:'ride', hotels:'hotels', hotelResults:'hotels/results'};

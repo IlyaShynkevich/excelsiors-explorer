@@ -11,6 +11,8 @@ import { byHotel, hotelSpot } from '../data/hotels.js';
 import { byId } from '../data/places.js';
 import { fmtEur, ymd, plural } from '../lib/format.js';
 import { AppBar } from '../components/AppBar.jsx';
+import { HereAction } from '../components/HereAction.jsx';
+import { arrive } from '../state/challenges.js';
 
 // ---------- Trip overview (EE-38): bookings + joined meetups, one timeline grouped by day ----------
 export function Trip() {
@@ -153,6 +155,8 @@ function BookingItem({ b }) {
     </div>
     <div className="btns tr-btns">
       {changeable && <button className="btn" id="tripChange" onClick={() => openSheet('changeBooking', {bookingRef: b.ref})}>Change booking</button>}
+      {b.type === 'taxi' && !cancelled && d.to && <button className="btn" id="tripArrived" onClick={() => arrive(d.to)}>📍 I've arrived</button>}
+      {h && !cancelled && <HereAction spot={hotelSpot(h)} name={h.name} />}
       {h && !cancelled && <button className="btn ghost" id="tripDirections" onClick={() => openSheet('directions', {to: hotelSpot(h), name: h.name})}>🧭 Directions</button>}
       {cancellable && <button className="btn ghost tr-danger" id="tripCancel" onClick={() => openSheet('cancelBooking', {bookingRef: b.ref})}>Cancel booking</button>}
     </div>

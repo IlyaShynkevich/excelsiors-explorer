@@ -76,7 +76,9 @@ input[type=date].field,input[type=datetime-local].field,input[type=time].field{l
 body.dark .map{background-color:#1f2a24}
 .map .road{position:absolute;left:12%;right:12%;top:50%;height:6px;border-radius:3px;background:repeating-linear-gradient(90deg,var(--green) 0 14px,transparent 14px 22px)}
 .map .pin{position:absolute;top:calc(50% - 30px);font-size:26px}
-.map .car{position:absolute;top:calc(50% - 16px);font-size:26px;transition:left 1s linear;transform:scaleX(-1)}
+/* the car moves with transform: the track spans the map, so translateX(pos%) = pos% of the map width */
+.map .car-track{position:absolute;inset:0;pointer-events:none;transition:transform var(--dur-ride) linear}
+.map .car{position:absolute;left:0;top:calc(50% - 16px);font-size:26px;transform:scaleX(-1)}
 .driver{display:flex;align-items:center;gap:var(--s3);background:var(--card);border-radius:var(--r);padding:var(--s3) var(--s4);margin-bottom:var(--s3);box-shadow:var(--sh-1)}
 .driver .av{width:50px;height:50px;border-radius:50%;background:var(--green-l);display:grid;place-items:center;font-size:26px;flex:none}
 .driver .nm{flex:1;min-width:0}

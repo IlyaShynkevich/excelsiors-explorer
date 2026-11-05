@@ -4,8 +4,8 @@
 import { emit, toast, closeSheet } from './appStore.js';
 import { getBookings, getBooking, updateBooking, cancelBooking } from './userData.js';
 import { allMeetups, joinedM, isMine, byMeetup } from './meetups.js';
-import { CITIES, RIDES, roadKm, taxiFare, spotName, flightResults, flightOffers } from '../data/booking.js';
-import { byHotel, hotelOffers, nightsOf, hotelSpot } from '../data/hotels.js';
+import { CITIES, RIDES, roadKm, taxiFare, flightResults, flightOffers } from '../data/booking.js';
+import { byHotel, hotelOffers, nightsOf } from '../data/hotels.js';
 import { byId } from '../data/places.js';
 import { hm, niceDate, isoAt, ymd, pad } from '../lib/format.js';
 
@@ -153,12 +153,12 @@ export function confirmChange(ref, q) {
   toast('Booking changed');
 }
 
-// ---------- Directions ----------
-// Start point: the hotel of the current or next stay (else the latest hotel booking), otherwise Alexanderplatz (central Berlin).
-export function directionsStart() {
+// The user's hotel booking: the current or next stay (else the latest hotel booking), or null.
+// (Directions start at the current location since Stage 4, see state/location.js.)
+export function currentHotel() {
   const hotels = getBookings().filter(b => b.type === 'hotel' && b.status === 'Confirmed' && byHotel(b.details.hotelId));
-  const now = Date.now(), cur = hotels.filter(b => (parseLocal(b.end) || 0) > now).sort((a, b) => (parseLocal(a.start) || 0) - (parseLocal(b.start) || 0))[0] || hotels[0];
-  return cur ? {spot: hotelSpot(byHotel(cur.details.hotelId)), hotel: true, name: cur.title} : {spot: 'alex', hotel: false, name: spotName('alex')};
+  const now = Date.now();
+  return hotels.filter(b => (parseLocal(b.end) || 0) > now).sort((a, b) => (parseLocal(a.start) || 0) - (parseLocal(b.start) || 0))[0] || hotels[0] || null;
 }
 export const tripDayLabel = date => {
   if (!date) return 'Date not set';

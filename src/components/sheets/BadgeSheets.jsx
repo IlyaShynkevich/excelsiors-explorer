@@ -21,7 +21,7 @@ function burst() {
   for (let i = 0; i < 20; i++) {
     const a = (i / 20) * Math.PI * 2 + Math.random() * .3, d = 60 + Math.random() * 70, el = document.createElement('i');
     el.style.cssText = `--x:${Math.cos(a) * d | 0}px;--y:${(Math.sin(a) * d * .8 - 20) | 0}px;--r:${(Math.random() * 540 - 270) | 0}deg;`
-      + `--d:${Math.random() * 80 | 0}ms;background:${COLORS[i % COLORS.length]}`;
+      + `--d:calc(var(--stagger) * ${(Math.random() * 1.3).toFixed(2)});background:${COLORS[i % COLORS.length]}`;   // a little random spread
     box.append(el);
   }
   host.append(box);
@@ -30,8 +30,8 @@ function burst() {
 function Confetti() {
   useEffect(() => {
     let box = null;
-    // when the badge pops (180 ms delay + about half of --dur-pop), removed after --dur-confetti (+ the 80 ms spread)
-    const at = 180 + motionMs('pop') * .45;
+    // when the badge pops (--dur-pop-delay + about half of --dur-pop), removed after --dur-confetti (+ the spread)
+    const at = motionMs('pop-delay') + motionMs('pop') * .45;
     const t = setTimeout(() => { box = burst(); }, at);
     const t2 = setTimeout(() => { if (box) box.remove(); }, at + motionMs('confetti') + 150);
     return () => { clearTimeout(t); clearTimeout(t2); if (box) box.remove(); };

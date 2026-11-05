@@ -1,8 +1,7 @@
-// Achievements: leaderboard, check-ins, saving places, demo reset
+// Achievements: leaderboard, saving places, demo reset (check-ins: state/challenges.js)
 import { ui, emit, toast, queueUnlocks } from './appStore.js';
 import { user, ME, myBadges, checkUnlocks } from './userData.js';
 import { FRIENDS } from '../data/badges.js';
-import { byId } from '../data/places.js';
 
 // Friends + you, most badges first (you win ties). Your row has me: true.
 export function leaderboard() {
@@ -12,13 +11,6 @@ export function leaderboard() {
 }
 export function resetProgress() { user.visited = []; user.unlocked = {}; checkUnlocks(); emit(); toast('Progress reset'); }
 
-export function checkIn(id) {
-  if (user.visited.includes(id)) return;
-  user.visited.push(id);
-  const fresh = checkUnlocks();
-  emit();   // re-render in place (keeps the scroll position, so the button animation is visible)
-  if (fresh.length) queueUnlocks(fresh); else toast('Checked in at ' + byId(id).name);
-}
 export function toggleSave(id) {
   const i = user.saved.indexOf(id);
   if (i >= 0) { user.saved.splice(i,1); toast('Removed from saved'); } else { user.saved.push(id); toast('Saved!'); }

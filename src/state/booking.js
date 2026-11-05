@@ -7,6 +7,7 @@ import { go } from '../hooks/useHashRouter.js';
 import { CITIES, RIDES, DRIVERS, roadKm, taxiFare, spotName, flightResults, flightOffers, FLIGHT_TAX } from '../data/booking.js';
 import { HOTELS, hotelOffers, nightsOf, hotelUnits } from '../data/hotels.js';
 import { niceDate, hm, mkRef, isoAt, addDays } from '../lib/format.js';
+import { motionMs } from '../lib/motion.js';
 
 // Back button inside Book: the view each step goes back to when there is no app history
 export const BOOK_PARENT = {flights:'hub', results:'flights', taxi:'hub', ride:'hub', hotels:'hub', hotelResults:'hotels', hotel:'hotelResults'};
@@ -22,7 +23,8 @@ export function setBookView(v, opts = {}) {
 export function addBooking(b) {
   const saved = createBooking(b);
   const fresh = checkUnlocks();
-  if (fresh.length) setTimeout(() => { if (sheetOpen()) queuePush(fresh); else queueUnlocks(fresh); }, 400);
+  // after the confirmation sheet opened (it then waits in the queue) or the screen transition of a live ride
+  if (fresh.length) setTimeout(() => { if (sheetOpen()) queuePush(fresh); else queueUnlocks(fresh); }, motionMs('nav'));
   return saved;
 }
 export { getBookings };

@@ -8,6 +8,7 @@ import './styles/sheet.css';
 import './styles/meetups-chat.css';
 import './styles/explore.css';
 import './styles/trip.css';
+import './styles/arrive.css';
 import './styles/motion.css';
 import { App } from './App.jsx';
 

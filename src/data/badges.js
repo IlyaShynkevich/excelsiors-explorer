@@ -1,4 +1,5 @@
 import { PLACES } from './places.js';
+import { bestStreak, mostQuestsInADay, mostHotelsInADay } from './challenges.js';
 
 const has = (s, id) => s.visited.includes(id) ? 1 : 0;
 const cnt = (s, ids) => ids.filter(i => s.visited.includes(i)).length;
@@ -23,6 +24,10 @@ export const BADGES = [
   {id:'collector', icon:'📌', name:'Collector',      c:['#fdba74','#c2410c'], rarity:51, desc:'Save 5 destinations.',                                                goal:s=>[upTo(s.saved.length,5),5]},
   {id:'berliner', icon:'🐻', name:'Echter Berliner', c:['#fca5a5','#991b1b'], rarity:8,  desc:'Check in at 10 destinations. Ick bin een Berliner!',                 goal:s=>[upTo(s.visited.length,10),10]},
   {id:'complete', icon:'🏆', name:'Completionist',   c:['#fde047','#a16207'], rarity:2,  desc:'Check in at every destination in the app.',                          goal:s=>[upTo(s.visited.length,PLACES.length),PLACES.length]},
+  // Stage 4 "Arrive": daily challenges and hotel check-ins (s.quests = {date: [quest ids]}, s.checkins = [{id, date, kind}])
+  {id:'streak3', icon:'🔥', name:'On a Roll',        c:['#fdba74','#ea580c'], rarity:14, desc:'Complete at least one daily challenge 3 days in a row.',             goal:s=>[upTo(bestStreak(s.quests || {}),3),3]},
+  {id:'quests',  icon:'🎯', name:'Quest Master',     c:['#a5b4fc','#4338ca'], rarity:9,  desc:'Complete all 3 daily challenges in one day.',                         goal:s=>[upTo(mostQuestsInADay(s.quests || {}),3),3]},
+  {id:'hotelhop', icon:'🛎️', name:'Hotel Hopper',    c:['#f9a8d4','#9d174d'], rarity:6,  desc:'Check in at two different hotels on the same day.',                  goal:s=>[upTo(mostHotelsInADay(s.checkins || []),2),2]},
 ];
 export const byBadge = id => BADGES.find(b => b.id === id);
 

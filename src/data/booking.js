@@ -27,8 +27,10 @@ export const taxiFare = km => 4.3 + Math.min(km, 7) * 2.8 + Math.max(0, km - 7) 
 // Directions (simulated, no routing API): estimates from the straight-line distance between spots a and b.
 // Walking 5 km/h and public transport 20 km/h on the street distance (+30 %), plus 8 min to reach a stop and wait.
 export const WALK_KMH = 5, TRANSIT_KMH = 20, TRANSIT_WAIT = 8;
-export function directions(a, b) {
-  const km = kmBetween(COORDS[a], COORDS[b]), road = km * DETOUR, taxiKm = Math.max(1, road);
+export const directions = (a, b) => directionsBetween(COORDS[a], COORDS[b]);
+// the same between two [lat, lon] points (Stage 4: from the current location)
+export function directionsBetween(from, to) {
+  const km = kmBetween(from, to), road = km * DETOUR, taxiKm = Math.max(1, road);
   return {km, walk: Math.max(1, Math.round(road / WALK_KMH * 60)), transit: Math.round(TRANSIT_WAIT + road / TRANSIT_KMH * 60),
           taxi: Math.round(taxiKm * 2.6 + 4), fare: taxiFare(taxiKm)};
 }

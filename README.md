@@ -19,7 +19,7 @@
 
 Excelsiors Explorer helps travellers explore a city and plan their trip in one place.
 Our demo city is **Berlin**: users browse real sights, save favourites, book a flight to BER,
-grab a taxi to the next attraction, see their whole trip day by day and unlock badges for the places they visit.
+grab a taxi to the next attraction, see their whole trip day by day, check in when they arrive and unlock badges and daily challenges.
 
 The app was first designed as a clickable prototype on our Miro board, then implemented
 as a working web app that runs in any phone browser.
@@ -29,11 +29,14 @@ as a working web app that runs in any phone browser.
 | Area | What you can do |
 |------|-----------------|
 | 🔐 **Login & sign-up** | Create an account (name, email, password with at least 8 characters) with friendly inline validation, or use the demo sign-in; you stay logged in after a reload |
-| 🏠 **Home** | Greeting, search, a **5-day Berlin weather forecast** (live from Open-Meteo; a labelled demo forecast if it can't load) with a "Rainy: try indoor places" hint that opens Explore filtered to museums, **For you** suggestions based on your interests, popular sights, recently viewed, quick buttons for flights, taxis and meetups |
-| 🔎 **Explore** | Live search across **27 Berlin places** (19 sights + 8 well-known food places) with real photos, history, addresses, opening hours and prices. **Filters** (EE-43): categories (Sights, Museums, Parks, Food, Nightlife; pick several), **Open now** (checked against the current time in Berlin), and for Food a **Dietary** row (Vegan, Vegetarian, Halal, Gluten-free; a place must have all selected tags). An empty result offers *Reset filters* |
-| 🗺️ **Map view** | List/Map toggle on Explore: an OpenStreetMap map with a pin for every filtered place. Tap a pin for a preview card with photo, category, open status and *View details* (also when the map is partly below the bottom of the screen). Without internet the map shows a friendly message and the list keeps working |
+| 🏠 **Home** | Greeting, search, a **5-day Berlin weather forecast** (live from Open-Meteo; a labelled demo forecast if it can't load) with a "Rainy: try indoor places" hint that opens Explore filtered to museums, **For you** suggestions based on your interests, popular sights, recently viewed, quick buttons for flights, taxis and meetups. Also **Today's challenges** with your 🔥 streak and a **Near you** row with the 3 closest places |
+| 🔎 **Explore** | Live search across **27 Berlin places** (19 sights + 8 well-known food places) with real photos, history, addresses, opening hours and prices. **Filters** (EE-43): categories (Sights, Museums, Parks, Food, Nightlife; pick several), **Open now** (checked against the current time in Berlin), and for Food a **Dietary** row (Vegan, Vegetarian, Halal, Gluten-free; a place must have all selected tags). An empty result offers *Reset filters*. **Near me** (EE-18): sort by distance from your location; every card shows the distance (e.g. "450 m") and places within 300 m get a **Nearby** tag |
+| 📡 **Where am I?** (Stage 4) | Your location, from the top of Explore or from Profile. By default a **demo location**: pick one of 10 central Berlin spots (Alexanderplatz, sights and hotels); the choice is saved. Or switch on **Use my real location**: only then the browser asks for permission; if you deny it or it isn't available, the app goes back to the demo location with a friendly message. Your real position is never saved. All distances, *Near me*, *I'm here* and directions use this location |
+| 🗺️ **Map view** | List/Map toggle on Explore: an OpenStreetMap map with a pin for every filtered place. Tap a pin for a preview card with photo, category, open status, distance and *View details*; a blue dot shows where you are (also when the map is partly below the bottom of the screen). Without internet the map shows a friendly message and the list keeps working |
 | ✨ **Interests** | After the first sign-up (and once on the first demo login) a "What do you like?" screen: pick at least 3 of History, Street art, Food, Nightlife, Nature, Museums, Architecture, Shopping, or skip. Change them any time in Edit Profile |
-| 📍 **Place details** | Open now / closed now, dietary options for food places, check in, save the place, find a meetup there, get **directions** or call a taxi straight to it |
+| 📍 **Place details** | Open now / closed now, distance from you, dietary options for food places, save the place, find a meetup there, get **directions** or call a taxi straight to it |
+| 🛬 **Arrive** (Stage 4) | **I'm here** checks you in when you are within 150 m of a place (or a hotel); further away it says "You're about 1.2 km away" with *Directions* (and *Put me here (demo)* with a demo location). After a check-in an **arrival sheet** shows "You arrived at …", a short fact, your joined meetup there today, the challenges you just completed and three places nearby. In a taxi booking of My Trip, **I've arrived** moves your demo location to the destination and shows the same sheet |
+| 🎯 **Daily challenges** (Stage 4) | 3 quests a day from a pool of 13 (e.g. *Visit a historic landmark*, *Try a food place*, *Check in at 2 places today*, *Visit a place within 500 m of your hotel*, *Check in at a museum / park*). Check-ins complete them automatically; each gives points, with a progress bar and a points total. The 🔥 **streak** counts the days in a row with at least one completed challenge (Home card and Achievements → *Challenges*). Profile → **Demo: simulate next day** moves the app's date forward (saved, with a reset) for challenges, streak and reminders |
 | ✈️ **Flights** | Search flights to and from Berlin BER (14 European cities), choose passengers and class. **Compare providers** (Stage 2 "Book"): every flight is offered by 4–6 fictional booking sites at different prices and terms (checked bag included or not, free cancellation or not), cheapest first with a **Cheapest** tag and a "Save €X vs the most expensive" line. Sort the flights by *Cheapest*, *Fastest* or *Fewest stops*, filter by *Baggage included* and *Free cancellation*. The confirmation shows the provider and a price breakdown (base fare, taxes & fees, baggage). The same search always shows the same offers |
 | 🏨 **Hotels** | Search by city, check-in/check-out and guests (only Berlin has hotels in the demo). **10 Berlin hotels and hostels** with photo, area, stars, description and amenities; each is offered by 3–5 fictional providers (breakfast or room only, free cancellation or non-refundable), with the same Cheapest tag and savings line. Sort by price or stars, filter *Under €120/night*, *4 stars and up*, *Free cancellation*, *Breakfast*. The confirmation shows nights × rate, taxes & fees (incl. Berlin City Tax) and the provider |
 | 🚕 **Taxi** | Pick-up and destination, Eco / Standard / XL with price estimate, schedule a ride or watch the driver arrive live |
@@ -45,7 +48,7 @@ as a working web app that runs in any phone browser.
 | 👥 **Meetups** | Planned activities at Berlin sights with filters (All, Today, This week, Joined), join or leave, see who is going, and create your own meetup |
 | 💬 **Group chat** | iOS-style chat for each meetup, only for people who joined; other travelers reply automatically (simulated) and messages are kept after a reload |
 | 🔖 **Saved** | Your saved destinations |
-| 🏅 **Achievements** | **18 badges** unlocked by checking in, booking (incl. **Smart Saver**: book the cheapest provider for a flight or hotel) and joining or hosting meetups, a friends leaderboard, side-by-side comparison and a "Flex it" share button |
+| 🏅 **Achievements** | **21 badges** unlocked by checking in, booking (incl. **Smart Saver**: book the cheapest provider for a flight or hotel), joining or hosting meetups and the daily challenges (**On a Roll**: 3-day streak, **Quest Master**: all 3 challenges in one day, **Hotel Hopper**: check in at two different hotels on the same day, an idea from one of our interviews), a friends leaderboard, side-by-side comparison and a "Flex it" share button |
 | 👤 **Profile** | Edit your display name, a short bio (140 characters), home city, interests and avatar (the Lego picture or 6 emoji avatars). Your name and avatar show up in meetups, the group chat and the leaderboard. Also recent destinations, achievements summary, dark mode, log out and **delete account** |
 
 **Works like an app on the phone:** every screen has its own URL, so reload and the back button work as expected.
@@ -55,7 +58,7 @@ There is also pull-to-refresh, an offline banner, and you can install it via *Ad
 Short, smooth animations throughout (see [Motion](#motion)), turned off with the system's *Reduce motion* setting.
 On a laptop the app is shown inside a phone frame; on a real phone it runs full-screen.
 
-> ⚠️ **Demo only.** Accounts and profiles are stored only in your browser (one account per browser, with one profile shared by every login there; don't use a real password). Login, flights, hotels, prices, drivers, friends, meetups, the group chat, trip reminders and directions are simulated (reminders only appear inside the app; directions are estimates from the straight-line distance, not real routes). **Opening hours and dietary tags are demo data**: the hours are simplified weekly schedules, and the dietary tags of the food places are indicative only (always check with the venue). If the live weather can't be loaded, the forecast shown is demo data and is labelled as such (there is no backend, nothing is sent to other people). **Booking providers and their prices are demo data**: the provider names (TicketBär, Spree Fares, BettBörse, Kiez Stays …) are made up, the prices are simulated ("demo prices"), and no real provider is contacted. The hotels are real, well-known Berlin hotels except *Spreeblick Hotel* and *Pension Kastanie*, which are fictional. No real bookings or payments are made.
+> ⚠️ **Demo only.** Accounts and profiles are stored only in your browser (one account per browser, with one profile shared by every login there; don't use a real password). Login, flights, hotels, prices, drivers, friends, meetups, the group chat, trip reminders, directions, the demo location and the daily challenges are simulated (reminders only appear inside the app; directions are estimates from the straight-line distance, not real routes). **Opening hours and dietary tags are demo data**: the hours are simplified weekly schedules, and the dietary tags of the food places are indicative only (always check with the venue). If the live weather can't be loaded, the forecast shown is demo data and is labelled as such (there is no backend, nothing is sent to other people). **Booking providers and their prices are demo data**: the provider names (TicketBär, Spree Fares, BettBörse, Kiez Stays …) are made up, the prices are simulated ("demo prices"), and no real provider is contacted. The hotels are real, well-known Berlin hotels except *Spreeblick Hotel* and *Pension Kastanie*, which are fictional. No real bookings or payments are made.
 
 ## Try it
 
@@ -68,7 +71,10 @@ Profile → **Delete Account** removes the account and everything saved in the b
 **Tips for a demo**
 - Profile → **Edit Profile** to pick an avatar, then join a meetup and write in its chat to see it there
 - Explore → tap **Food** and then **Vegan** + **Gluten-free**, or switch to **🗺️ Map** and tap a pin
-- Open a place → **📍 Check in here** to unlock badges
+- Explore → **📡 Where am I?** → pick *Brandenburg Gate*, then sort by **Near me** and open the gate → **📍 I'm here** (arrival sheet, challenges, badges)
+- Home → **Today's challenges**: complete all 3, then Profile → **Demo: simulate next day** twice to build a 3-day 🔥 streak (*On a Roll*)
+- Book → Hotels → open a hotel → *Put me here (demo)* → **I'm here**, then the same at a second hotel (*Hotel Hopper*)
+- My Trip → a taxi booking → **I've arrived**
 - Book a flight to Berlin from the **cheapest provider** (Smart Saver badge), then tap **🚕 Book a taxi from BER**
 - Book → Hotels: compare providers for a Berlin hotel, try the filters and the *Stars* sort
 - Home → **👥 Meetups** → join one to unlock the group chat, or tap **+** to host your own
@@ -81,7 +87,7 @@ Profile → **Delete Account** removes the account and everything saved in the b
 
 - **React 18 + Vite**, plain JavaScript (no TypeScript, no UI or router library); hash routing in a small custom hook
 - **CSS** in `src/styles/` (iOS-style design tokens, light and dark mode)
-- **localStorage** for the account, profile, login state, saved places, badges, bookings, meetups, chat messages and reminder settings (stored per browser)
+- **localStorage** for the account, profile, login state, saved places, badges, bookings, meetups, chat messages, reminder settings, demo location, check-ins, challenges and the demo date (stored per browser; never the real position)
 - **PWA**: web app manifest and a network-first service worker, so the app can be installed and opens offline
 - **Wikimedia Commons** photos loaded from each place's Wikipedia article
 - **[Leaflet](https://leafletjs.com/)** (npm, loaded only when the map opens) with **[OpenStreetMap](https://www.openstreetmap.org/copyright)** tiles for the map view, no API key
@@ -103,7 +109,13 @@ Calm iOS-style animations that never get in the way (only `transform` and `opaci
 | Photo fade-in · filtered list glide | 400 ms | `--dur-photo`, `--dur-flip` |
 | Confetti | 1.3 s | `--dur-confetti` |
 | Toast in / out | 350 ms | `--dur-toast` |
+| Map pin preview: slide up / down (soft ease-out) | 450 ms / 350 ms | `--dur-sheet-in`, `--dur-sheet-out`, `--ease-nav` |
+| Map pins drop in one after the other · tapped pin grows | 500 ms · 350 ms | `--dur-slow`, `--stagger`, `--dur-base` |
+| Taxi tracker car step | 1 s | `--dur-ride` |
+| Loading loops (typing dots, weather, shimmer, spinner) | 1.2 s / 1.3 s / 0.8 s | `--dur-loop`, `--dur-shimmer`, `--dur-spin` |
 | Other fades and pops | 350 / 500 ms | `--dur-base`, `--dur-slow` |
+
+No animation has a hard-coded duration; only Leaflet's own map zoom (0.25 s) and tile fade (0.2 s) keep Leaflet's built-in timing, and they are turned off with *Reduce motion*.
 
 
 - **Screens:** going forward slides the new screen in from the right while the old one moves slightly to the left (parallax); the back button or browser back slides it out to the right. Switching tabs is a cross-fade. Reload and deep links open without an animation.
@@ -150,7 +162,7 @@ excelsiors-explorer/
 │   ├── hooks/               # useHashRouter (routes + back button), useFieldMessages (form validation), useFlip (list animation), useClock
 │   ├── components/          # app bar, tab bar, bottom sheets, chat bubble, badge, avatars, cards, chips …
 │   ├── screens/             # one file per screen: Login, SignUp, Interests, Home, Explore, PlaceDetail, Saved, Profile,
-│   │                        #   EditProfile, Achievements, Book, Meetups, MeetupDetail, MeetupChat, Trip (+ detail), Reminders
+│   │                        #   EditProfile, Achievements, Book, Meetups, MeetupDetail, MeetupChat, Trip (+ detail), Reminders, Location
 │   ├── lib/                 # format.js (dates, times, prices), hours.js ("open now" in Berlin time), motion.js (screen transitions)
 │   └── styles/              # the CSS, split by area (motion.css: all animations)
 ├── legacy/index.old.html    # the previous single-file version, kept until the migration is signed off

@@ -6,6 +6,8 @@ import { Photo } from './Photo.jsx';
 import { reducedMotion } from '../lib/motion.js';
 import { isOpenNow } from '../lib/hours.js';
 import { PlaceMeta } from './PlaceMeta.jsx';
+import { here, distLabel, isNearby } from '../state/location.js';
+import { motionMs } from '../lib/motion.js';
 
 // Map view of Explore: Leaflet + OpenStreetMap tiles (no API key). Leaflet is loaded on demand,
 // so it is its own build file (cached by the service worker like the rest of the app).
@@ -24,7 +26,9 @@ export function PlaceMap({ places, sel, onSelect, onShowList }) {
     Promise.all([import('leaflet'), import('leaflet/dist/leaflet.css')]).then(([mod]) => {
       if (dead) return;
       const L = mod.default || mod;
-      const map = L.map(box.current, {center: CENTER, zoom: 12, zoomControl: true, tap: false});
+      // Leaflet's zoom / tile fade / marker zoom animations are timed inside Leaflet (0.25 s / 0.2 s): off with reduced motion
+      const anim = !reducedMotion();
+      const map = L.map(box.current, {center: CENTER, zoom: 12, zoomControl: true, tap: false, zoomAnimation: anim, fadeAnimation: anim, markerZoomAnimation: anim});
       const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
       }).addTo(map);
@@ -56,12 +60,15 @@ export function PlaceMap({ places, sel, onSelect, onShowList }) {
     const pts = places.filter(p => COORDS[p.id]);
     const still = reducedMotion();
     pts.forEach((p, i) => {
-      const d = still || i >= 8 ? 0 : i * 30;   // pins drop in (motion.css), the first 8 one after the other
-      const icon = L.divIcon({className: 'ex-pin', html: `<span style="--d:${d}ms"><i>${pinFor(p)}</i></span>`, iconSize: [34, 34], iconAnchor: [17, 41]});
+      const n = still || i >= 8 ? 0 : i;   // pins drop in (motion.css), the first 8 one after the other (--stagger × n)
+      const icon = L.divIcon({className: 'ex-pin', html: `<span style="--i:${n}"><i>${pinFor(p)}</i></span>`, iconSize: [34, 34], iconAnchor: [17, 41]});
       const mk = L.marker(COORDS[p.id], {icon, title: p.name, alt: p.name, keyboard: true, riseOnHover: true})
         .on('click', () => onSelect(p.id)).addTo(layer);
       m.current.markers[p.id] = mk;
     });
+    // you are here (Stage 4: demo or real location)
+    const me = here();
+    L.marker(me.ll, {icon: L.divIcon({className: 'ex-me', html: '<span></span>', iconSize: [18, 18], iconAnchor: [9, 9]}), title: me.name, alt: me.name, keyboard: false, interactive: false, zIndexOffset: 2000}).addTo(layer);
     if (pts.length === 1) map.setView(COORDS[pts[0].id], 14, {animate: false});
     else if (pts.length) map.fitBounds(pts.map(p => COORDS[p.id]), {padding: [36, 36], maxZoom: 15, animate: false});   // no animation: the screen may unmount mid-zoom
     mark();
@@ -73,12 +80,17 @@ export function PlaceMap({ places, sel, onSelect, onShowList }) {
     });
   }
   const latest = useRef(draw); latest.current = draw;   // the map loads async: draw with the newest places
-  const key = places.map(p => p.id).join();
+  const key = places.map(p => p.id).join() + '|' + here().ll.join();
   useEffect(draw, [key]);
   const card = useRef(null);
-  useEffect(() => { mark(); if (card.current) card.current.scrollIntoView({block: 'nearest'}); }, [sel]);   // keep the preview above the tab bar
+  useEffect(() => { mark(); if (sel && card.current) card.current.scrollIntoView({block: 'nearest'}); }, [sel]);   // keep the preview above the tab bar
+  // the preview slides up (--dur-sheet-in); after closing it stays until it has slid down (.closing, --dur-sheet-out)
+  const [shown, setShown] = useState(sel), closing = !sel && !!shown;
+  if (sel && sel !== shown) setShown(sel);
+  const gone = () => setShown('');
+  useEffect(() => { if (closing) { const t = setTimeout(gone, motionMs('sheet-out') + 150); return () => clearTimeout(t); } }, [closing]);   // fallback
 
-  const p = sel && byId(sel);
+  const p = shown && byId(shown);
   return (
     <div className="map-wrap" id="exMap">
       <div className="ex-map" ref={box} role="region" aria-label="Map of the filtered places"></div>
@@ -90,15 +102,16 @@ export function PlaceMap({ places, sel, onSelect, onShowList }) {
         </div>
       )}
       {p && (
-        <div className="map-card" key={p.id} ref={card} role="dialog" aria-label={p.name}>
+        <div className={'map-card' + (closing ? ' closing' : '')} key={p.id} ref={card} role="dialog" aria-label={p.name}
+             onAnimationEnd={e => { if (closing && e.target === e.currentTarget) gone(); }}>
           <Photo className="thumb" p={p} />
           <div className="mc-body">
             <b>{p.name}</b>
             <PlaceMeta p={p} open={isOpenNow(p)} />
-            {p.rating ? <small className="rating">{'★ ' + p.rating}</small> : <small className="muted">{`${p.area} · ${p.km} km`}</small>}
+            <small className="muted mc-dist">{`${p.area} · ${distLabel(p.id)}`}{isNearby(p.id) && <span className="fl-badge near-tag">Nearby</span>}</small>
             <button className="pill" onClick={() => openDetail(p.id)}>View details</button>
           </div>
-          <button className="mc-x" aria-label="Close preview" onClick={() => onSelect('')}>×</button>
+          <button className="mc-x" aria-label="Close preview" disabled={closing} onClick={() => onSelect('')}>×</button>
         </div>
       )}
     </div>

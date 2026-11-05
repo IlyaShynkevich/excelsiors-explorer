@@ -7,6 +7,9 @@ import { store, lastRoute, DATA_KEY, SESSION_KEY } from './storage.js';
 import { AVATARS, DEFAULT_PROFILE } from '../data/avatars.js';
 import { BADGES } from '../data/badges.js';
 import { INTERESTS } from '../data/places.js';
+import { COORDS } from '../data/booking.js';
+import '../data/hotels.js';   // registers the hotels as spots in COORDS (location)
+import { DEFAULT_SPOT } from '../data/location.js';
 
 // What a new browser starts with (the demo traveler already has some progress)
 export const freshData = () => ({
@@ -17,6 +20,9 @@ export const freshData = () => ({
   joined: [], myMeetups: [], chats: {},   // meetups: joined ids, meetups the user created, chat messages per meetup id
   account: null, profile: {...DEFAULT_PROFILE, interests: []},
   reminders: {on: true, demo: false, read: []},   // trip reminders: switch, demo "all due now", ids marked as read
+  // Stage 4 "Arrive": demo location (a COORDS spot) + real-location switch (the real position itself is never saved),
+  // check-ins with their (demo) date, completed daily quests per date, and the demo date offset in days
+  location: {spot: DEFAULT_SPOT, real: false}, checkins: [], quests: {}, demoDays: 0,
 });
 // The user's data. Always the same object (deleteUser resets it in place), so modules can import it.
 export const user = freshData();
@@ -43,6 +49,14 @@ const cleanBooking = b => b && typeof b === 'object' && BOOKING_TYPES.includes(b
 // Older saved data has no reminder settings yet: on, real times, nothing read
 const cleanReminders = r => (r = r && typeof r === 'object' ? r : {}, {
   on: r.on !== false, demo: !!r.demo, read: Array.isArray(r.read) ? r.read.filter(x => typeof x === 'string').slice(-200) : []});
+// Older saved data has none of the Stage 4 fields: demo location Alexanderplatz, no check-in log, no quests, real date
+const cleanLocation = l => (l = l && typeof l === 'object' ? l : {}, {spot: COORDS[l.spot] ? l.spot : DEFAULT_SPOT, real: !!l.real});
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
+const cleanCheckins = a => Array.isArray(a) ? a.filter(c => c && typeof c.id === 'string' && DAY.test(c.date)).map(c => ({
+  id: c.id, date: c.date, t: typeof c.t === 'number' ? c.t : 0, first: !!c.first, kind: c.kind === 'hotel' ? 'hotel' : 'place'})).slice(-500) : [];
+const cleanQuests = q => Object.fromEntries(Object.entries(q && typeof q === 'object' ? q : {})
+  .filter(([d, ids]) => DAY.test(d) && Array.isArray(ids)).map(([d, ids]) => [d, ids.filter(x => typeof x === 'string')]));
+const cleanDays = n => Number.isInteger(n) && n >= 0 && n <= 365 ? n : 0;
 const cleanAccount = a => a && typeof a.email === 'string' && typeof a.pw === 'string' ? {email:a.email, pw:a.pw, created:str(a.created, 10, '')} : null;
 
 // Old saved data has no meetups, account or profile yet: those get defaults.
@@ -53,12 +67,13 @@ try {
           user.bookings = Array.isArray(s.bookings) ? s.bookings.map(cleanBooking).filter(Boolean) : [];
           user.joined = Array.isArray(s.joined) ? s.joined : []; user.myMeetups = Array.isArray(s.myMeetups) ? s.myMeetups : [];
           user.chats = s.chats && typeof s.chats === 'object' ? s.chats : {};
-          user.account = cleanAccount(s.account); user.profile = cleanProfile(s.profile); user.reminders = cleanReminders(s.reminders); }
+          user.account = cleanAccount(s.account); user.profile = cleanProfile(s.profile); user.reminders = cleanReminders(s.reminders);
+          user.location = cleanLocation(s.location); user.checkins = cleanCheckins(s.checkins); user.quests = cleanQuests(s.quests); user.demoDays = cleanDays(s.demoDays); }
 } catch(e){}
 
 export const persist = () => store.set(DATA_KEY, JSON.stringify({saved:user.saved, dark:user.dark, visited:user.visited, unlocked:user.unlocked, bookings:user.bookings,
                                                                  joined:user.joined, myMeetups:user.myMeetups, chats:user.chats, account:user.account, profile:user.profile,
-                                                                 reminders:user.reminders}));
+                                                                 reminders:user.reminders, location:user.location, checkins:user.checkins, quests:user.quests, demoDays:user.demoDays}));
 // Demo only, NOT secure: a real backend would hash passwords on the server.
 const pwHash = pw => { let h = 2166136261; for (const c of 'ee7:' + pw) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return (h >>> 0).toString(36); };
 
@@ -130,6 +145,16 @@ export function markRemindersRead(ids) {
   const r = user.reminders;
   r.read = [...r.read, ...ids.filter(id => !r.read.includes(id))].slice(-200); persist();
 }
+
+// ---------- Stage 4 "Arrive": location, check-ins, daily quests, demo date ----------
+export const getLocation = () => ({...user.location});
+export function saveLocation(changes) { user.location = cleanLocation({...user.location, ...changes}); persist(); return getLocation(); }
+export const getCheckins = () => user.checkins.map(c => ({...c}));
+export function addCheckin(c) { user.checkins = cleanCheckins([...user.checkins, c]); persist(); }
+export const getQuestLog = () => Object.fromEntries(Object.entries(user.quests).map(([d, ids]) => [d, [...ids]]));
+export function saveQuestDay(date, ids) { user.quests = cleanQuests({...user.quests, [date]: ids}); persist(); }
+export const getDemoDays = () => user.demoDays;
+export function setDemoDays(n) { user.demoDays = cleanDays(n); persist(); }
 
 // Removes everything this user stored in the browser and logs out.
 export function deleteUser() {

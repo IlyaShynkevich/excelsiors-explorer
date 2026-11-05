@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { ui, closeSheet } from '../../state/appStore.js';
 import { getBooking } from '../../state/userData.js';
-import { changeQuote, confirmChange, cancelTerms, confirmCancel, directionsStart, toLocal } from '../../state/trip.js';
+import { changeQuote, confirmChange, cancelTerms, confirmCancel, toLocal } from '../../state/trip.js';
+import { here, fmtDist } from '../../state/location.js';
 import { openBooking } from '../../hooks/useHashRouter.js';
-import { directions, spotName, DETOUR } from '../../data/booking.js';
+import { directionsBetween, COORDS, DETOUR } from '../../data/booking.js';
 import { fmtEur, ymd, addDays } from '../../lib/format.js';
 
-const km1 = n => n.toFixed(1).replace('.', ',');
 const mins = m => m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, '0')} min`;
 const diffText = d => d > 0.004 ? `+${fmtEur(d)} to pay` : d < -0.004 ? `${fmtEur(-d)} back` : 'No difference';
 
@@ -68,20 +68,20 @@ export function CancelBookingSheet({ bookingRef }) {
   </>);
 }
 
-// ---------- Directions (simulated): walking, public transport and taxi from the hotel or central Berlin ----------
-// to = spot id (place id or 'ht-<hotel>'), name = shown name
+// ---------- Directions (simulated): walking, public transport and taxi from the current location ----------
+// to = spot id (place id or 'ht-<hotel>'), name = shown name. Start = the demo or real location (state/location.js).
 export function DirectionsSheet({ to, name }) {
-  const s0 = directionsStart(), start = s0.spot === to ? {spot: 'alex', hotel: false, name: spotName('alex')} : s0;
-  const d = directions(start.spot, to);
-  const taxi = () => { ui.tx.from = start.spot; closeSheet(); openBooking('taxi', to); };
+  const start = here(), d = directionsBetween(start.ll, COORDS[to]), there = d.km * 1000 < 150;
+  const taxi = () => { if (start.spot && start.spot !== to) ui.tx.from = start.spot; closeSheet(); openBooking('taxi', to); };
   return (<>
     <h3>Directions</h3>
-    <p>To <b>{name}</b><br />{(start.hotel ? `From your hotel, ${start.name}` : `From ${start.name} (central Berlin)`) + ` · ${km1(d.km)} km away`}</p>
+    <p>To <b>{name}</b><br />{(start.real ? 'From your location' : `From ${start.name} (demo location)`) + ` · ${fmtDist(d.km)} away`}</p>
+    {there && <p className="dir-here" id="dirHere">You're already here! Tap “I'm here” on the page to check in.</p>}
     <div id="dirOpts">
       <div className="ride dir" data-mode="walk"><span className="ic" aria-hidden="true">🚶</span>
-        <span className="nm"><b>Walking</b><small>{`about ${km1(d.km * DETOUR)} km on foot`}</small></span><span className="pr">{mins(d.walk)}</span></div>
+        <span className="nm"><b>Walking</b><small>{`about ${fmtDist(d.km * DETOUR)} on foot`}</small></span><span className="pr">{mins(d.walk)}</span></div>
       <div className="ride dir" data-mode="transit"><span className="ic" aria-hidden="true">🚇</span>
-        <span className="nm"><b>Public transport</b><small>{`U-Bahn / S-Bahn / bus, approx. ${d.transit} min (demo estimate)`}</small></span><span className="pr">{mins(d.transit)}</span></div>
+        <span className="nm"><b>Public transport</b><small>{`U-Bahn / S-Bahn / bus, approx. ${d.transit} min (demo estimate)`}</small></span></div>
       <div className="ride dir" data-mode="taxi"><span className="ic" aria-hidden="true">🚕</span>
         <span className="nm"><b>Taxi</b><small>{`approx. ${d.taxi} min · Berlin taxi tariff`}</small></span><span className="pr">{fmtEur(d.fare)}</span></div>
     </div>

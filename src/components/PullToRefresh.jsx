@@ -1,3 +1,4 @@
+import { motionMs } from '../lib/motion.js';
 import { useEffect, useRef } from 'react';
 import { sheetOpen } from '../state/appStore.js';
 
@@ -21,8 +22,9 @@ export function PullToRefresh() {
     };
     const end = () => {
       if (y0 === null) return;
-      if (dy > 90) { ptr.classList.add('spin'); ptr.style.transform = 'translateY(20px)'; setTimeout(() => location.reload(), 350); }
-      else { ptr.style.transition = '.2s'; ptr.style.transform = 'translateY(-70px)'; ptr.style.opacity = 0; setTimeout(() => ptr.style.transition = '', 200); }
+      if (dy > 90) { ptr.classList.add('spin'); ptr.style.transform = 'translateY(20px)'; setTimeout(() => location.reload(), motionMs('base')); }   // the spinner shows briefly
+      else { ptr.style.transition = 'transform var(--dur-fast) var(--ease-out),opacity var(--dur-fast) var(--ease-out)'; ptr.style.transform = 'translateY(-70px)'; ptr.style.opacity = 0;
+             setTimeout(() => ptr.style.transition = '', motionMs('fast')); }
       y0 = null;
     };
     document.addEventListener('touchstart', start, {passive:true});

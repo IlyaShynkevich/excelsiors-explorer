@@ -24,12 +24,14 @@ import { MeetupChat, scrollChat } from './screens/MeetupChat.jsx';
 import { Interests } from './screens/Interests.jsx';
 import { Trip, TripItem } from './screens/Trip.jsx';
 import { Reminders } from './screens/Reminders.jsx';
+import { Location } from './screens/Location.jsx';
+import { initLocation } from './state/location.js';
 
 const SCREENS = {
   interests: Interests,
   login: Login, signup: SignUp, home: Home, explore: Explore, detail: PlaceDetail, saved: Saved, profile: Profile,
   editProfile: EditProfile, achievements: Achievements, book: Book, meetups: Meetups, meetup: MeetupDetail, chat: MeetupChat,
-  trip: Trip, tripItem: TripItem, reminders: Reminders,
+  trip: Trip, tripItem: TripItem, reminders: Reminders, location: Location,
 };
 
 export function App() {
@@ -50,6 +52,7 @@ export function App() {
     document.addEventListener('keydown', keys);
     setOnline();
     motionReady();   // screen transitions from now on (not on the first screen after a reload)
+    initLocation();  // real location: only continues if it was on and the browser still allows it
     // Keyboard: Android resizes the page (interactive-widget=resizes-content); iOS only shrinks the
     // visual viewport, so there the chat is pinned to the visible area and the input stays above the keyboard.
     const vv = window.visualViewport;

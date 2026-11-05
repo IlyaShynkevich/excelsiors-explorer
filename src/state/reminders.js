@@ -1,10 +1,11 @@
 // ---------- Trip reminders (simulated, in-app only; no browser notifications) ----------
 // Generated from the trip: flight 2 hours before, taxi 15 minutes before, meetup 1 hour before, hotel check-in
-// the day before. A reminder shows once its time has come (real clock). "Demo: show reminders now" (Profile)
+// the day before. A reminder shows once its time has come (real clock, moved by the demo date: state/clock.js). "Demo: show reminders now" (Profile)
 // treats every upcoming reminder as due. Settings and read ids are saved through userData.js.
 import { emit, toast } from './appStore.js';
 import { getReminderSettings, setRemindersOn, setRemindersDemo, markRemindersRead } from './userData.js';
 import { tripItems, timeOf, dayLabel } from './trip.js';
+import { appNow } from './clock.js';
 
 const LEAD = {flight: 2 * 36e5, taxi: 15 * 6e4, meetup: 36e5, hotel: 864e5};
 const WHEN = {flight: '2 hours before departure', taxi: '15 minutes before pick-up', meetup: '1 hour before the meetup', hotel: 'The day before check-in'};
@@ -26,7 +27,7 @@ export function allReminders() {
 }
 // The reminders that are due now (newest first), each with read: true/false. None while reminders are off.
 export function dueReminders() {
-  const s = getReminderSettings(), now = Date.now();
+  const s = getReminderSettings(), now = appNow();   // the demo date (Profile) moves the clock forward
   if (!s.on) return [];
   return allReminders().filter(r => r.t > now - KEEP && (r.due <= now || (s.demo && r.t > now)))
     .map(r => ({...r, read: s.read.includes(r.id)})).sort((a, b) => b.due - a.due);

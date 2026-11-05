@@ -27,7 +27,7 @@
 .map-wrap .leaflet-container{font:inherit;font-size:var(--fs-cap);background:var(--fill)}
 .ex-pin{background:none;border:0}
 .ex-pin span{display:grid;place-items:center;width:34px;height:34px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);background:var(--card);
-          box-shadow:0 0 0 2px var(--green),0 3px 8px rgba(0,0,0,.3);transition:transform var(--dur-fast) var(--ease-out),background-color var(--dur-fast)}
+          box-shadow:0 0 0 2px var(--green),0 3px 8px rgba(0,0,0,.3);transition:transform var(--dur-base) var(--ease-spring-soft),background-color var(--dur-base)}
 .ex-pin span{font-size:16px;line-height:1}
 .ex-pin i{font-style:normal;transform:rotate(45deg)}
 .ex-pin.on span{background:var(--green);transform:rotate(-45deg) scale(1.18)}
@@ -66,7 +66,7 @@ body.dark .demo-tag{color:#fbbf24;background:rgba(251,191,36,.16)}
 .wx-day .t b{color:var(--text)}
 .wx-day small{font-size:clamp(10px,2.9vw,11px);color:var(--muted);white-space:nowrap}
 .wx-day.rainy{background:rgba(10,132,255,.14)}
-.wx-days.loading i{display:block;width:60%;flex:1;border-radius:6px;background:var(--fill-2);animation:wxPulse 1.2s ease-in-out infinite alternate}
+.wx-days.loading i{display:block;width:60%;flex:1;border-radius:6px;background:var(--fill-2);animation:wxPulse var(--dur-loop) var(--ease-in-out) infinite alternate}
 @keyframes wxPulse{to{opacity:.4}}
 .wx-note{margin-top:var(--s2)}
 .wx-hint{display:flex;align-items:center;gap:var(--s3);width:100%;margin-top:var(--s3);padding:var(--s3);border-radius:var(--r-sm);

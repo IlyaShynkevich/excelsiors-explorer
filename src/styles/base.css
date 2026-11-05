@@ -33,9 +33,13 @@
   --dur-nav:480ms;                               /* screen slide forward / back */
   --dur-tab:300ms;                               /* tab cross-fade */
   --dur-sheet-in:450ms; --dur-sheet-out:350ms;   /* bottom sheets (the unlock queue waits for sheet-out) */
-  --dur-pop:550ms;                               /* badge unlock pop */
+  --dur-pop:550ms; --dur-pop-delay:180ms;       /* badge unlock pop (starts after the sheet began to slide up) */
   --dur-photo:400ms; --dur-flip:400ms;           /* photo fade-in, filtered list glide (useFlip) */
   --dur-confetti:1300ms; --dur-toast:350ms;
+  --dur-ride:1s;                                 /* taxi tracker: the car moves one step per tick, linear */
+  /* looping indicators (they repeat until the content is there) */
+  --dur-loop:1.2s; --loop-step:.2s;              /* typing dots, weather placeholder pulse; step = delay between the dots */
+  --dur-shimmer:1.3s; --dur-spin:.8s;            /* photo shimmer, pull-to-refresh spinner */
   --star:#b7791f;                                /* hotel stars */
   --press:.97;                                   /* scale while pressed */
   --ease:var(--ease-out);                        /* older name, same curve */

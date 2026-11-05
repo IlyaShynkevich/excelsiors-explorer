@@ -13,6 +13,7 @@ import { Stepper } from '../components/Stepper.jsx';
 import { FilterChips } from '../components/FilterChips.jsx';
 import { ProviderList } from '../components/ProviderList.jsx';
 import { Photo } from '../components/Photo.jsx';
+import { HereAction } from '../components/HereAction.jsx';
 
 const TITLES = {hub:'Book', flights:'Book a flight', results:'Choose a flight', taxi:'Book a taxi', ride:'Your ride',
                 hotels:'Book a hotel', hotelResults:'Choose a hotel', hotel:'Your stay'};
@@ -182,6 +183,7 @@ function HotelDetail() {
     <p className="muted ht-area">{'📍 ' + h.area}</p>
     <p className="ht-about">{h.short}</p>
     <div className="ht-amen">{h.amen.map(a => <span key={a}>{a}</span>)}</div>
+    <div className="ht-here"><HereAction spot={hotelSpot(h)} name={h.name} /></div>
     <p className="hint">{searchLine() + ' · ' + plural(units, h.stars ? 'room' : 'bed') + ' '}
       <button className="link-btn" id="htChange" onClick={() => setBookView('hotels')}>Change</button></p>
     <FilterChips id="htOfferFilters" label="Filter offers" options={OFFER_FILTERS} value={s.filters} onChange={k => toggleFilter('ht', k)} />
@@ -231,7 +233,7 @@ function Ride() {
   return (<>
     <div className="eta"><small className="muted" id="rideStatus">{r.status}</small><br /><b id="rideEta">{r.eta > 1 || r.pos < 80 ? r.eta + ' min' : 'Arrived'}</b></div>
     <div className="map"><div className="road"></div><span className="pin" style={{left: '8%'}}>📍</span><span className="pin" style={{right: '8%'}}>🏁</span>
-      <span className="car" id="rideCar" style={{left: r.pos + '%'}}>🚕</span></div>
+      <span className="car-track" style={{transform: `translateX(${r.pos}%)`}}><span className="car" id="rideCar">🚕</span></span></div>
     <div className="driver"><span className="av">{r.d[1]}</span><span className="nm"><b>{`${r.d[0]} · ⭐ ${r.d[4]}`}</b><small>{r.d[2]}</small></span><span className="plate">{r.d[3]}</span></div>
     <div className="summary">
       <div><span>From</span><span>{spotName(r.from)}</span></div>

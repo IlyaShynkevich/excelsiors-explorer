@@ -3,7 +3,8 @@
 ## What this is
 **Excelsiors Explorer**: university semester project (Agile / Design Thinking course), group of 3.
 Mobile-first travel app demo for Berlin: explore sights, save places, check in for badges, book flights, hotels and taxis (comparing fictional providers), join meetups and group chats,
-then see the whole trip in one timeline (change / cancel bookings, weather per day, simulated reminders and directions).
+then see the whole trip in one timeline (change / cancel bookings, weather per day, simulated reminders and directions),
+and on arrival check in where they are ("I'm here", simulated location, Near me, daily challenges with streaks).
 
 ## Architecture
 - **React 18 + Vite**, plain JavaScript (no TypeScript), no UI libraries, no router library. Don't add any unless explicitly asked.
@@ -35,6 +36,7 @@ then see the whole trip in one timeline (change / cancel bookings, weather per d
 - `src/state/userData.js`: the user data layer. **All user data goes through these named functions**:
   `getSession/setSession/clearSession`, `getUser/saveUser`, `signIn`, `signUp`, `getProfile/saveProfile`, `deleteUser`,
   `createBooking/getBookings/getBooking/cancelBooking/updateBooking`, `getReminderSettings/setRemindersOn/setRemindersDemo/markRemindersRead`,
+  `getLocation/saveLocation`, `getCheckins/addCheckin`, `getQuestLog/saveQuestDay`, `getDemoDays/setDemoDays`,
   plus `needsOnboarding/markOnboarded/saveInterests`, `persist()` and `checkUnlocks()`. Data lives in the `user` object, saved under `'ee_berlin'`; the session (email) under `'ee_session'`.
   Keep the keys and data shapes: old saved data (missing fields) must still load with defaults (`freshData()`, `cleanProfile()`).
 - One account per browser. Its email needs the right password; any other email always falls back to the demo login (any password).
@@ -48,6 +50,9 @@ then see the whole trip in one timeline (change / cancel bookings, weather per d
   `cancelBooking(ref, {refund, fee})` keeps the booking (status 'Cancelled', price 0) and stores `details.paid/refund/cancelFee`;
   `updateBooking(ref, changes)` changes provider/price/title/sub/start/end/details of a confirmed booking (`details.changes`, `details.changeFee`).
 - Reminder settings live in `user.reminders = {on, demo, read: [ids]}` (`cleanReminders()` defaults for old data: on, not demo, none read).
+- Stage 4: `user.location = {spot, real}` (spot = a `COORDS` key, default `'alex'`; the real position is never saved, only kept in
+  `state/location.js` memory), `user.checkins = [{id (place id or 'ht-<hotel>'), date (demo date), t, first, kind}]` (last 500),
+  `user.quests = {date: [completed quest ids]}`, `user.demoDays` (0–365). `cleanLocation/cleanCheckins/cleanQuests/cleanDays` fill defaults.
 - Actions: `state/booking.js` (`setBookView`, `flightList`, `hotelList`, `bookFlight`, `bookHotel`, `requestTaxi`, `addBooking` → unlock queue), `state/meetups.js` (incl. chat + simulated replies), `state/achievements.js`,
   `state/explore.js` (search + filters in `ui.ex`, `exploreList()`), `state/weather.js` (Open-Meteo fetch, demo fallback, session-only),
   `state/trip.js` (Stage 3: `tripItems()/tripDays()` = bookings + joined meetups by day, hotels as check-in + check-out entries; `tripEntry(id)`;
@@ -55,13 +60,22 @@ then see the whole trip in one timeline (change / cancel bookings, weather per d
   `cancelTerms(b)`/`confirmCancel`: free cancellation = full refund, non-refundable = only taxes & fees back, taxi free; `directionsStart()` = hotel of the current/next stay or Alexanderplatz),
   `state/reminders.js` (`dueReminders()` from the trip: flight −2 h, taxi −15 min, meetup −1 h, hotel −1 day; shown once due on the real clock, or all upcoming in demo mode; id includes the start time).
   `hooks/useClock.js` re-renders Home/Trip/Reminders every 30 s so reminders appear without navigation.
+- Stage 4 "Arrive": `state/clock.js` (`appNow()/appToday()` = real time + demo days; used by challenges, streak, reminders; `nextDemoDay/resetDemoDate`),
+  `state/location.js` (`here()` = demo spot or real position, `kmToSpot/distLabel/fmtDist` ("450 m", "1.2 km"), `isNearby` (300 m), `isAt` (150 m),
+  `nearestPlaces(n, from)`, `setDemoSpot`, `setRealLocation` (geolocation only when switched on; denied/unavailable → demo + message),
+  `initLocation()` on start (continues only if the permission is still granted, never prompts)),
+  `state/challenges.js` (`checkIn(spot)`: once per spot and demo day, logs it, completes quests, `checkUnlocks()`, opens the `arrival` sheet,
+  badges `queuePush`ed so they pop after it; `arrive(spot)` for "I've arrived"; `todaysQuests/streak/todayPoints/totalPoints/questHistory`).
+  Data: `data/location.js` (`DEMO_SPOTS`, radii), `data/challenges.js` (13 `QUESTS`, `questsFor(date)` = seeded 3, `streakAt/bestStreak` …).
+  Components: `HereAction` ("I'm here" / "You're about … away. Directions"), `Quests` (`QuestList`, `Streak`), `sheets/ArrivalSheet`.
+  Directions now start at `here()` (Stage 3 started at the hotel); `trip.js currentHotel()` is the hotel for the "within 500 m of your hotel" quest.
 - The signed-in user in meetups/chat/leaderboard is the `ME` object (`userData.js`); render avatars with `<AvatarImg>`/`avNode()`.
 - Demo data stays in constants in `src/data/`; never put user data there.
 
 ## Routing
 - Hash routes: `#login`, `#signup`, `#interests`, `#home`, `#explore`, `#book`, `#saved`, `#profile`, `#profile/edit`, `#achievements`,
   `#place/<id>`, `#meetups`, `#meetups/<placeId>`, `#meetup/<id>`, `#meetup/<id>/chat`,
-  `#trip` (timeline), `#trip/<id>` (booking ref, or `m-<meetupId>` for a joined meetup; unknown id → `#trip`), `#reminders`,
+  `#trip` (timeline), `#trip/<id>` (booking ref, or `m-<meetupId>` for a joined meetup; unknown id → `#trip`), `#reminders`, `#location` (Where am I?),
   Book steps: `#book/flights`, `#book/flights/results`, `#book/taxi`, `#book/hotels`, `#book/hotels/results`, `#book/hotel/<id>`
   (`#book/ride` and unknown steps open the hub). `setBookView(v)` pushes a step (`go('book', {keepView, push})`), `{replace:true}` after a booking.
   Search forms and filters live in unsaved `ui.fl`/`ui.ht`, so a reload shows the default search.
@@ -77,7 +91,10 @@ then see the whole trip in one timeline (change / cancel bookings, weather per d
 ## External services (no keys)
 - Map: Leaflet (npm, dynamically imported, its own build chunk) + OpenStreetMap tiles; keep the OSM attribution. PlaceMap focuses the map
   itself with `preventScroll` on pointerdown (else Leaflet's focus scrolls a half-visible map and the pin tap is lost). Map classes are
-  `.ex-map`/`.ex-pin` (`.map`/`.pin` belong to the taxi tracker). Offline → message + "Show list".
+  `.ex-map`/`.ex-pin` (`.map`/`.pin` belong to the taxi tracker), `.ex-me` = you-are-here dot (non-interactive). Offline → message + "Show list".
+  The preview card stays mounted with `.closing` until it slid down. Leaflet's zoom (0.25 s) and tile fade (0.2 s) are timed inside leaflet.js
+  (overriding the CSS would cut them off), so they keep Leaflet's values; `zoomAnimation/fadeAnimation/markerZoomAnimation` are off with reduced motion.
+- Geolocation: `navigator.geolocation.watchPosition`, only after the user turns on "Use my real location"; no other permission prompts.
 - Weather: Open-Meteo (`api.open-meteo.com`); on failure/offline the demo forecast is shown with a "Demo data" label.
 
 ## PWA
@@ -96,10 +113,14 @@ then see the whole trip in one timeline (change / cancel bookings, weather per d
   `--ease-spring` (pops), `--ease-spring-soft` (sheets, toast, bubbles), `--ease-nav` (screen slides: soft start), `--ease-pop` (badge: gentler bounce).
   Base durations `--dur-fast` 150ms (press feedback, chips) / `--dur-base` 350ms / `--dur-slow` 500ms, `--stagger` 60ms, `--press` (.97).
   Role durations: `--dur-nav` 480ms (slide forward/back), `--dur-tab` 300ms (tab cross-fade), `--dur-sheet-in` 450ms / `--dur-sheet-out` 350ms,
-  `--dur-pop` 550ms (+180ms delay), `--dur-photo` 400ms, `--dur-flip` 400ms (useFlip), `--dur-confetti` 1300ms, `--dur-toast` 350ms.
+  `--dur-pop` 550ms (+ `--dur-pop-delay` 180ms), `--dur-photo` 400ms, `--dur-flip` 400ms (useFlip), `--dur-confetti` 1300ms, `--dur-toast` 350ms,
+  `--dur-ride` 1s (taxi car step). Loops: `--dur-loop` 1.2s + `--loop-step` .2s (typing dots, weather pulse), `--dur-shimmer` 1.3s, `--dur-spin` .8s.
+  Map preview card: `--dur-sheet-in`/`--dur-sheet-out` with `--ease-nav`; pins `--dur-slow` + `calc(var(--stagger) * var(--i))`.
   **New UI must reuse these tokens** (no raw durations or curves) and only animate `transform`/`opacity` (colours at most; never
   width/height/top/left, box-shadow or filter). Keep 150–550 ms (confetti 1.3 s); nothing may block taps.
   JS timers that wait for an animation read the tokens with `motionMs('sheet-out')` (`lib/motion.js`; 0 with reduced motion), never raw numbers.
+  **No hard-coded animation durations**: no `ms`/`s` values, raw keyframe times or literal `setTimeout` delays for animations in CSS, inline styles or JS;
+  add a token to `base.css :root` if none fits. (Non-animation timers are fine: toast hold time 1.8 s, simulated chat replies, taxi tick, weather timeout.)
 - All animations live in `src/styles/motion.css` (imported last). Shared keyframes: `fade-in`, `fade-out`, `rise-in`.
   Lists: add `className="stagger"` to the container (first 8 children staggered). Filtered lists: `useFlip(scrollRef, selector, key)`.
 - Screen transitions: `lib/motion.js`. `go()` calls `navStart(dir)` (a static copy of the old screen goes into `#navfx`), App calls
