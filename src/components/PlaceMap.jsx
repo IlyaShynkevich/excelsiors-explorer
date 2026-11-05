@@ -31,6 +31,11 @@ export function PlaceMap({ places, sel, onSelect, onShowList }) {
       tiles.on('tileload', () => { loaded++; setStatus(s => s === 'loading' ? 'ok' : s); });   // offline: cached tiles don't hide the message
       tiles.on('tileerror', () => { errors++; if (!loaded && errors >= 3) setStatus('offline'); });
       map.on('click', () => onSelect(''));
+      // Leaflet focuses the map on mousedown. When the map is partly below the fold the browser then scrolls it
+      // into view between press and release, so the tap ends on the map, not on the pin, and the preview closes
+      // again at once. Focusing it first without scrolling makes Leaflet skip its own focus call.
+      const focusQuietly = () => { const el = box.current; if (el && document.activeElement !== el && !el.contains(document.activeElement)) el.focus({preventScroll: true}); };
+      ['pointerdown', 'touchstart', 'mousedown'].forEach(t => box.current.addEventListener(t, focusQuietly, {capture: true, passive: true}));
       // the map box can change size after the map is made (filters above it, fonts, rotation): keep Leaflet in sync
       const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => map.invalidateSize({animate: false, pan: false})) : null;
       if (ro) ro.observe(box.current);

@@ -4,6 +4,9 @@ export const pad = n => String(n).padStart(2, '0');
 export const hm = m => pad(Math.floor(m / 60) % 24) + ':' + pad(m % 60);
 export const dur = m => Math.floor(m / 60) + 'h ' + pad(m % 60) + 'm';
 export const tomorrow = () => { const d = new Date(Date.now() + 864e5); return d.toISOString().slice(0, 10); };
+export const addDays = (iso, n) => new Date(new Date(iso + 'T12:00Z').getTime() + n * 864e5).toISOString().slice(0, 10);
+// local 'YYYY-MM-DDTHH:MM' for day iso + m minutes after midnight (m can be ≥ 1440: next day)
+export const isoAt = (iso, m) => addDays(iso, Math.floor(m / 1440)) + 'T' + hm(m);
 export const today = () => new Date().toISOString().slice(0, 10);
 export const niceDate = iso => new Date(iso + 'T12:00').toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'});
 export const mkRef = () => Array.from({length:6}, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.random() * 32 | 0]).join('');

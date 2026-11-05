@@ -1,14 +1,17 @@
 // App (UI) state that is not saved: current screen, booking forms, the open sheet, the toast …
 // Code changes `ui` (or the user data) and then calls emit(); App re-renders through useStore().
 import { useSyncExternalStore } from 'react';
-import { tomorrow } from '../lib/format.js';
+import { tomorrow, addDays } from '../lib/format.js';
 
 export const ui = {
   current: 'login', prev: 'explore', navSeq: 0,   // navSeq changes on every go(): the screen is rendered fresh
   detailId: '', meetupId: '', mtFilter: 'all', mtPlace: '',
   lang: 'English', achTab: 'badges',
   bookView: 'hub', ride: null,
-  fl: {city:'FRA', toBerlin:true, date:tomorrow(), pax:1, cls:'eco'},
+  // flight search; sort + filters of the results (Stage 2: provider comparison)
+  fl: {city:'FRA', toBerlin:true, date:tomorrow(), pax:1, cls:'eco', sort:'price', filters:[]},
+  // hotel search (city 'BER' = Berlin, else a CITIES code); sel = hotel shown in the detail view
+  ht: {city:'BER', checkIn:tomorrow(), checkOut:addDays(tomorrow(), 2), guests:2, sort:'price', filters:[], sel:''},
   tx: {from:'alex', to:'brandenburg', ride:'std', when:'now', time:''},
   typing: {}, chatFresh: false,                   // chat: who is typing per meetup id; animate the newest message
   sheet: {open: false, kind: '', props: null, id: 0},

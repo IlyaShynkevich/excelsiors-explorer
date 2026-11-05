@@ -53,3 +53,34 @@ export function flightResults(f) {
   }
   return out.sort((a, b) => a.price - b.price);
 }
+
+// Shuffled copy of list (seeded random rnd)
+export function shuffle(list, rnd) {
+  const a = [...list];
+  for (let i = a.length - 1; i > 0; i--) { const j = rnd() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+// ---------- Provider comparison (Stage 2 "Book") ----------
+// Fictional booking sites (demo, made-up names): the same flight at different prices and terms.
+export const FLIGHT_PROVIDERS = [
+  {id:'ticketbaer', name:'TicketBär', ic:'🐻'}, {id:'spreefares', name:'Spree Fares', ic:'🌊'},
+  {id:'fernweh', name:'Fernweh Flights', ic:'🧭'}, {id:'jetkiosk', name:'JetKiosk', ic:'🛒'},
+  {id:'pfennig', name:'Pfennigflug', ic:'🪙'}, {id:'luftschloss', name:'Luftschloss Travel', ic:'🏰'},
+];
+export const FLIGHT_TAX = 12.5;   // taxes per passenger (demo)
+const r2 = n => Math.round(n * 100) / 100;
+// 4–6 provider offers for flight r of the search f, cheapest first. Seeded: stable for the same search.
+// fare and bagFee are per passenger; taxes = taxes + the provider's service fee for everyone.
+export function flightOffers(r, f) {
+  const rnd = seeded(f.city + f.date + f.toBerlin + r.no + f.cls), biz = f.cls === 'biz';
+  const n = 4 + (rnd() * 3 | 0);
+  return shuffle(FLIGHT_PROVIDERS, rnd).slice(0, n).map(p => {
+    const bag = biz || rnd() < .5, free = rnd() < .4;
+    const fare = Math.round(r.price * (0.9 + rnd() * 0.2) * (free ? 1.08 : 1)) - 0.01;
+    const bagFee = bag && !biz ? 20 + (rnd() * 4 | 0) * 5 : 0;   // business class: a checked bag is always included
+    const fee = rnd() < .35 ? 0 : Math.round(2 + rnd() * 10);
+    const taxes = r2(FLIGHT_TAX * f.pax + fee);
+    return {id:p.id, name:p.name, ic:p.ic, fare, bag, bagFee, free, fee, taxes, total:r2((fare + bagFee) * f.pax + taxes)};
+  }).sort((a, b) => a.total - b.total);
+}

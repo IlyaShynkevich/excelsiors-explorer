@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { closeSheet } from '../state/appStore.js';
 import { UnlockSheet, BadgeSheet, CompareSheet } from './sheets/BadgeSheets.jsx';
-import { FlightConfirmSheet, FlightDoneSheet, TaxiScheduledSheet } from './sheets/BookingSheets.jsx';
+import { FlightConfirmSheet, FlightDoneSheet, HotelConfirmSheet, HotelDoneSheet, TaxiScheduledSheet } from './sheets/BookingSheets.jsx';
 import { CreateMeetupSheet, CancelMeetupSheet } from './sheets/MeetupSheets.jsx';
 import { DeleteAccountSheet } from './sheets/AccountSheets.jsx';
 
 const SHEETS = {
   unlock: UnlockSheet, badge: BadgeSheet, compare: CompareSheet,
-  flight: FlightConfirmSheet, flightDone: FlightDoneSheet, taxiScheduled: TaxiScheduledSheet,
+  flight: FlightConfirmSheet, flightDone: FlightDoneSheet, hotel: HotelConfirmSheet, hotelDone: HotelDoneSheet, taxiScheduled: TaxiScheduledSheet,
   createMeetup: CreateMeetupSheet, cancelMeetup: CancelMeetupSheet, deleteAccount: DeleteAccountSheet,
 };
 

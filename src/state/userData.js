@@ -28,6 +28,17 @@ const cleanProfile = p => (p = p && typeof p === 'object' ? p : {}, {
   // older saved profiles have no interests yet: none picked, and the onboarding screen still to come
   interests: Array.isArray(p.interests) ? INTERESTS.map(i => i[0]).filter(id => p.interests.includes(id)) : [],
   onboarded: !!p.onboarded });
+// Bookings (flight, hotel, taxi) all have the same shape. Older saved bookings only had
+// {type, ref, price, title, sub}: the new fields get defaults.
+const BOOKING_TYPES = ['flight', 'hotel', 'taxi'];
+const cleanBooking = b => b && typeof b === 'object' && BOOKING_TYPES.includes(b.type) ? {
+  type: b.type, ref: str(b.ref, 12, '') || '------',
+  status: b.status === 'Cancelled' || / · cancelled$/.test(b.sub || '') ? 'Cancelled' : 'Confirmed',
+  provider: str(b.provider, 40, ''), price: typeof b.price === 'number' && isFinite(b.price) ? b.price : 0, cheapest: !!b.cheapest,
+  title: str(b.title, 120, ''), sub: str(b.sub, 160, ''),
+  start: str(b.start, 16, ''), end: str(b.end, 16, ''),   // local 'YYYY-MM-DDTHH:MM' (for the trip overview)
+  created: str(b.created, 24, ''), details: b.details && typeof b.details === 'object' ? b.details : {},
+} : null;
 const cleanAccount = a => a && typeof a.email === 'string' && typeof a.pw === 'string' ? {email:a.email, pw:a.pw, created:str(a.created, 10, '')} : null;
 
 // Old saved data has no meetups, account or profile yet: those get defaults.
@@ -35,7 +46,7 @@ try {
   const s = JSON.parse(store.get(DATA_KEY) || 'null');
   if (s){ user.saved = s.saved||user.saved; user.dark = !!s.dark;
           user.visited = s.visited||user.visited; user.unlocked = s.unlocked||user.unlocked;
-          user.bookings = s.bookings||[];
+          user.bookings = Array.isArray(s.bookings) ? s.bookings.map(cleanBooking).filter(Boolean) : [];
           user.joined = Array.isArray(s.joined) ? s.joined : []; user.myMeetups = Array.isArray(s.myMeetups) ? s.myMeetups : [];
           user.chats = s.chats && typeof s.chats === 'object' ? s.chats : {};
           user.account = cleanAccount(s.account); user.profile = cleanProfile(s.profile); }
@@ -78,6 +89,21 @@ export const needsOnboarding = () => !user.profile.onboarded;
 export const markOnboarded = () => saveProfile({onboarded: true});
 export const saveInterests = interests => saveProfile({interests});
 export function saveProfile(changes) { user.profile = cleanProfile({...user.profile, ...changes}); persist(); syncMe(); return getProfile(); }
+// ---------- Bookings ----------
+// createBooking({type, ref, provider, price, cheapest, title, sub, start, end, details}) saves a confirmed booking and returns it.
+export function createBooking(b) {
+  const nb = cleanBooking({...b, status: 'Confirmed', created: new Date().toISOString()});
+  user.bookings.push(nb); persist();
+  return {...nb};
+}
+export const getBookings = () => user.bookings.map(b => ({...b})).reverse();   // newest first
+export const getBooking = ref => { const b = user.bookings.find(x => x.ref === ref); return b ? {...b} : null; };
+// Cancelled bookings stay in the list (price 0, "· cancelled" added to the line below the title).
+export function cancelBooking(ref) {
+  const b = user.bookings.find(x => x.ref === ref);
+  if (!b || b.status === 'Cancelled') return;
+  Object.assign(b, {status: 'Cancelled', price: 0, sub: b.sub + ' · cancelled'}); persist();
+}
 // Removes everything this user stored in the browser and logs out.
 export function deleteUser() {
   store.del(DATA_KEY); clearSession();

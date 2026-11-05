@@ -27,13 +27,14 @@
   --ease-spring:cubic-bezier(.34,1.56,.64,1);    /* small pops with a bounce: badges, buttons, pins */
   --ease-spring-soft:cubic-bezier(.22,1.18,.36,1); /* gentle overshoot: sheets, toast, chat bubbles */
   --dur-fast:150ms; --dur-base:250ms; --dur-slow:350ms; --stagger:30ms;
+  --star:#b7791f;                                /* hotel stars */
   --press:.97;                                   /* scale while pressed */
   --ease:var(--ease-out);                        /* older name, same curve */
 }
 body.dark{
   --bg:#0b0d0c; --card:#1b1e1c; --surface:#1b1e1c; --fill:rgba(118,118,128,.24); --fill-2:rgba(118,118,128,.36);
   --text:#f2f4f3; --muted:#9aa39e; --border:#3a3f3c; --hairline:rgba(84,84,88,.6); --link:#5aa9ff; --danger:#ff6961;
-  --green-l:#163222; --accent:#3cc46a;
+  --green-l:#163222; --accent:#3cc46a; --star:#f6c453;
   --mat:rgba(22,24,23,.78); --panel:rgba(24,27,25,.9); --bubble:#2a2e2c;
   --sh-1:0 1px 2px rgba(0,0,0,.4); --sh-2:0 8px 32px rgba(0,0,0,.5);
 }
@@ -67,9 +68,9 @@ h1,h2,h3,h4{letter-spacing:-.015em;line-height:1.2}
 /* press feedback (only transform and colours animate; box-shadow changes at once) */
 .btn,.card,.tile,.saved-item,.recent-row,.bk-tile,.quick button,.fl,.ride,.lb-row,.badge-cell,.ach-card,.avatar,.swap,
 .stepper button,nav button,.rp-item,.appbar .back,.seg button,.tabs button,.pill,.chips button,.chat-link,.wx-hint,.add-btn,.send,
-.mc-x,.link-btn{transition:transform var(--dur-fast) var(--ease-out),background-color var(--dur-base),color var(--dur-base)}
+.mc-x,.link-btn,.prov,.ht-card{transition:transform var(--dur-fast) var(--ease-out),background-color var(--dur-base),color var(--dur-base)}
 .btn:active:not(:disabled),.card:active,.tile:active,.saved-item:active,.recent-row:active,.bk-tile:active,.quick button:active,
-.fl:active,.ride:active,.lb-row:active,.badge-cell:active,.ach-card:active,.avatar:active,.swap:active,.stepper button:active,
+button.fl:active,.ride:active,.prov:active,.ht-card:active,.lb-row:active,.badge-cell:active,.ach-card:active,.avatar:active,.swap:active,.stepper button:active,
 nav button:active,.rp-item:active,.appbar .back:active,.chips button:active,.chat-link:active,.wx-hint:active,.add-btn:active,
 .mc-x:active,.link-btn:active{transform:scale(var(--press))}
 

@@ -6,6 +6,7 @@ import { ui, emit, toast, closeSheet } from '../state/appStore.js';
 import { getUser, loggedIn, needsOnboarding, markOnboarded } from '../state/userData.js';
 import { lastRoute } from '../state/storage.js';
 import { byId } from '../data/places.js';
+import { byHotel } from '../data/hotels.js';
 import { stopRide } from '../state/booking.js';
 import { byMeetup, joinedM } from '../state/meetups.js';
 import { navStart } from '../lib/motion.js';
@@ -13,7 +14,11 @@ import { navStart } from '../lib/motion.js';
 export const TABS = ['home','explore','book','saved','profile'];
 const SCREENS = ['login','signup','home','explore','book','saved','profile','editProfile','achievements','detail','meetups','meetup','chat','interests'];
 const PUBLIC = ['login','signup'];   // the only screens you can see while logged out
+// Book steps (ui.bookView) ↔ #book/<path>. The live ride can't be restored, so #book/ride opens the hub.
+const BOOK_PATHS = {flights:'flights', results:'flights/results', taxi:'taxi', ride:'ride', hotels:'hotels', hotelResults:'hotels/results'};
+const bookPath = () => ui.bookView === 'hotel' ? 'hotel/' + ui.ht.sel : BOOK_PATHS[ui.bookView];
 const hashFor = name => name === 'detail' ? 'place/' + ui.detailId
+  : name === 'book' && ui.bookView !== 'hub' ? 'book/' + bookPath()
   : name === 'editProfile' ? 'profile/edit'
   : name === 'meetups' && ui.mtPlace ? 'meetups/' + ui.mtPlace
   : name === 'meetup' ? 'meetup/' + ui.meetupId
@@ -48,14 +53,15 @@ export function go(name, opts = {}) {
   if (PUBLIC.includes(name) && loggedIn()) { name = 'home'; opts.fromHistory = false; opts.replace = true; }
   if (name === 'detail' && ui.current !== 'detail') ui.prev = ui.current;
   navStart(navDir(ui.current, name, opts));
-  if (!opts.fromHistory) setHash(hashFor(name), opts.replace || ui.current === name);
+  if (name === 'book' && !opts.keepView) { stopRide(); ui.bookView = 'hub'; }
+  // the same screen again replaces the history entry, unless it is a new step (opts.push, e.g. inside Book)
+  if (!opts.fromHistory) setHash(hashFor(name), opts.replace || (ui.current === name && !opts.push));
   ui.current = name;
   ui.navSeq++;
   lastRoute.set(location.hash);
   if (name === 'login') { const u = getUser(); if (u && !ui.login.email) ui.login.email = u.email; }
   if (name === 'explore' && typeof opts.q === 'string') ui.exploreQ = opts.q;
   if (name === 'explore' && opts.cats) { ui.ex = {...ui.ex, cats: opts.cats, open: false, diet: [], view: 'list', sel: ''}; ui.exploreQ = ''; }
-  if (name === 'book' && !opts.keepView) { stopRide(); ui.bookView = 'hub'; }
   if (name === 'chat') ui.chatFresh = false;
   emit();
 }
@@ -94,7 +100,16 @@ export function openBooking(view, dest) {
   stopRide();
   if (view === 'taxi' && dest) ui.tx.to = dest;
   ui.bookView = view;
-  go('book', {keepView:true});
+  go('book', {keepView:true, push:true});
+}
+
+function routeBook(path) {
+  let v = Object.keys(BOOK_PATHS).find(k => BOOK_PATHS[k] === path);
+  if (path.startsWith('hotel/')) { ui.ht.sel = path.slice(6); v = byHotel(ui.ht.sel) ? 'hotel' : ''; }
+  if (!v || v === 'ride') return go('book', {replace:true});   // unknown step or a past ride: the hub
+  stopRide();
+  ui.bookView = v;
+  go('book', {fromHistory:true, keepView:true});
 }
 
 function route() {
@@ -103,6 +118,7 @@ function route() {
   if (h === 'profile/edit') go('editProfile', {fromHistory:true});
   else if (h.startsWith('place/')) openDetail(h.slice(6), {fromHistory:true});
   else if (h === 'meetups' || h.startsWith('meetups/')) openMeetups(h.slice(8), {fromHistory:true});
+  else if (h.startsWith('book/')) routeBook(h.slice(5));
   else if (h.startsWith('meetup/')) { const [id, sub] = h.slice(7).split('/'); (sub === 'chat' ? openChat : openMeetup)(id, {fromHistory:true}); }
   else go(h || (loggedIn() ? 'home' : 'login'), {fromHistory:true});
 }

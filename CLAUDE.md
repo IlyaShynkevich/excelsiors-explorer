@@ -2,7 +2,7 @@
 
 ## What this is
 **Excelsiors Explorer**: university semester project (Agile / Design Thinking course), group of 3.
-Mobile-first travel app demo for Berlin: explore sights, save places, check in for badges, book flights and taxis, join meetups and group chats.
+Mobile-first travel app demo for Berlin: explore sights, save places, check in for badges, book flights, hotels and taxis (comparing fictional providers), join meetups and group chats.
 
 ## Architecture
 - **React 18 + Vite**, plain JavaScript (no TypeScript), no UI libraries, no router library. Don't add any unless explicitly asked.
@@ -12,10 +12,14 @@ Mobile-first travel app demo for Berlin: explore sights, save places, check in f
   body classes `dark`, `is-offline`, `kb-open` (iOS keyboard, `--vvh/--vvt`).
 - `src/screens/`: one file per screen. `src/components/`: shared pieces (AppBar/BackButton, TabBar, BottomSheet + `sheets/`,
   ChatBubble, Badge, Avatar/Pav/AvatarStack, MeetupCard/JoinButton, FilterChips (single or multi-select), Stepper, FieldMsg, PlaceTile,
-  PlaceMeta/DietTags, PlaceMap (Leaflet), WeatherStrip, Toast, PullToRefresh, Photo (place photo: fades in once loaded, shimmer until then)).
+  PlaceMeta/DietTags, PlaceMap (Leaflet), WeatherStrip, Toast, PullToRefresh, Photo (place photo: fades in once loaded, shimmer until then),
+  ProviderList ("Compare providers" rows: Cheapest tag, "Save €X" line, optional "Show all")).
   Place photos are rendered with `<Photo p={p} [shade] [as="button"]>` (not `style={{background: bg(p)}}`).
 - `src/data/`: demo data constants (`PLACES` incl. 8 food places, `PHOTOS`, `CATEGORIES`, `DIETS`, `INTERESTS`, weather `demoForecast`/`wmo`, `BADGES`, `FRIENDS`, `PEOPLE`, `MEETUPS` + seed chats, `REPLIES`,
   `CITIES`, `AIRLINES`, `RIDES`, `DRIVERS`, `COORDS`, `AVATARS`), the seeded flight generator and `taxiFare`.
+  Stage 2 "Book": `FLIGHT_PROVIDERS` + `flightOffers(r, f)` (`data/booking.js`), `HOTELS` + `HOTEL_PROVIDERS` + `hotelOffers(h, s)` (`data/hotels.js`).
+  Providers are **fictional** (made-up names, never real companies); offers are seeded (`seeded()`), so the same search shows the same prices.
+  Hotels: real well-known Berlin hotels with Commons photos, plus 2 fictional ones (`fictional: true`, no photo). `stars: 0` = hostel (price per bed).
 - `src/lib/format.js`: date/time/price helpers and `bg(place)` backgrounds. `src/lib/hours.js`: `isOpenNow(place)` in Berlin time.
 - Places: each gets `cats` (Explore categories), `tags` (interests), `oh` (weekly schedule string, `'24/7'` = always open, parsed into `week`)
   and `diet` (food only, indicative) from the `META` table in `places.js`. Coordinates for the map and taxi live in `COORDS` (`data/booking.js`).
@@ -27,6 +31,7 @@ Mobile-first travel app demo for Berlin: explore sights, save places, check in f
 - `src/state/storage.js`: the **only** code that touches localStorage/sessionStorage (`store.get/set/del`, `lastRoute`).
 - `src/state/userData.js`: the user data layer. **All user data goes through these named functions**:
   `getSession/setSession/clearSession`, `getUser/saveUser`, `signIn`, `signUp`, `getProfile/saveProfile`, `deleteUser`,
+  `createBooking/getBookings/getBooking/cancelBooking`,
   plus `needsOnboarding/markOnboarded/saveInterests`, `persist()` and `checkUnlocks()`. Data lives in the `user` object, saved under `'ee_berlin'`; the session (email) under `'ee_session'`.
   Keep the keys and data shapes: old saved data (missing fields) must still load with defaults (`freshData()`, `cleanProfile()`).
 - One account per browser. Its email needs the right password; any other email always falls back to the demo login (any password).
@@ -34,14 +39,20 @@ Mobile-first travel app demo for Berlin: explore sights, save places, check in f
   App re-renders through `useStore()`. Also `toast()`, `openSheet(kind, props)`, `closeSheet(silent)` and the badge unlock queue
   (unlock pop-ups wait until a booking confirmation sheet is closed).
 - The profile has `interests` (ids from `INTERESTS`) and `onboarded`; `enterApp()` (router) shows `#interests` once after sign-in/sign-up.
-- Actions: `state/booking.js`, `state/meetups.js` (incl. chat + simulated replies), `state/achievements.js`,
+- Bookings (flight, hotel, taxi) share one shape: `{type, ref, status ('Confirmed'|'Cancelled'), provider, price, cheapest, title, sub,
+  start, end ('YYYY-MM-DDTHH:MM' local, for a later trip overview), created, details}`; `cleanBooking()` fills defaults for old saved bookings.
+  `cheapest` = the cheapest offer in the list was booked (Smart Saver badge).
+- Actions: `state/booking.js` (`setBookView`, `flightList`, `hotelList`, `bookFlight`, `bookHotel`, `requestTaxi`, `addBooking` → unlock queue), `state/meetups.js` (incl. chat + simulated replies), `state/achievements.js`,
   `state/explore.js` (search + filters in `ui.ex`, `exploreList()`), `state/weather.js` (Open-Meteo fetch, demo fallback, session-only).
 - The signed-in user in meetups/chat/leaderboard is the `ME` object (`userData.js`); render avatars with `<AvatarImg>`/`avNode()`.
 - Demo data stays in constants in `src/data/`; never put user data there.
 
 ## Routing
 - Hash routes: `#login`, `#signup`, `#interests`, `#home`, `#explore`, `#book`, `#saved`, `#profile`, `#profile/edit`, `#achievements`,
-  `#place/<id>`, `#meetups`, `#meetups/<placeId>`, `#meetup/<id>`, `#meetup/<id>/chat`.
+  `#place/<id>`, `#meetups`, `#meetups/<placeId>`, `#meetup/<id>`, `#meetup/<id>/chat`,
+  Book steps: `#book/flights`, `#book/flights/results`, `#book/taxi`, `#book/hotels`, `#book/hotels/results`, `#book/hotel/<id>`
+  (`#book/ride` and unknown steps open the hub). `setBookView(v)` pushes a step (`go('book', {keepView, push})`), `{replace:true}` after a booking.
+  Search forms and filters live in unsaved `ui.fl`/`ui.ht`, so a reload shows the default search.
 - `src/hooks/useHashRouter.js`: `go()`, `openDetail/openMeetups/openMeetup/openChat/openBooking`, `navIdx` + `canGoBack/goBack`
   (back buttons use browser back while there is app history), popstate handling. `go('explore', {cats})` opens Explore with category filters. Every `go()` bumps `ui.navSeq`, which remounts the screen.
 - Only `login`/`signup` are reachable while logged out. The chat is only reachable for joined meetups.
@@ -52,7 +63,8 @@ Mobile-first travel app demo for Berlin: explore sights, save places, check in f
 - Place photos are Wikimedia Commons URLs in `PHOTOS` (`src/data/places.js`).
 
 ## External services (no keys)
-- Map: Leaflet (npm, dynamically imported, its own build chunk) + OpenStreetMap tiles; keep the OSM attribution. Map classes are
+- Map: Leaflet (npm, dynamically imported, its own build chunk) + OpenStreetMap tiles; keep the OSM attribution. PlaceMap focuses the map
+  itself with `preventScroll` on pointerdown (else Leaflet's focus scrolls a half-visible map and the pin tap is lost). Map classes are
   `.ex-map`/`.ex-pin` (`.map`/`.pin` belong to the taxi tracker). Offline → message + "Show list".
 - Weather: Open-Meteo (`api.open-meteo.com`); on failure/offline the demo forecast is shown with a "Demo data" label.
 
