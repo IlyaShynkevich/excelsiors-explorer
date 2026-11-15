@@ -32,7 +32,9 @@ const Trip = lazyScreen(() => import('./screens/Trip.jsx'), 'Trip');
 const TripItem = lazyScreen(() => import('./screens/Trip.jsx'), 'TripItem');
 const Reminders = lazyScreen(() => import('./screens/Reminders.jsx'), 'Reminders');
 const Location = lazyScreen(() => import('./screens/Location.jsx'), 'Location');
-const LAZY = [EditProfile, Achievements, Book, Meetups, MeetupDetail, MeetupChat, Trip, Reminders, Location];
+const Settings = lazyScreen(() => import('./screens/Settings.jsx'), 'Settings');
+const About = lazyScreen(() => import('./screens/About.jsx'), 'About');
+const LAZY = [Trip, Book, EditProfile, Achievements, Meetups, MeetupDetail, MeetupChat, Reminders, Location, Settings, About];
 // the chat keeps its newest message in view (same as MeetupChat.jsx scrollChat; that file loads lazily)
 const scrollChat = () => { const s = document.getElementById('chatMsgs'); if (s) s.scrollTop = s.scrollHeight; };
 
@@ -44,7 +46,7 @@ class ScreenError extends Component {
     if (!this.state.failed) return this.props.children;
     return (
       <section className="screen active">
-        <div className="appbar">Excelsior Explorer</div>
+        <div className="appbar"></div>
         <div className="scroll"><div className="empty">
           <b>This screen can't load right now</b>
           <p>Check your connection and try again.</p>
@@ -59,7 +61,7 @@ const SCREENS = {
   interests: Interests,
   login: Login, signup: SignUp, home: Home, explore: Explore, detail: PlaceDetail, saved: Saved, profile: Profile,
   editProfile: EditProfile, achievements: Achievements, book: Book, meetups: Meetups, meetup: MeetupDetail, chat: MeetupChat,
-  trip: Trip, tripItem: TripItem, reminders: Reminders, location: Location,
+  trip: Trip, tripItem: TripItem, reminders: Reminders, location: Location, settings: Settings, about: About,
 };
 
 export function App() {

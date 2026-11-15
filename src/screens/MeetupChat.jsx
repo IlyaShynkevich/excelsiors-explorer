@@ -23,10 +23,10 @@ export function MeetupChat() {
   };
   return (
     <section className="screen active" id="chat">
-      <AppBar back="meetup"><span className="ttl"><span id="chatTitle">{m && m.title}</span><small id="chatSub">{m && `${g.length} ${g.length === 1 ? 'person' : 'people'} · ${whenText(m.start)}`}</small></span></AppBar>
+      <AppBar back="meetup" title={<span className="ttl"><span id="chatTitle">{m && m.title}</span><small id="chatSub">{m && `${g.length} ${g.length === 1 ? 'person' : 'people'} · ${whenText(m.start)}`}</small></span>} />
       <div className="scroll" id="chatMsgs" aria-live="polite">
         {m && <>
-          <p className="sys">{`💬 Group chat for “${m.title}”`}<br />Demo: chat is simulated</p>
+          <p className="sys">{`Group chat for “${m.title}”`}</p>
           {!msgs.length && <p className="sys">{g.length > 1 ? 'No messages yet – say hi 👋' : 'Nobody else has joined yet. Write the first message for when they do 👋'}</p>}
           {msgs.map((x, i) => {
             const prev = msgs[i - 1], next = msgs[i + 1], brk = !prev || x.t - prev.t > GAP;

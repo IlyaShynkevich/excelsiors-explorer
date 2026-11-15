@@ -1,62 +1,59 @@
-import { useState } from 'react';
+import { Bookmark, BookmarkCheck, Navigation, CarTaxiFront, Users, MapPin, Clock, Ticket, Utensils, ExternalLink } from 'lucide-react';
 import { ui, closeSheet, openSheet } from '../state/appStore.js';
 import { user } from '../state/userData.js';
 import { toggleSave } from '../state/achievements.js';
-import { distLabel, here, isNearby } from '../state/location.js';
+import { distLabel, isAt } from '../state/location.js';
 import { HereAction } from '../components/HereAction.jsx';
 import { upcomingMeetups } from '../state/meetups.js';
 import { go, goBack, openBooking, openMeetups, TABS } from '../hooks/useHashRouter.js';
 import { byId } from '../data/places.js';
 import { Photo } from '../components/Photo.jsx';
 import { isOpenNow } from '../lib/hours.js';
-import { BackButton } from '../components/AppBar.jsx';
+import { AppBar } from '../components/AppBar.jsx';
 import { DietTags } from '../components/PlaceMeta.jsx';
+import { RoundActions, Clamp, Details, InfoRow } from '../components/DetailParts.jsx';
 
+// Place page – one job: decide and act. Photo, name, one meta line, About (3 lines + More), one primary button
+// (I'm here / Directions), one row of round actions; everything else in the collapsed "Details".
 export function PlaceDetail() {
   const p = byId(ui.detailId);
   const back = () => goBack(() => go(TABS.includes(ui.prev) ? ui.prev : 'explore'));
   return (
     <section className="screen active" id="detail">
-      <div className="appbar"><BackButton id="backBtn" onClick={back} />{' '}</div>
+      <AppBar overlay onBack={back} title={p && p.name} watch=".hero" />
       <div className="scroll" id="detailBody">{p && <Body p={p} />}</div>
     </section>
   );
 }
 
 function Body({ p }) {
-  const isSaved = user.saved.includes(p.id), h = here();
-  const n = upcomingMeetups().filter(m => m.placeId === p.id).length, open = isOpenNow(p);
-  // the button you just tapped pops once (motion.css .bump); the label text stays the same
-  const [bump, setBump] = useState('');
-  const pop = id => ({className: bump === id ? ' bump' : '', onAnimationEnd: e => { if (e.target === e.currentTarget) setBump(''); }});
-  const ck = label => <span><span className="ck">✓</span>{' ' + label}</span>;
-  const sav = pop('save');
+  const isSaved = user.saved.includes(p.id), open = isOpenNow(p), at = isAt(p.id);
+  const n = upcomingMeetups().filter(m => m.placeId === p.id).length;
   // wiki: "Title" (English Wikipedia), "de:Title" (German) or '' (no article)
   const [lang, title] = p.wiki.startsWith('de:') ? ['de', p.wiki.slice(3)] : ['en', p.wiki];
   const wiki = title && `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g,'_'))}`;
+  const directions = () => openSheet('directions', {to: p.id, name: p.name});
   return (<>
     <Photo className="hero" size="hero" priority p={p} />
     <div className="detail">
-      <div className="row"><h2>{p.name}</h2><span className="km" id="detailKm">{distLabel(p.id)}</span></div>
-      <div className="loc"><span className="ico">➤</span><span>{p.addr}<br />{`${p.area} · ${distLabel(p.id)} from ${h.real ? 'your location' : h.name}`}
-        {isNearby(p.id) && <span className="fl-badge near-tag">Nearby</span>}</span></div>
-      <h3>About</h3>
-      {p.about.map((t, i) => <p key={i}>{t}</p>)}
-      <h3>Visitor Information</h3>
-      <div className="info"><span className="ico">◷</span><span>{p.hours}<br /><span className={'oc ' + (open ? 'is-open' : 'is-closed')}>{open ? 'Open now' : 'Closed now'}</span></span></div>
-      <div className="info"><span className="ico">€</span>{p.fee}</div>
-      <p className="note">Opening hours and prices can change. Check the official website before you go.</p>
-      {p.diet.length > 0 && <><h3>Dietary options</h3><DietTags p={p} note /></>}
-      {wiki && <a className="wiki" href={wiki} target="_blank" rel="noopener">{lang === 'de' ? 'More info on Wikipedia (German) ↗' : 'More info on Wikipedia ↗'}</a>}
-      <p className="note">Photo: Wikimedia Commons (free licence)</p>
-      <div className="btns">
-        <HereAction spot={p.id} name={p.name} />
-        <button className={`btn save-btn ${isSaved ? 'saved' : ''}${sav.className}`} id="saveBtn" onAnimationEnd={sav.onAnimationEnd}
-                onClick={() => { setBump('save'); toggleSave(p.id); }}>{isSaved ? ck('Saved') : 'Save Location'}</button>
-        <button className="btn ghost" onClick={() => openMeetups(p.id)}>{`👥 Find a meetup here${n ? ` (${n})` : ''}`}</button>
-        <button className="btn ghost" id="dirBtn" onClick={() => openSheet('directions', {to: p.id, name: p.name})}>🧭 Directions</button>
-        <button className="btn ghost" onClick={() => { closeSheet(); openBooking('taxi', p.id); }}>🚕 Get a taxi here</button>
-      </div>
+      <h1 className="d-title">{p.name}</h1>
+      <p className="d-meta" id="detailKm">{`${p.area} · ${distLabel(p.id)} · `}<span className={'oc ' + (open ? 'is-open' : 'is-closed')}>{open ? 'Open now' : 'Closed'}</span></p>
+      <Clamp>{p.about.map((t, i) => <p key={i}>{t}</p>)}</Clamp>
+      <div className="d-primary"><HereAction spot={p.id} name={p.name} /></div>
+      <RoundActions items={[
+        {icon: isSaved ? BookmarkCheck : Bookmark, label: isSaved ? 'Saved' : 'Save', on: isSaved, id: 'saveBtn', onClick: () => toggleSave(p.id)},
+        at && {icon: Navigation, label: 'Directions', id: 'dirBtn', onClick: directions},
+        {icon: CarTaxiFront, label: 'Taxi', onClick: () => { closeSheet(); openBooking('taxi', p.id); }},
+        {icon: Users, label: n ? `Meetups (${n})` : 'Meetups', onClick: () => openMeetups(p.id)},
+      ]} />
+      <Details id="placeDetails">
+        <InfoRow icon={MapPin}>{p.addr}</InfoRow>
+        <InfoRow icon={Clock}>{p.hours}</InfoRow>
+        <InfoRow icon={Ticket}>{p.fee}</InfoRow>
+        {p.diet.length > 0 && <InfoRow icon={Utensils}><DietTags p={p} /></InfoRow>}
+        {wiki && <a className="wiki" href={wiki} target="_blank" rel="noopener">{lang === 'de' ? 'Wikipedia (German)' : 'Wikipedia'}<ExternalLink size={14} aria-hidden="true" /></a>}
+        <p className="note">Opening hours, prices and dietary tags can change; check with the venue. Photo: Wikimedia Commons (free licence).</p>
+      </Details>
     </div>
   </>);
 }

@@ -1,67 +1,72 @@
 import { useRef } from 'react';
+import { Map as MapIcon, List, MapPin, ChevronDown, Clock } from 'lucide-react';
 import { ui, emit } from '../state/appStore.js';
-import { exploreList, filtersOn, toggleCat, toggleDiet, toggleOpen, setView, selectPin, resetFilters, setSort, EX_SORTS } from '../state/explore.js';
-import { here, distLabel, isNearby } from '../state/location.js';
+import { exploreList, filtersOn, toggleCat, toggleDiet, toggleOpen, setView, selectPin, resetFilters, setSort, EX_SORTS, isSuggested, suggestedGroups } from '../state/explore.js';
+import { here, distLabel } from '../state/location.js';
 import { CATEGORIES, DIETS } from '../data/places.js';
 import { go, openDetail } from '../hooks/useHashRouter.js';
 import { isOpenNow } from '../lib/hours.js';
 import { AppBar } from '../components/AppBar.jsx';
 import { FilterChips } from '../components/FilterChips.jsx';
-import { PlaceMeta, DietTags } from '../components/PlaceMeta.jsx';
+import { PlaceMeta } from '../components/PlaceMeta.jsx';
 import { PlaceMap } from '../components/PlaceMap.jsx';
 import { Photo } from '../components/Photo.jsx';
 import { useFlip } from '../hooks/useFlip.js';
 
+// Explore – one job: find a place. Search (location as a pill), one chip row, the results line with "Sort", cards.
+// List/Map is the icon in the top bar. Without search/filters the list is grouped ("Suggested": recently viewed,
+// for you, popular, more places).
 export function Explore() {
   const term = ui.exploreQ.trim().toLowerCase(), ex = ui.ex, list = exploreList();
-  const food = ex.cats.includes('food'), box = useRef(null);
+  const food = ex.cats.includes('food'), box = useRef(null), map = ex.view === 'map';
+  const groups = !map && isSuggested() ? suggestedGroups() : null;
   // filter / search changes: the list glides to its new layout instead of jumping
-  useFlip(box, '.count-row, #results > .card, .map-wrap, .empty', list.map(p => p.id).join() + '|' + food + ex.view);
-  const h = here();
+  useFlip(box, '.count-row, #results > *, .map-wrap, .empty', list.map(p => p.id).join() + '|' + food + ex.view + !!groups);
+  const h = here(), sort = ex.sort || 'default';
+  let n = 0;   // card index: the first card is the screen's largest paint (fetchpriority)
+  const card = p => (
+    <button className="card ex-card" key={p.id} onClick={() => openDetail(p.id)}>
+      <Photo className="img" size="card" priority={n++ === 0} p={p} />
+      <span className="body"><h2>{p.name}</h2><PlaceMeta p={p} dist={distLabel(p.id)} open={isOpenNow(p)} /></span>
+    </button>
+  );
   return (
     <section className="screen active" id="explore">
-      <AppBar>Excelsior Explorer</AppBar>
+      <AppBar title="Explore">
+        <button className="ab-icon" id="exViewBtn" aria-label={map ? 'Show list' : 'Show map'} onClick={() => setView(map ? 'list' : 'map')}>
+          {map ? <List size={22} aria-hidden="true" /> : <MapIcon size={22} aria-hidden="true" />}</button>
+      </AppBar>
       <div className="scroll" ref={box}>
         <h1 className="ltitle">Explore</h1>
-        <button className="loc-line" id="exLoc" onClick={() => go('location')}>
-          <span aria-hidden="true">📍</span><span className="nm"><small>{'Where am I? · ' + (h.real ? 'real location' : 'demo location')}</small><b>{h.name}</b></span>
-          <span className="chev">›</span>
-        </button>
-        <input className="search" id="exploreSearch" placeholder="Search destinations..." type="search" value={ui.exploreQ}
-               onChange={e => { ui.exploreQ = e.target.value; ui.ex.sel = ''; emit(); }} />
-        <div className="seg ex-view" role="tablist" aria-label="View">
-          {[['list','☰ List'],['map','🗺️ Map']].map(([k, l]) =>
-            <button key={k} role="tab" aria-selected={ex.view === k} className={ex.view === k ? 'on' : ''} onClick={() => setView(k)}>{l}</button>)}
+        <div className="search-wrap">
+          <input className="search" id="exploreSearch" placeholder="Search places" aria-label="Search places" type="search" value={ui.exploreQ}
+                 onChange={e => { ui.exploreQ = e.target.value; ui.ex.sel = ''; emit(); }} />
+          <button className="loc-pill in-search" id="exLoc" onClick={() => go('location')} aria-label={`Location: ${h.name}. Change`}>
+            <MapPin size={14} aria-hidden="true" /><span>{h.name}</span></button>
         </div>
         <FilterChips id="exCats" label="Filter by category" options={CATEGORIES} value={ex.cats} onChange={toggleCat}>
-          <button type="button" className={'open-chip' + (ex.open ? ' on' : '')} aria-pressed={ex.open} onClick={toggleOpen}>🕒 Open now</button>
+          <button type="button" className={'open-chip' + (ex.open ? ' on' : '')} aria-pressed={ex.open} onClick={toggleOpen}><Clock size={15} aria-hidden="true" />Open now</button>
         </FilterChips>
         {food && <div className="diet-row">
           <FilterChips id="exDiet" label="Dietary" options={DIETS} value={ex.diet} onChange={toggleDiet}>
             <span className="chips-label">Dietary</span>
           </FilterChips>
-          <p className="note diet-note">Dietary tags are indicative, check with the venue.</p>
         </div>}
-        <div className="seg seg-sm ex-sort" id="exSort" role="group" aria-label="Sort places">{EX_SORTS.map(([k, l]) =>
-          <button key={k} className={(ex.sort || 'default') === k ? 'on' : ''} aria-pressed={(ex.sort || 'default') === k} onClick={() => setSort(k)}>{l}</button>)}</div>
         <div className="count-row">
-          <div className="count" id="count">{`${list.length} result${list.length === 1 ? '' : 's'} found`}</div>
+          <div className="count" id="count">{`${list.length} place${list.length === 1 ? '' : 's'}`}</div>
           {filtersOn() && list.length > 0 && <button className="link-btn" onClick={resetFilters}>Reset filters</button>}
+          {/* "Sort ▾": a native menu (pull-down) over the label */}
+          <label className="sort-sel" id="exSort">
+            <span>{sort === 'default' ? 'Sort' : EX_SORTS.find(s => s[0] === sort)[1]}</span><ChevronDown size={14} aria-hidden="true" />
+            <select aria-label="Sort places" value={sort} onChange={e => setSort(e.target.value)}>
+              {EX_SORTS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
+          </label>
         </div>
         {!list.length ? <Empty term={term} />
-          : ex.view === 'map' ? <PlaceMap places={list} sel={ex.sel} onSelect={selectPin} onShowList={() => setView('list')} />
-          : <div id="results" className="stagger">{list.map((p, i) => (
-              <button className="card" key={p.id} onClick={() => openDetail(p.id)}>
-                <Photo className="img" size="card" priority={i === 0} p={p} />
-                <div className="body">
-                  <span className="km">{distLabel(p.id)}</span>
-                  {isNearby(p.id) && <span className="fl-badge near-tag">Nearby</span>}
-                  <h2>{`${p.name}, ${p.area}`}</h2>
-                  <PlaceMeta p={p} open={isOpenNow(p)} />
-                  <p>{p.short}</p>
-                  <DietTags p={p} />
-                </div>
-              </button>))}
+          : map ? <PlaceMap places={list} sel={ex.sel} onSelect={selectPin} onShowList={() => setView('list')} />
+          : <div id="results" className="stagger">{groups
+              ? groups.map(([label, ps]) => [<h2 className="grp" key={'g' + label}>{label}</h2>, ...ps.map(card)])
+              : list.map(card)}
             </div>}
       </div>
     </section>
@@ -69,12 +74,11 @@ export function Explore() {
 }
 
 function Empty({ term }) {
-  if (!filtersOn()) return <div className="empty">{`No destinations match “${term}”.`}</div>;
+  if (!filtersOn()) return <div className="empty">{`No places match “${term}”.`}</div>;
   return (
     <div className="empty" id="exEmpty">
-      <div className="empty-ico" aria-hidden="true">🔍</div>
       <b>No places match these filters</b>
-      <p>{term ? `Nothing for “${term}” with the filters you picked.` : 'Try fewer categories or turn off “Open now”.'}</p>
+      <p>{term ? `Nothing for “${term}” with these filters.` : 'Try fewer filters.'}</p>
       <button className="pill" onClick={resetFilters}>Reset filters</button>
     </div>
   );

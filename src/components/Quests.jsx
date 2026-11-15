@@ -1,9 +1,10 @@
+import { Flame, Check } from 'lucide-react';
 import { streak, todayPoints, totalPoints, hasHotel } from '../state/challenges.js';
 
 // 🔥 streak counter (Home card, Achievements)
 export const Streak = ({ n = streak(), big }) => (
   <span className={'streak' + (n ? ' on' : '') + (big ? ' big' : '')} aria-label={`Streak: ${n} day${n === 1 ? '' : 's'}`}>
-    <span aria-hidden="true">🔥</span>{n}
+    <Flame size={big ? 26 : 16} aria-hidden="true" />{n}
   </span>
 );
 
@@ -17,7 +18,7 @@ export function QuestList({ quests, compact }) {
     </div>
     <div className={'q-list' + (compact ? ' compact' : '')}>{quests.map(q => (
       <div className={'q-item' + (q.done ? ' done' : '')} key={q.id} data-quest={q.id}>
-        <span className="q-ic" aria-hidden="true">{q.done ? '✓' : q.icon}</span>
+        <span className="q-ic" aria-hidden="true">{q.done ? <Check size={16} /> : q.icon}</span>
         <span className="q-nm"><b>{q.title}</b>
           {!compact && q.id === 'nearhotel' && !hasHotel() && <small>No hotel booked: counts from Alexanderplatz</small>}
           {q.t > 1 && !q.done && <small>{`${q.p} / ${q.t}`}</small>}</span>

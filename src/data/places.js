@@ -143,9 +143,9 @@ export const PLACES = [
 // ---------- Categories, interests, opening hours, dietary tags (EE-43) ----------
 export const CATEGORIES = [['sights','Sights'],['museums','Museums'],['parks','Parks'],['food','Food'],['nightlife','Nightlife']];
 export const CAT_LABEL = Object.fromEntries(CATEGORIES);
-export const DIETS = [['vegan','🌱 Vegan'],['vegetarian','🥕 Vegetarian'],['halal','Halal'],['gluten-free','Gluten-free']];
-export const INTERESTS = [['history','🏛️ History'],['streetart','🎨 Street art'],['food','🍴 Food'],['nightlife','🌙 Nightlife'],
-  ['nature','🌳 Nature'],['museums','🖼️ Museums'],['architecture','🏗️ Architecture'],['shopping','🛍️ Shopping']];
+export const DIETS = [['vegan','Vegan'],['vegetarian','Vegetarian'],['halal','Halal'],['gluten-free','Gluten-free']];
+export const INTERESTS = [['history','History'],['streetart','Street art'],['food','Food'],['nightlife','Nightlife'],
+  ['nature','Nature'],['museums','Museums'],['architecture','Architecture'],['shopping','Shopping']];
 // Opening hours: a simple weekly schedule. '24/7' = always open; otherwise "Mo-Fr 10:00-20:00; Sa 11:00-20:00"
 // (days Mo Tu We Th Fr Sa Su, ranges may pass midnight: "18:00-02:00", days not listed are closed).
 // Demo data, roughly matching the `hours` text; seasonal hours are simplified to one schedule.

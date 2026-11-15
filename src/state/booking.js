@@ -33,7 +33,7 @@ export { getBookings };
 // Airports of the current flight search: [from, to]
 export const flightRoute = () => { const f = ui.fl, c = CITIES.find(x => x[0] === f.city); return f.toBerlin ? [c[0], 'BER'] : ['BER', c[0]]; };
 export const flightTax = () => FLIGHT_TAX * ui.fl.pax;
-export const FLIGHT_FILTERS = [['bag', '🧳 Baggage included'], ['free', '↩️ Free cancellation']];
+export const FLIGHT_FILTERS = [['bag', 'Baggage included'], ['free', 'Free cancellation']];
 const offerOk = (o, filters) => (!filters.includes('bag') || o.bag) && (!filters.includes('free') || o.free) && (!filters.includes('breakfast') || o.breakfast);
 
 // Flights of the current search, each with its provider offers (filtered, cheapest first), sorted by ui.fl.sort.
@@ -65,7 +65,7 @@ export function bookFlight(r, o, name, cheapest) {
 
 // ---------- Hotels ----------
 export const HOTEL_SORTS = [['price', 'Cheapest'], ['stars', 'Stars']];
-export const HOTEL_FILTERS = [['budget', 'Under €120/night'], ['stars4', '★ 4 stars and up'], ['free', '↩️ Free cancellation'], ['breakfast', '🍳 Breakfast']];
+export const HOTEL_FILTERS = [['budget', 'Under €120/night'], ['stars4', '4 stars and up'], ['free', 'Free cancellation'], ['breakfast', 'Breakfast']];
 export const hotelNights = () => nightsOf(ui.ht.checkIn, ui.ht.checkOut);
 export const hotelCityName = () => ui.ht.city === 'BER' ? 'Berlin' : (CITIES.find(c => c[0] === ui.ht.city) || [, 'Berlin'])[1];
 // Offers of hotel h that match the filters (cheapest first)

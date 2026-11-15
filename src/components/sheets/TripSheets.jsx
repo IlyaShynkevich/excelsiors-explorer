@@ -1,3 +1,4 @@
+import { Footprints, TramFront, CarTaxiFront } from 'lucide-react';
 import { useState } from 'react';
 import { ui, closeSheet } from '../../state/appStore.js';
 import { getBooking } from '../../state/userData.js';
@@ -41,7 +42,7 @@ export function ChangeBookingSheet({ bookingRef }) {
         </div>}
     <button className="btn" id="chConfirm" disabled={!q || !!q.err} onClick={() => confirmChange(b.ref, q)}>Confirm change</button>
     <button className="btn ghost" onClick={() => closeSheet()}>Keep current booking</button>
-    <p className="demo">Demo prices: no payment is taken and nothing is refunded.</p>
+    <p className="demo">Demo – no payment is taken</p>
   </>);
 }
 
@@ -64,7 +65,7 @@ export function CancelBookingSheet({ bookingRef }) {
     <p>{t.text}</p>
     <button className="btn danger" id="cxConfirm" onClick={() => confirmCancel(b.ref)}>Cancel booking</button>
     <button className="btn ghost" onClick={() => closeSheet()}>Keep booking</button>
-    <p className="demo">Demo: no money is moved, the refund is simulated.</p>
+    <p className="demo">Demo – no money is moved</p>
   </>);
 }
 
@@ -78,15 +79,14 @@ export function DirectionsSheet({ to, name }) {
     <p>To <b>{name}</b><br />{(start.real ? 'From your location' : `From ${start.name} (demo location)`) + ` · ${fmtDist(d.km)} away`}</p>
     {there && <p className="dir-here" id="dirHere">You're already here! Tap “I'm here” on the page to check in.</p>}
     <div id="dirOpts">
-      <div className="ride dir" data-mode="walk"><span className="ic" aria-hidden="true">🚶</span>
+      <div className="ride dir" data-mode="walk"><span className="ic" aria-hidden="true"><Footprints size={22} /></span>
         <span className="nm"><b>Walking</b><small>{`about ${fmtDist(d.km * DETOUR)} on foot`}</small></span><span className="pr">{mins(d.walk)}</span></div>
-      <div className="ride dir" data-mode="transit"><span className="ic" aria-hidden="true">🚇</span>
-        <span className="nm"><b>Public transport</b><small>{`U-Bahn / S-Bahn / bus, approx. ${d.transit} min (demo estimate)`}</small></span></div>
-      <div className="ride dir" data-mode="taxi"><span className="ic" aria-hidden="true">🚕</span>
+      <div className="ride dir" data-mode="transit"><span className="ic" aria-hidden="true"><TramFront size={22} /></span>
+        <span className="nm"><b>Public transport</b><small>{`U-Bahn, S-Bahn or bus, about ${d.transit} min`}</small></span></div>
+      <div className="ride dir" data-mode="taxi"><span className="ic" aria-hidden="true"><CarTaxiFront size={22} /></span>
         <span className="nm"><b>Taxi</b><small>{`approx. ${d.taxi} min · Berlin taxi tariff`}</small></span><span className="pr">{fmtEur(d.fare)}</span></div>
     </div>
-    <button className="btn" id="dirTaxi" onClick={taxi}>🚕 Get a taxi here</button>
+    <button className="btn" id="dirTaxi" onClick={taxi}><CarTaxiFront size={18} aria-hidden="true" /> Get a taxi</button>
     <button className="btn ghost" onClick={() => closeSheet()}>Close</button>
-    <p className="demo">Simulated directions: estimates from the straight-line distance, no live routes or timetables.</p>
   </>);
 }

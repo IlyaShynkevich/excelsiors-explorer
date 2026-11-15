@@ -148,3 +148,7 @@ nav button.active svg{animation:tab-pop var(--dur-slow) var(--ease-spring)}
 .reduce-motion .b.typing i:nth-child(2){animation-delay:var(--loop-step) !important}
 .reduce-motion .b.typing i:nth-child(3){animation-delay:calc(var(--loop-step) * 2) !important}
 @keyframes soft-pulse{from{opacity:1}to{opacity:.3}}
+
+/* the first photo of a list or row (Photo priority, not a hero): shown as soon as it is decoded, no fade (Explore/Home LCP) */
+.photo.ph-now .ph-img{opacity:1;transition:none}
+.photo.ph-now.ph-failed .ph-img{opacity:0}

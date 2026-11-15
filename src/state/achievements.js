@@ -2,6 +2,7 @@
 import { ui, emit, toast, queueUnlocks } from './appStore.js';
 import { user, ME, myBadges, checkUnlocks } from './userData.js';
 import { FRIENDS } from '../data/badges.js';
+import { go } from '../hooks/useHashRouter.js';
 
 // Friends + you, most badges first (you win ties). Your row has me: true.
 export function leaderboard() {
@@ -13,7 +14,7 @@ export function resetProgress() { user.visited = []; user.unlocked = {}; checkUn
 
 export function toggleSave(id) {
   const i = user.saved.indexOf(id);
-  if (i >= 0) { user.saved.splice(i,1); toast('Removed from saved'); } else { user.saved.push(id); toast('Saved!'); }
+  if (i >= 0) { user.saved.splice(i,1); toast('Removed from saved'); } else { user.saved.push(id); toast('Saved', {label: 'View', onClick: () => go('saved')}); }
   const fresh = checkUnlocks();
   emit();   // re-render in place (keeps the scroll position, so the button animation is visible)
   if (fresh.length) queueUnlocks(fresh);

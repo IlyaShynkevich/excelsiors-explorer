@@ -7,6 +7,7 @@ import { byId } from '../../data/places.js';
 import { byHotel } from '../../data/hotels.js';
 import { dayDiff, pad } from '../../lib/format.js';
 import { Photo } from '../Photo.jsx';
+import { MapPin, BedDouble, Users } from 'lucide-react';
 
 const firstSentence = t => (t.match(/^.*?[.!?](\s|$)/) || [t])[0].trim();
 
@@ -19,7 +20,7 @@ export function ArrivalSheet({ spot, quests = [] }) {
   const near = COORDS[spot] ? nearestPlaces(3, COORDS[spot], [spot]) : [];
   const time = t => { const d = new Date(t); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
   return (<>
-    <div className="big-emoji">{h ? '🛎️' : '📍'}</div>
+    <div className="done-ic" aria-hidden="true">{h ? <BedDouble size={40} /> : <MapPin size={40} />}</div>
     <div className="kicker">{p || h ? 'Checked in' : 'Arrived'}</div>
     <h3 id="arrTitle">{`You arrived at ${spotName(spot)}`}</h3>
     <p>{fact}</p>
@@ -28,7 +29,7 @@ export function ArrivalSheet({ spot, quests = [] }) {
     ))}</div>}
     {mts.map(m => (
       <button className="chat-link arr-mt" key={m.id} onClick={() => { closeSheet(); openMeetup(m.id); }}>
-        <span className="ic" aria-hidden="true">👥</span>
+        <span className="ic" aria-hidden="true"><Users size={20} /></span>
         <span className="nm"><b>{m.title}</b><small>{`Your meetup here today at ${time(m.start)}`}</small></span><span className="chev">›</span>
       </button>
     ))}

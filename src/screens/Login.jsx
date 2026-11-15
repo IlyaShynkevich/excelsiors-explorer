@@ -2,6 +2,7 @@ import logo from '../assets/logo.webp';
 import { ui, emit } from '../state/appStore.js';
 import { getUser, signIn } from '../state/userData.js';
 import { go, enterApp } from '../hooks/useHashRouter.js';
+import { DemoBanner } from '../components/DetailParts.jsx';
 
 export function Login() {
   const f = ui.login, u = getUser();
@@ -18,8 +19,9 @@ export function Login() {
   return (
     <section className="screen active" id="login">
       <div className="scroll">
+        <DemoBanner />
         <img className="logo" src={logo} alt="Excelsiors Explorer logo" />
-        <h1 className="brand">Excelsior Explorer</h1>
+        <h1 className="brand">Excelsiors Explorer</h1>
         <p className="tag">Booking App with Travel Guidance</p>
         <form id="loginForm" noValidate onSubmit={submit}>
           <label htmlFor="email">Email</label>
@@ -30,8 +32,7 @@ export function Login() {
           <button className="btn" type="submit">Sign In</button>
         </form>
         <p className="alt">No account? <button type="button" onClick={() => go('signup')}>Create account</button></p>
-        <p className="demo" id="loginDemo">{u ? 'Demo: sign in with the account created in this browser, or with any other email and password.'
-                                              : 'Demo: sign in with any email and password, or create an account.'}</p>
+        <p className="demo" id="loginDemo">Demo: any email and password work.</p>
       </div>
     </section>
   );

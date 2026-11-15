@@ -23,6 +23,7 @@ export const freshData = () => ({
   // Stage 4 "Arrive": demo location (a COORDS spot) + real-location switch (the real position itself is never saved),
   // check-ins with their (demo) date, completed daily quests per date, and the demo date offset in days
   location: {spot: DEFAULT_SPOT, real: false}, checkins: [], quests: {}, demoDays: 0,
+  demoNote: false,   // the one-time "this is a demo" banner was shown (first launch)
 });
 // The user's data. Always the same object (deleteUser resets it in place), so modules can import it.
 export const user = freshData();
@@ -68,12 +69,14 @@ try {
           user.joined = Array.isArray(s.joined) ? s.joined : []; user.myMeetups = Array.isArray(s.myMeetups) ? s.myMeetups : [];
           user.chats = s.chats && typeof s.chats === 'object' ? s.chats : {};
           user.account = cleanAccount(s.account); user.profile = cleanProfile(s.profile); user.reminders = cleanReminders(s.reminders);
-          user.location = cleanLocation(s.location); user.checkins = cleanCheckins(s.checkins); user.quests = cleanQuests(s.quests); user.demoDays = cleanDays(s.demoDays); }
+          user.location = cleanLocation(s.location); user.checkins = cleanCheckins(s.checkins); user.quests = cleanQuests(s.quests); user.demoDays = cleanDays(s.demoDays);
+          user.demoNote = !!s.demoNote; }
 } catch(e){}
 
 export const persist = () => store.set(DATA_KEY, JSON.stringify({saved:user.saved, dark:user.dark, visited:user.visited, unlocked:user.unlocked, bookings:user.bookings,
                                                                  joined:user.joined, myMeetups:user.myMeetups, chats:user.chats, account:user.account, profile:user.profile,
-                                                                 reminders:user.reminders, location:user.location, checkins:user.checkins, quests:user.quests, demoDays:user.demoDays}));
+                                                                 reminders:user.reminders, location:user.location, checkins:user.checkins, quests:user.quests, demoDays:user.demoDays,
+                                                                 demoNote:user.demoNote}));
 // Demo only, NOT secure: a real backend would hash passwords on the server.
 const pwHash = pw => { let h = 2166136261; for (const c of 'ee7:' + pw) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return (h >>> 0).toString(36); };
 
@@ -154,6 +157,9 @@ export function addCheckin(c) { user.checkins = cleanCheckins([...user.checkins,
 export const getQuestLog = () => Object.fromEntries(Object.entries(user.quests).map(([d, ids]) => [d, [...ids]]));
 export function saveQuestDay(date, ids) { user.quests = cleanQuests({...user.quests, [date]: ids}); persist(); }
 export const getDemoDays = () => user.demoDays;
+// One-time demo banner (first launch): shown once, then only the About this demo page explains the demo
+export const demoNoteSeen = () => user.demoNote;
+export function markDemoNoteSeen() { if (!user.demoNote) { user.demoNote = true; persist(); } }
 export function setDemoDays(n) { user.demoDays = cleanDays(n); persist(); }
 
 // Removes everything this user stored in the browser and logs out.

@@ -8,12 +8,14 @@ import { isOpenNow } from '../lib/hours.js';
 import { PlaceMeta } from './PlaceMeta.jsx';
 import { here, distLabel, isNearby } from '../state/location.js';
 import { motionMs } from '../lib/motion.js';
+import { iconSvg, catIcon } from './Icons.jsx';
+import { X } from 'lucide-react';
 
 // Map view of Explore: Leaflet + OpenStreetMap tiles (no API key). Leaflet is loaded on demand,
 // so it is its own build file (cached by the service worker like the rest of the app).
 // The tiles come from openstreetmap.org: offline they can't load, then a message points back to the list.
-const PIN = {food:'🍴', museums:'🖼️', parks:'🌳', nightlife:'🌙', sights:'🏛️'};
-const pinFor = p => PIN[p.cats[0]] || '📍';
+// pins: the category's line icon (components/Icons.jsx), as an SVG string because Leaflet takes HTML
+const pinFor = p => iconSvg(catIcon(p), 16);
 const CENTER = [52.515, 13.40];
 
 export function PlaceMap({ places, sel, onSelect, onShowList }) {
@@ -107,11 +109,11 @@ export function PlaceMap({ places, sel, onSelect, onShowList }) {
       <div className="ex-map" ref={box} role="region" aria-label="Map of the filtered places"></div>
       {/* until the first tile is there (Leaflet file + tiles load): a skeleton instead of an empty grey box; fades out */}
       <div className={'map-skel skel' + (status === 'loading' ? '' : ' gone')} aria-hidden={status !== 'loading'}>
-        <span className="map-skel-tx" role="status">🗺️ Loading map</span>
+        <span className="map-skel-tx" role="status">Loading map</span>
       </div>
       {(status === 'offline' || status === 'failed') && (
         <div className="map-msg" role="status">
-          <b>🗺️ The map can't load right now</b>
+          <b>The map can't load right now</b>
           <p>{status === 'failed' ? 'Check your connection and try again.' : 'Map tiles need an internet connection.'} The list still works.</p>
           <button className="pill" onClick={onShowList}>Show list</button>
         </div>
@@ -122,11 +124,10 @@ export function PlaceMap({ places, sel, onSelect, onShowList }) {
           <Photo className="thumb" size="thumb" p={p} />
           <div className="mc-body">
             <b>{p.name}</b>
-            <PlaceMeta p={p} open={isOpenNow(p)} />
-            <small className="muted mc-dist">{`${p.area} · ${distLabel(p.id)}`}{isNearby(p.id) && <span className="fl-badge near-tag">Nearby</span>}</small>
+            <PlaceMeta p={p} dist={distLabel(p.id)} open={isOpenNow(p)} />
             <button className="pill" onClick={() => openDetail(p.id)}>View details</button>
           </div>
-          <button className="mc-x" aria-label="Close preview" disabled={closing} onClick={() => onSelect('')}>×</button>
+          <button className="mc-x" aria-label="Close preview" disabled={closing} onClick={() => onSelect('')}><X size={20} aria-hidden="true" /></button>
         </div>
       )}
     </div>

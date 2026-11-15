@@ -14,10 +14,11 @@ import { go } from '../hooks/useHashRouter.js';
 export function Achievements() {
   return (
     <section className="screen active" id="achievements">
-      <AppBar back="profile">Achievements</AppBar>
+      <AppBar back="profile" title="Achievements" />
       <div className="scroll">
+        <h1 className="ltitle">Achievements</h1>
         <div className="tabs" id="achTabs">
-          <button className={ui.achTab === 'badges' ? 'on' : ''} onClick={() => setAchTab('badges')}>Badges</button>
+          <button className={ui.achTab === 'badges' ? 'on' : ''} onClick={() => setAchTab('badges')}>{`Badges · ${myBadges().length}`}</button>
           <button className={ui.achTab === 'challenges' ? 'on' : ''} onClick={() => setAchTab('challenges')}>Challenges</button>
           <button className={ui.achTab === 'leaderboard' ? 'on' : ''} onClick={() => setAchTab('leaderboard')}>Leaderboard</button>
         </div>
@@ -30,14 +31,12 @@ export function Achievements() {
 function Badges() {
   const n = myBadges().length;
   return (<>
-    <div className="ach-head"><div className="big">{n}<span style={{fontSize: '18px', color: 'var(--muted)'}}>{` / ${BADGES.length}`}</span></div>
-      <small className="muted">badges collected · check in at places to earn more</small></div>
+    <div className="ach-head"><div className="big">{n}<span className="of">{` / ${BADGES.length}`}</span></div></div>
     <div className="bar"><i style={{width: `${n / BADGES.length * 100}%`}}></i></div>
     <div className="badge-grid stagger">{BADGES.map(b => {
       const e = isEarned(b.id), [p, t] = b.goal(user);
       return <button className="badge-cell" key={b.id} onClick={() => openSheet('badge', {b})}><Badge b={b} earned={e} /><b>{b.name}</b><small>{e ? 'Earned' : `${p} / ${t}`}</small></button>;
     })}</div>
-    <p className="alt" style={{marginTop: 'var(--s6)'}}><button type="button" id="resetAch" onClick={resetProgress}>Reset progress (demo)</button></p>
   </>);
 }
 
@@ -49,12 +48,11 @@ function Challenges() {
       <div><Streak n={s} big /><small>{s === 1 ? 'day streak' : 'days streak'}</small></div>
       <div><b className="ch-big">{totalPoints()}</b><small>points total</small></div>
     </div>
-    <h3 className="sec ch-title">{`Today · ${niceDate(appToday())}${demoDays() ? ' (demo date)' : ''}`}</h3>
+    <h2 className="sec ch-title">{`Today · ${niceDate(appToday())}${demoDays() ? ' (demo date)' : ''}`}</h2>
     <div className="ch-card static"><QuestList quests={todaysQuests()} /></div>
-    <p className="hint">Check in with “I'm here” at places and hotels to complete them. New challenges every day; one completed challenge a day keeps your streak going.</p>
-    <button className="link-btn" onClick={() => go('explore')}>Find places near me</button>
+    <p className="hint">Check in with “I'm here” to complete them.</p>
     {hist.length > 0 && <>
-      <h3 className="sec">Recent days</h3>
+      <h2 className="sec">Recent days</h2>
       <div className="ch-hist">{hist.map(d => (
         <div key={d.date}><span>{niceDate(d.date)}</span><span>{`${d.n} / 3 · ${d.pts} pts`}</span></div>
       ))}</div>
@@ -65,11 +63,10 @@ function Challenges() {
 const medal = i => ['🥇','🥈','🥉'][i] || (i + 1);
 function Leaderboard() {
   return (<>
-    <p className="hint">Friends ranked by badges collected. Tap someone to compare.</p>
     <div className="stagger">{leaderboard().map((r, i) => (
       <button className={`lb-row ${r.me ? 'me' : ''}`} key={r.me ? 'me' : r.idx} onClick={r.me ? undefined : () => openSheet('compare', {f: r})}>
         <span className="lb-pos">{medal(i)}</span><span className="lb-av">{r.me ? avNode(ME) : r.av}</span>
-        <span className="nm"><b>{r.name + (r.me ? ' (you)' : '')}</b><small>{r.badges.map(id => byBadge(id).icon).join(' ') || 'No badges yet'}</small></span>
+        <span className="nm"><b>{r.name + (r.me ? ' (you)' : '')}</b><small>{r.badges.length ? r.badges.slice(0, 3).map(id => byBadge(id).icon).join(' ') + (r.badges.length > 3 ? ` +${r.badges.length - 3}` : '') : 'No badges yet'}</small></span>
         <span className="lb-score">{r.badges.length}</span>
       </button>
     ))}</div>

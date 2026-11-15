@@ -13,7 +13,7 @@ and on arrival check in where they are ("I'm here", simulated location, Near me,
 - `src/main.jsx`: imports the CSS, sets `--lego`, renders `<App>`, registers `sw.js` (production build, http/https only).
 - `src/App.jsx`: renders the current screen (`ui.current`), tab bar, toast, bottom sheet, pull-to-refresh, offline banner;
   body classes `dark`, `is-offline`, `kb-open` (iOS keyboard, `--vvh/--vvt`).
-  Screens not needed for Login/Home (EditProfile, Achievements, Book, Meetups, MeetupDetail, MeetupChat, Trip/TripItem, Reminders, Location)
+  Screens not needed for Login/Home (Trip/TripItem, Book, EditProfile, Achievements, Meetups, MeetupDetail, MeetupChat, Reminders, Location, Settings, About)
   are `lazyScreen(() => import(...), 'Name')` (`lib/lazyScreen.js`): own build files, preloaded when the browser is idle, `ScreenSkeleton` as
   `Suspense` fallback, `ScreenError` if a file can't load. Once loaded they render directly (no Suspense frame), so transitions stay intact.
 - `src/screens/`: one file per screen. `src/components/`: shared pieces (AppBar/BackButton, TabBar, BottomSheet + `sheets/`,
@@ -38,10 +38,11 @@ and on arrival check in where they are ("I'm here", simulated location, Near me,
 
 ## State
 - `src/state/storage.js`: the **only** code that touches localStorage/sessionStorage (`store.get/set/del`, `lastRoute`).
+  One read-only exception: the tiny inline script in `index.html` reads `'ee_berlin'.dark`, so the boot skeleton follows dark mode before the app runs.
 - `src/state/userData.js`: the user data layer. **All user data goes through these named functions**:
   `getSession/setSession/clearSession`, `getUser/saveUser`, `signIn`, `signUp`, `getProfile/saveProfile`, `deleteUser`,
   `createBooking/getBookings/getBooking/cancelBooking/updateBooking`, `getReminderSettings/setRemindersOn/setRemindersDemo/markRemindersRead`,
-  `getLocation/saveLocation`, `getCheckins/addCheckin`, `getQuestLog/saveQuestDay`, `getDemoDays/setDemoDays`,
+  `getLocation/saveLocation`, `getCheckins/addCheckin`, `getQuestLog/saveQuestDay`, `getDemoDays/setDemoDays`, `demoNoteSeen/markDemoNoteSeen` (one-time demo banner, `user.demoNote`),
   plus `needsOnboarding/markOnboarded/saveInterests`, `persist()` and `checkUnlocks()`. Data lives in the `user` object, saved under `'ee_berlin'`; the session (email) under `'ee_session'`.
   Keep the keys and data shapes: old saved data (missing fields) must still load with defaults (`freshData()`, `cleanProfile()`).
 - One account per browser. Its email needs the right password; any other email always falls back to the demo login (any password).
@@ -59,7 +60,7 @@ and on arrival check in where they are ("I'm here", simulated location, Near me,
   `state/location.js` memory), `user.checkins = [{id (place id or 'ht-<hotel>'), date (demo date), t, first, kind}]` (last 500),
   `user.quests = {date: [completed quest ids]}`, `user.demoDays` (0–365). `cleanLocation/cleanCheckins/cleanQuests/cleanDays` fill defaults.
 - Actions: `state/booking.js` (`setBookView`, `flightList`, `hotelList`, `bookFlight`, `bookHotel`, `requestTaxi`, `addBooking` → unlock queue), `state/meetups.js` (incl. chat + simulated replies), `state/achievements.js`,
-  `state/explore.js` (search + filters in `ui.ex`, `exploreList()`), `state/weather.js` (Open-Meteo fetch, demo fallback, session-only),
+  `state/explore.js` (search + filters in `ui.ex`, `exploreList()`; without search/filter/sort the list is grouped by `suggestedGroups()`: Recently viewed (`ui.recent`, this session, else the demo `RECENT`), For you, Popular, More places), `state/weather.js` (Open-Meteo fetch, demo fallback, session-only),
   `state/trip.js` (Stage 3: `tripItems()/tripDays()` = bookings + joined meetups by day, hotels as check-in + check-out entries; `tripEntry(id)`;
   `changeQuote(b, v)`/`confirmChange` reuse the flight/hotel generators (same provider if it has an offer), change fee 25/15 € unless free cancellation;
   `cancelTerms(b)`/`confirmCancel`: free cancellation = full refund, non-refundable = only taxes & fees back, taxi free; `directionsStart()` = hotel of the current/next stay or Alexanderplatz),
@@ -78,7 +79,8 @@ and on arrival check in where they are ("I'm here", simulated location, Near me,
 - Demo data stays in constants in `src/data/`; never put user data there.
 
 ## Routing
-- Hash routes: `#login`, `#signup`, `#interests`, `#home`, `#explore`, `#book`, `#saved`, `#profile`, `#profile/edit`, `#achievements`,
+- Tab bar (`TABS`): **Home, Explore, Book, Trip, Profile**. Saved is not a tab: Profile → Saved, or *View* in the "Saved" toast of the Save button.
+- Hash routes: `#login`, `#signup`, `#interests`, `#home`, `#explore`, `#book`, `#saved`, `#profile`, `#profile/edit`, `#settings`, `#about`, `#achievements`,
   `#place/<id>`, `#meetups`, `#meetups/<placeId>`, `#meetup/<id>`, `#meetup/<id>/chat`,
   `#trip` (timeline), `#trip/<id>` (booking ref, or `m-<meetupId>` for a joined meetup; unknown id → `#trip`), `#reminders`, `#location` (Where am I?),
   Book steps: `#book/flights`, `#book/flights/results`, `#book/taxi`, `#book/hotels`, `#book/hotels/results`, `#book/hotel/<id>`
@@ -97,7 +99,9 @@ and on arrival check in where they are ("I'm here", simulated location, Near me,
   Commons only serves its standard widths (120, 250, 330, 500, 960, 1280; others answer 400). Roles in `PHOTO_SIZES`: thumb 250/330,
   tile 250/330, card 330/500, hero 500/960. A new photo: check that every width of its role returns 200.
   `priority` = the screen's largest paint (Home: first "Near you" tile, Explore: first result, detail heroes): `fetchpriority="high"`, not lazy.
-  Every other photo is lazy. Photo boxes have fixed CSS sizes, so loading never shifts the layout.
+  Every other photo is lazy: it gets its `src` only ~300 px before it comes into view (one shared IntersectionObserver in `Photo.jsx`;
+  the browser's own lazy loading starts every photo within 1,250–2,500 px at once). The priority photo of a list/row (not a hero) skips the
+  fade-in (`.ph-now`). Photo boxes have fixed CSS sizes, so loading never shifts the layout.
 
 ## External services (no keys)
 - Map: Leaflet (npm, dynamically imported, its own build chunk) + OpenStreetMap tiles; keep the OSM attribution. PlaceMap focuses the map
@@ -127,7 +131,29 @@ and on arrival check in where they are ("I'm here", simulated location, Near me,
 - Text buttons (actions inside the app: Skip, Reset filters, Sign In, Show password …) are green `var(--accent)`, e.g. `.link-btn`,
   `.btn.ghost-link`, `.alt button`. `var(--link)` blue is only for real web links that leave the app (Wikipedia, map attribution).
   Use `<button>` for actions, never `<a>` without `href`.
-- The toast sits below the top bar and the large-title row (`.toast` in `screens.css`), so it never covers a title.
+- The toast sits below the top bar and the large-title row (`.toast` in `screens.css`), so it never covers a title. `toast(msg, {label, onClick})` adds one action button.
+- New layout rules live in `styles/simple.css` (imported after the area files, before `motion.css`).
+
+## Simplicity (the app's core promise: everything in one place, nothing confusing)
+Plan and before/after numbers: `design-review/simplify-plan.md`. HIG references: toolbars (large titles), buttons, disclosure controls, tab bars, writing.
+- **One job per screen**, written as one sentence in the plan. At most **one prominent (filled green `.btn`) button**; other actions are
+  `.btn.ghost`, round icon buttons (`RoundActions`), text buttons or top-bar icons.
+- **At most 3 sections above the fold** at 390×844. Secondary things move **one tap deeper**, never get deleted: the one collapsed
+  **Details** disclosure on detail pages (`Details`, `components/DetailParts.jsx`), **Demo tools** on Profile, Settings, a sheet.
+- **List cards**: photo, name, **one meta line** (`PlaceMeta`: distance · Open now/Closed). Descriptions, tags and categories only on the detail page.
+- **Detail pages** (place, hotel, meetup): photo, name, one meta line, About shortened to 3 lines (`Clamp`, *More*), ONE primary action
+  (place: *I'm here* when there, otherwise *Directions* = `HereAction`; meetup: *Join* / *Open group chat*), one row of round actions, then *Details*.
+- **Text**: helper text at most one short line and only where people would otherwise be stuck; labels ≤ 3 words; verbs on buttons; no "my/your" in titles.
+- **Demo notices** are not on screens: one **About this demo** page (Profile), the one-time `DemoBanner` (first launch, Login or Home),
+  booking/cancel sheets keep one line "Demo – no payment is taken", Login keeps "Demo: any email and password work."
+- **Icons**: only `lucide-react` line icons (import the named icons; tree-shaken), also in the tab bar, map pins (`iconSvg()` in
+  `components/Icons.jsx` turns an icon into an SVG string for Leaflet), weather (`wxIcon`), bookings (`KIND_ICONS`), taxis (`RIDE_ICONS`).
+  **No emoji as UI icons**; emoji stay only for badges, avatars, chat (and the quest icons of the challenge game). No emoji in labels or data used as labels.
+- **Titles**: the app name is **"Excelsiors Explorer"** everywhere it appears (Login, `<title>`, share text); screens are not titled with it.
+  Every screen shows only its **large title** (`.ltitle`) or, on detail pages, its photo; the top bar (`AppBar title=… [watch=".hero"] [overlay]`)
+  is clear and empty at the top and turns frosted with the **small title** once that element has scrolled under it (IntersectionObserver).
+  Trailing top-bar actions go in `AppBar` children (`.ab-icon` / `.ab-text`, e.g. Explore's List/Map, Trip's bell, Profile's Edit).
+- Grouped settings-style lists use `Group` / `Row` / `SwitchRow` (`components/RowList.jsx`).
 
 ## Motion
 - Tokens in `base.css` `:root` (calmer timing, about 1.5x the first version): `--ease-out` (default), `--ease-in` (leaving), `--ease-in-out` (cross-fades),
@@ -166,6 +192,7 @@ and on arrival check in where they are ("I'm here", simulated location, Near me,
 - **Never run git commands** (add, commit, push, pull, checkout …). The user handles all git.
   At the end of a task, list the changed files and suggest a commit message.
 - Update `README.md` when features change.
+- Follow the Simplicity rules above for every new screen or section; keep the screen's one job.
 - New screens are lazy-loaded (`lazyScreen` in `App.jsx`) unless Login or Home need them. New loading states use the skeleton pieces
   (`.skel` + shimmer, `Skeleton.jsx`) and must keep the final layout's size (no jump when the content arrives).
 

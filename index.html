@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Explorer">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0b7a2b">
-<title>Excelsior Explorer</title>
+<title>Excelsiors Explorer</title>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" type="image/png" href="/assets/favicon.png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -17,16 +17,20 @@
 </head>
 <body>
 <div id="root">
+<script>
+  // dark mode before the app has started: the saved setting (same key as src/state/storage.js DATA_KEY), read-only
+  try { if ((JSON.parse(localStorage.getItem('ee_berlin') || 'null') || {}).dark) document.body.classList.add('dark'); } catch (e) {}
+</script>
 <!-- Boot skeleton: shown until the app's JavaScript has run (React replaces it). The same shapes as the
      in-app skeletons (components/Skeleton.jsx, .skel in styles/screens.css); the script below picks the one for the route. -->
 <div id="app" aria-busy="true" aria-label="Loading">
-<section class="screen sk-screen" data-boot="home" id="home"><div class="home-top"><span class="skel sk-dot"></span></div><div class="scroll"><div class="panel">
-  <div class="skel sk-title"></div><div class="skel sk-line"></div><div class="skel sk-field"></div><div class="sk-row"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div><div class="skel sk-block"></div>
-</div></div></section>
+<section class="screen sk-screen" data-boot="home" id="home"><div class="scroll"><header class="home-head"><div class="home-top"><span class="skel sk-dot"></span></div>
+  <div class="skel sk-title"></div><div class="skel sk-field"></div><div class="sk-row"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+</header><div class="home-body"><div class="skel sk-block"></div></div></div></section>
 <section class="screen sk-screen" data-boot="place"><div class="scroll sk-flush"><div class="skel sk-hero"></div><div class="sk-pad">
   <div class="skel sk-title"></div><div class="skel sk-line"></div><div class="skel sk-line short"></div><div class="skel sk-block"></div>
 </div></div></section>
-<section class="screen sk-screen" data-boot="screen"><div class="appbar">Excelsior Explorer</div><div class="scroll">
+<section class="screen sk-screen" data-boot="screen"><div class="appbar"></div><div class="scroll">
   <div class="skel sk-title"></div><div class="sk-cards"><div class="skel sk-card"><span class="skel sk-line"></span><span class="skel sk-line short"></span></div><div class="skel sk-card"><span class="skel sk-line"></span><span class="skel sk-line short"></span></div><div class="skel sk-card"><span class="skel sk-line"></span><span class="skel sk-line short"></span></div></div>
 </div></section>
 <script>

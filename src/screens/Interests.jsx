@@ -16,10 +16,10 @@ export function Interests() {
   const done = () => { saveInterests(picked); go('home', {replace:true}); toast('Thanks! Home now has ideas “For you”.'); };
   return (
     <section className="screen active" id="interests">
-      <AppBar>Excelsior Explorer</AppBar>
+      <AppBar title="Interests" />
       <div className="scroll">
         <h1 className="ltitle">What do you like?</h1>
-        <p className="hint">Pick at least {MIN_INTERESTS} interests and we'll suggest places in Berlin for you. You can change them later in Edit Profile.</p>
+        <p className="hint">Pick at least {MIN_INTERESTS} for your suggestions.</p>
         <FilterChips id="intChips" label="Interests" wrap options={INTERESTS} value={picked} onChange={toggle} />
         <p className="int-count" aria-live="polite">{left ? `Pick ${left} more` : `✓ ${picked.length} selected`}</p>
         <button className="btn" id="intDone" disabled={!!left} onClick={done}>Continue</button>

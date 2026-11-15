@@ -11,7 +11,7 @@ export const SkelCards = ({ n = 3 }) => (
 export function ScreenSkeleton() {
   return (
     <section className="screen active sk-screen" aria-busy="true" aria-label="Loading">
-      <div className="appbar">Excelsior Explorer</div>
+      <div className="appbar"></div>
       <div className="scroll">
         <div className="skel sk-title" />
         <SkelCards />

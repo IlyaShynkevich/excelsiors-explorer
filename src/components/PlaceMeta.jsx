@@ -1,18 +1,18 @@
-import { CAT_LABEL, DIETS } from '../data/places.js';
+import { DIETS } from '../data/places.js';
 
 const DIET_LABEL = Object.fromEntries(DIETS);
 
-// "Food · Nightlife · ● Open now" under a place name (Explore list, map preview)
-export function PlaceMeta({ p, open }) {
+// The one meta line under a place name (Explore cards, map preview): "2.1 km · Open now"
+export function PlaceMeta({ p, dist, open }) {
   return (
-    <div className="pmeta">
-      <span>{p.cats.map(c => CAT_LABEL[c]).join(' · ')}</span>
-      <span className={'oc ' + (open ? 'is-open' : 'is-closed')}>{open ? 'Open now' : 'Closed now'}</span>
-    </div>
+    <span className="pmeta">
+      {dist && <span>{dist}</span>}
+      <span className={'oc ' + (open ? 'is-open' : 'is-closed')}>{open ? 'Open now' : 'Closed'}</span>
+    </span>
   );
 }
 
-// Dietary tags of a food place (demo data, indicative only)
+// Dietary tags of a food place (demo data, indicative only) – place page › Details
 export function DietTags({ p, note }) {
   if (!p.diet.length) return null;
   return (<>

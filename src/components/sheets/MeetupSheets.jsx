@@ -54,6 +54,5 @@ export function CreateMeetupSheet({ pre }) {
     <div className="err" id="mtErr" style={err.show ? {display: 'block'} : undefined}>{err.msg}</div>
     <button className="btn" id="mtCreate" onClick={create}>Create meetup</button>
     <button className="btn ghost" onClick={() => closeSheet()}>Cancel</button>
-    <p className="demo">Demo: the meetup is only saved on this device.</p>
   </>);
 }

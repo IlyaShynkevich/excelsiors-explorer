@@ -1,25 +1,29 @@
 import { useRef, useState } from 'react';
+import { Plane, BedDouble, CarTaxiFront, ChevronRight, Luggage, Navigation, MapPin, ArrowLeftRight, Phone, Flag } from 'lucide-react';
+import { RIDE_ICONS } from '../components/Icons.jsx';
+import { RoundActions, Clamp, Details } from '../components/DetailParts.jsx';
+import { isAt, distLabel } from '../state/location.js';
+import { checkIn } from '../state/challenges.js';
+import { upcomingTrip } from '../state/trip.js';
 import { ui, emit, toast, openSheet } from '../state/appStore.js';
-import { setBookView, flightRoute, requestTaxi, cancelRide, getBookings, BOOK_PARENT, flightList, setFlightSort, toggleFilter, resetFilters,
+import { setBookView, flightRoute, requestTaxi, cancelRide, BOOK_PARENT, flightList, setFlightSort, toggleFilter, resetFilters,
          FLIGHT_FILTERS, HOTEL_SORTS, HOTEL_FILTERS, hotelList, hotelOffersFor, hotelNights, hotelCityName, setHotelSort, setHotelDates, openHotel } from '../state/booking.js';
-import { go, goBack, openTripItem } from '../hooks/useHashRouter.js';
+import { go, goBack } from '../hooks/useHashRouter.js';
 import { useFlip } from '../hooks/useFlip.js';
 import { CITIES, EXTRA_SPOTS, RIDES, roadKm, taxiFare, spotName } from '../data/booking.js';
 import { HOTELS, byHotel, starText, hotelUnits, hotelSpot } from '../data/hotels.js';
 import { PLACES } from '../data/places.js';
 import { fmtEur, hm, dur, niceDate, tomorrow, today, addDays, plural } from '../lib/format.js';
-import { BackButton } from '../components/AppBar.jsx';
+import { AppBar } from '../components/AppBar.jsx';
 import { Stepper } from '../components/Stepper.jsx';
 import { FilterChips } from '../components/FilterChips.jsx';
 import { ProviderList } from '../components/ProviderList.jsx';
 import { Photo } from '../components/Photo.jsx';
-import { HereAction } from '../components/HereAction.jsx';
 
 const TITLES = {hub:'Book', flights:'Book a flight', results:'Choose a flight', taxi:'Book a taxi', ride:'Your ride',
                 hotels:'Book a hotel', hotelResults:'Choose a hotel', hotel:'Your stay'};
 const VIEWS = {hub: Hub, flights: FlightForm, results: FlightResults, taxi: TaxiForm, ride: Ride, hotels: HotelForm, hotelResults: HotelResults, hotel: HotelDetail};
 const notInPrototype = what => toast(what + ' (not in prototype)');
-const ICONS = {flight:'✈️', hotel:'🏨', taxi:'🚕'};
 
 // Booking hub with the flight, hotel and taxi flows (ui.bookView; each step has its own #book/… URL).
 // The back button goes back in the browser history, or to the previous step when there is none.
@@ -27,33 +31,29 @@ export function Book() {
   const v = ui.bookView, View = VIEWS[v], box = useRef(null);
   return (
     <section className="screen active" id="book">
-      <div className="appbar">
-        <BackButton id="bookBack" style={v === 'hub' ? {display: 'none'} : undefined} onClick={() => goBack(() => setBookView(BOOK_PARENT[v] || 'hub'))} />
-        Excelsior Explorer
-      </div>
+      {/* the hotel page has no large title: its photo, then the hotel name; the small title shows after the photo */}
+      <AppBar id="bookBar" title={v === 'hotel' ? (byHotel(ui.ht.sel) || {}).name : TITLES[v]} watch={v === 'hotel' ? '.ht-hero' : '.ltitle'}
+              onBack={v === 'hub' ? undefined : () => goBack(() => setBookView(BOOK_PARENT[v] || 'hub'))} />
       <div className="scroll" ref={box}>
-        <h1 className="ltitle" id="bookTitle">{TITLES[v]}</h1>
+        {v !== 'hotel' && <h1 className="ltitle" id="bookTitle">{TITLES[v]}</h1>}
         <div id="bookBody" key={v}><View box={box} /></div>
       </div>
     </section>
   );
 }
 
+// Book – one job: start a booking. Three cards; the bookings themselves live in Trip (one row links there).
+const START = [['flights', Plane, 'Flight', 'To & from Berlin', 'blue'], ['hotels', BedDouble, 'Hotel', 'Compare prices', 'pink'], ['taxi', CarTaxiFront, 'Taxi', 'Anywhere in Berlin', 'yellow']];
 function Hub() {
-  const list = getBookings();
+  const n = new Set(upcomingTrip().filter(it => it.kind !== 'meetup').map(it => it.id)).size;
   return (<>
-    <div className="bk-hero">
-      <button className="bk-tile" style={{background: 'linear-gradient(145deg,#3b82f6,#1e3a8a)'}} onClick={() => setBookView('flights')}><span className="em">✈️</span><span><b>Flights</b><small>To & from Berlin BER</small></span></button>
-      <button className="bk-tile" id="hotelTile" style={{background: 'linear-gradient(145deg,#f472b6,#9d174d)'}} onClick={() => setBookView('hotels')}><span className="em">🏨</span><span><b>Hotels</b><small>Compare prices in Berlin</small></span></button>
-      <button className="bk-tile wide" style={{background: 'linear-gradient(145deg,#facc15,#ca8a04)'}} onClick={() => setBookView('taxi')}><span className="em">🚕</span><span><b>Taxi</b><small>Anywhere in Berlin</small></span></button>
-    </div>
-    <div className="sec-row"><h2 className="sec">My bookings</h2><button className="link-btn" id="toTrip" onClick={() => go('trip')}>Trip overview</button></div>
-    {list.length ? <div className="stagger" id="myBookings">{list.map(b => (
-      <button className={'bk-item' + (b.status === 'Cancelled' ? ' cancelled' : '')} key={b.ref + b.created} data-type={b.type} onClick={() => openTripItem(b.ref)}><span className="ic">{ICONS[b.type]}</span>
-        <span className="nm"><b>{b.title}</b><small>{b.sub}</small>
-          {b.provider && <small className="via">{`via ${b.provider} · ${b.status}`}</small>}</span>
-        <span className="amt"><b>{fmtEur(b.price)}</b><br /><span className="st">{b.ref}</span></span></button>
-    ))}</div> : <p className="hint">No bookings yet. Book a flight to Berlin or grab a taxi to your next sight!</p>}
+    <div className="bk-start">{START.map(([v, Icon, t, sub, c]) => (
+      <button className="bk-card" key={v} id={v === 'hotels' ? 'hotelTile' : v + 'Tile'} onClick={() => setBookView(v)}>
+        <span className={'bk-ic ' + c}><Icon size={24} aria-hidden="true" /></span><span className="nm"><b>{t}</b><small>{sub}</small></span>
+        <ChevronRight size={20} className="chev" aria-hidden="true" /></button>
+    ))}</div>
+    <button className="bk-trip" id="toTrip" onClick={() => go('trip')}><Luggage size={20} aria-hidden="true" />
+      <span>{n ? `${plural(n, 'upcoming booking')}` : 'No upcoming bookings'}</span><span className="muted">Trip</span><ChevronRight size={18} aria-hidden="true" /></button>
   </>);
 }
 
@@ -67,7 +67,7 @@ function FlightForm() {
     <div className="seg"><button className="on">One way</button><button onClick={() => notInPrototype('Round trips')}>Round trip</button></div>
     <div className="route">
       <div className="fgroup"><label>From</label>{f.toBerlin ? citySel : ber}</div>
-      <button className="swap" id="flSwap" aria-label="Swap" onClick={() => { f.toBerlin = !f.toBerlin; emit(); }}>⇄</button>
+      <button className="swap" id="flSwap" aria-label="Swap" onClick={() => { f.toBerlin = !f.toBerlin; emit(); }}><ArrowLeftRight size={18} aria-hidden="true" /></button>
       <div className="fgroup"><label>To</label>{f.toBerlin ? ber : citySel}</div>
     </div>
     <div className="row2">
@@ -78,7 +78,6 @@ function FlightForm() {
     <div className="fgroup"><label>Class</label><select className="field" id="flCls" defaultValue={f.cls} onChange={e => f.cls = e.target.value}>
       <option value="eco">Economy</option><option value="biz">Business</option></select></div>
     <button className="btn" id="flSearch" onClick={() => setBookView('results')}>Search flights</button>
-    <p className="demo">Demo app – flights and prices are simulated.</p>
   </>);
 }
 
@@ -111,7 +110,6 @@ function FlightResults({ box }) {
       </div>
     ))}</div> : <div className="empty"><p>No provider offers match your filters.</p>
       <button className="link-btn" onClick={() => resetFilters('fl')}>Reset filters</button></div>}
-    <p className="demo">Providers and prices are demo data: fictional booking sites, simulated prices.</p>
   </>);
 }
 
@@ -133,7 +131,6 @@ function HotelForm() {
       <Stepper value={s.guests} onMinus={() => guests(Math.max(1, s.guests - 1))} onPlus={() => guests(Math.min(8, s.guests + 1))} ids={['htMinus', 'htGuests', 'htPlus']} labels={['Fewer guests', 'More guests']} /></div>
     <p className="hint" id="htNights">{`${plural(n, 'night')} · ${niceDate(s.checkIn)} – ${niceDate(s.checkOut)} · up to 2 guests per room`}</p>
     <button className="btn" id="htSearch" onClick={() => setBookView('hotelResults')}>Search hotels</button>
-    <p className="demo">Demo app – providers and prices are simulated (demo prices).</p>
   </>);
 }
 
@@ -159,37 +156,44 @@ function HotelResults({ box }) {
           <Photo className="ht-ph" size="card" p={h}>{o.total === best && <span className="fl-badge">CHEAPEST</span>}</Photo>
           <span className="ht-body">
             <span className="ht-top"><b>{h.name}</b><span className="stars" aria-label={h.stars ? h.stars + ' stars' : 'Hostel'}>{starText(h)}</span></span>
-            <small className="muted">{h.area}</small>
-            <span className="ht-price"><span><b>{fmtEur(o.rate)}</b><small>{' / night · ' + o.name}</small></span>
-              <span className="ht-tot">{fmtEur(o.total) + ' total'}</span></span>
-            {offers.length > 1 && save >= 0.01 && <small className="save">{`${offers.length} providers · save ${fmtEur(save)} vs the most expensive`}</small>}
+            <span className="ht-price"><span><b>{fmtEur(o.rate)}</b><small> / night</small></span><span className="ht-tot">{fmtEur(o.total) + ' total'}</span></span>
+            {offers.length > 1 && save >= 0.01 && <small className="save">{`Save ${fmtEur(save)} · ${offers.length} providers`}</small>}
           </span>
         </button>
       );
     })}</div> : <div className="empty"><p>No hotels match your filters.</p>
       <button className="link-btn" onClick={() => resetFilters('ht')}>Reset filters</button></div>}
-    <p className="demo">Demo prices: providers are fictional booking sites, prices are simulated.</p>
   </>);
 }
 
 const OFFER_FILTERS = HOTEL_FILTERS.filter(([k]) => k === 'free' || k === 'breakfast');
+// Hotel page – decide and act: photo, name, one meta line, About, the providers (cheapest first, 3 + "Compare all"),
+// round actions; the other amenities and the disclaimer in "Details".
+const plain = a => a.replace(/^[^\p{L}\p{N}]+/u, '');   // amenity text without its leading emoji
 function HotelDetail() {
   const s = ui.ht, h = byHotel(s.sel);
+  const [all, setAll] = useState(false);
   if (!h) return <div className="empty"><p>This hotel is not available.</p><button className="link-btn" onClick={() => setBookView('hotelResults', {replace: true})}>Show all hotels</button></div>;
-  const offers = hotelOffersFor(h), units = hotelUnits(h, s.guests);
+  const offers = hotelOffersFor(h), units = hotelUnits(h, s.guests), spot = hotelSpot(h);
   return (<>
     <Photo className="ht-hero" size="hero" priority p={h} shade><span className="stars">{starText(h)}</span></Photo>
-    <h2 className="ht-name">{h.name}</h2>
-    <p className="muted ht-area">{'📍 ' + h.area}</p>
-    <p className="ht-about">{h.short}</p>
-    <div className="ht-amen">{h.amen.map(a => <span key={a}>{a}</span>)}</div>
-    <div className="ht-here"><HereAction spot={hotelSpot(h)} name={h.name} /></div>
-    <p className="hint">{searchLine() + ' · ' + plural(units, h.stars ? 'room' : 'bed') + ' '}
+    <h1 className="d-title ht-name">{h.name}</h1>
+    <p className="d-meta ht-area">{`${h.area} · ${distLabel(spot)}`}</p>
+    <Clamp lines={2}><p className="ht-about">{h.short}</p></Clamp>
+    <p className="hint ht-search">{`${plural(hotelNights(), 'night')} · ${plural(s.guests, 'guest')} · ${plural(units, h.stars ? 'room' : 'bed')} `}
       <button className="link-btn" id="htChange" onClick={() => setBookView('hotels')}>Change</button></p>
     <FilterChips id="htOfferFilters" label="Filter offers" options={OFFER_FILTERS} value={s.filters} onChange={k => toggleFilter('ht', k)} />
-    {offers.length ? <ProviderList offers={offers} kind="hotel" onPick={(o, cheapest) => openSheet('hotel', {h, o, cheapest})} />
-      : <div className="empty"><p>No offer for this hotel matches your filters.</p><button className="link-btn" onClick={() => resetFilters('ht')}>Reset filters</button></div>}
-    <p className="demo">Demo prices from fictional providers. Amenities are indicative – check with the hotel.</p>
+    {offers.length ? <ProviderList offers={offers} kind="hotel" limit={3} expanded={all} onExpand={() => setAll(x => !x)} onPick={(o, cheapest) => openSheet('hotel', {h, o, cheapest})} />
+      : <div className="empty"><p>No offer matches these filters.</p><button className="link-btn" onClick={() => resetFilters('ht')}>Reset filters</button></div>}
+    <RoundActions items={[
+      isAt(spot) && {icon: MapPin, label: "I'm here", id: 'checkBtn', onClick: () => checkIn(spot)},
+      {icon: Navigation, label: 'Directions', onClick: () => openSheet('directions', {to: spot, name: h.name})},
+      {icon: CarTaxiFront, label: 'Taxi', onClick: () => { ui.tx.to = spot; setBookView('taxi'); }},
+    ]} />
+    <Details id="htDetails">
+      <div className="ht-amen">{h.amen.map(a => <span key={a}>{plain(a)}</span>)}</div>
+      <p className="note">Amenities are indicative; check with the hotel. Prices come from fictional providers.</p>
+    </Details>
   </>);
 }
 
@@ -218,12 +222,11 @@ function TaxiForm() {
     {same ? <p className="err" style={{display: 'block'}}>Pick-up and destination are the same.</p> : <>
       <p className="hint">{`≈ ${km.toFixed(1).replace('.', ',')} km · about ${mins} min`}</p>
       {RIDES.map(r => (
-        <button className={`ride ${t.ride === r.id ? 'on' : ''}`} key={r.id} onClick={() => set('ride', r.id)}><span className="ic">{r.ic}</span>
+        <button className={`ride ${t.ride === r.id ? 'on' : ''}`} key={r.id} onClick={() => set('ride', r.id)}><span className="ic">{(() => { const I = RIDE_ICONS[r.id] || CarTaxiFront; return <I size={22} aria-hidden="true" />; })()}</span>
           <span className="nm"><b>{r.name}</b><small>{r.note}</small></span><span className="pr">{fmtEur(taxiFare(km) * r.f)}</span></button>
       ))}
     </>}
     <button className="btn" id="txGo" disabled={same} onClick={go}>{t.when === 'now' ? 'Request taxi' : 'Schedule taxi'}</button>
-    <p className="demo">Prices are estimates based on the Berlin taxi tariff. Demo only – no real taxi is called.</p>
   </>);
 }
 
@@ -232,8 +235,8 @@ function Ride() {
   if (!r) return null;
   return (<>
     <div className="eta"><small className="muted" id="rideStatus">{r.status}</small><br /><b id="rideEta">{r.eta > 1 || r.pos < 80 ? r.eta + ' min' : 'Arrived'}</b></div>
-    <div className="map"><div className="road"></div><span className="pin" style={{left: '8%'}}>📍</span><span className="pin" style={{right: '8%'}}>🏁</span>
-      <span className="car-track" style={{transform: `translateX(${r.pos}%)`}}><span className="car" id="rideCar">🚕</span></span></div>
+    <div className="map"><div className="road"></div><span className="pin" style={{left: '8%'}}><MapPin size={22} aria-hidden="true" /></span><span className="pin" style={{right: '8%'}}><Flag size={22} aria-hidden="true" /></span>
+      <span className="car-track" style={{transform: `translateX(${r.pos}%)`}}><span className="car" id="rideCar"><CarTaxiFront size={30} aria-hidden="true" /></span></span></div>
     <div className="driver"><span className="av">{r.d[1]}</span><span className="nm"><b>{`${r.d[0]} · ⭐ ${r.d[4]}`}</b><small>{r.d[2]}</small></span><span className="plate">{r.d[3]}</span></div>
     <div className="summary">
       <div><span>From</span><span>{spotName(r.from)}</span></div>
@@ -241,6 +244,6 @@ function Ride() {
       <div><span>Ride</span><span>{r.rideName}</span></div>
       <div className="tot"><span>Estimated fare</span><span>{fmtEur(r.price)}</span></div>
     </div>
-    <div className="row2"><button className="btn ghost" onClick={() => notInPrototype('Calling the driver')}>📞 Call</button><button className="btn ghost" id="rideCancel" onClick={cancelRide}>Cancel ride</button></div>
+    <div className="row2"><button className="btn ghost" onClick={() => notInPrototype('Calling the driver')}><Phone size={18} aria-hidden="true" /> Call</button><button className="btn ghost" id="rideCancel" onClick={cancelRide}>Cancel ride</button></div>
   </>);
 }

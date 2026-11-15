@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ui, openSheet } from '../state/appStore.js';
-import { tripDays, upcomingTrip, tripEntry, TRIP_ICONS, timeOf, dayLabel, tripDayLabel, parseLocal, canChange, canCancel, cancelTerms } from '../state/trip.js';
+import { tripDays, upcomingTrip, tripEntry, timeOf, dayLabel, tripDayLabel, parseLocal, canChange, canCancel, cancelTerms } from '../state/trip.js';
 import { going } from '../state/meetups.js';
 import { weather, loadWeather, forecastFor, isRainy } from '../state/weather.js';
 import { go, openTripItem, openMeetup, openChat } from '../hooks/useHashRouter.js';
@@ -14,6 +14,10 @@ import { AppBar } from '../components/AppBar.jsx';
 import { HereAction } from '../components/HereAction.jsx';
 import { arrive } from '../state/challenges.js';
 import { SkelCards } from '../components/Skeleton.jsx';
+import { Bell, Navigation, MessageCircle, MapPin, ChevronRight } from 'lucide-react';
+import { KIND_ICONS, wxIcon } from '../components/Icons.jsx';
+import { WeatherStrip } from '../components/WeatherStrip.jsx';
+import { unreadCount } from '../state/reminders.js';
 
 // The rainy-day hints sit above a day's items, so they can't appear after the timeline is shown (it would jump).
 // While the forecast is still loading, the timeline waits up to WX_WAIT ms (card skeletons); a forecast that comes
@@ -28,16 +32,19 @@ export function Trip() {
   useEffect(() => { loadWeather(); const t = setTimeout(() => setWaited(true), WX_WAIT); return () => clearTimeout(t); }, []);
   const show = wxSettled() || waited;
   if (show && hints.current === null) hints.current = wxSettled();   // decided once, when the timeline first shows
-  const days = tripDays(), next = upcomingTrip().length;
+  const days = tripDays(), next = upcomingTrip().length, unread = unreadCount();
   return (
     <section className="screen active" id="trip">
-      <AppBar back="home">Excelsior Explorer</AppBar>
+      <AppBar title="Trip">
+        <button className="ab-icon bell" id="tripBell" aria-label={'Reminders' + (unread ? `, ${unread} unread` : '')} onClick={() => go('reminders')}>
+          <Bell size={22} aria-hidden="true" />{unread > 0 && <span className="bell-n">{unread > 9 ? '9+' : unread}</span>}</button>
+      </AppBar>
       <div className="scroll">
-        <h1 className="ltitle">My Trip</h1>
+        <h1 className="ltitle">Trip</h1>
         {!show && days.length ? <SkelCards n={Math.min(days.length + 1, 3)} /> : days.length ? <>
-          <p className="hint" id="tripCount">{next ? `${plural(next, 'upcoming plan')} · tap one for details` : 'Nothing coming up · your past plans are below'}</p>
+          <p className="hint" id="tripCount">{next ? plural(next, 'upcoming plan') : 'Nothing coming up'}</p>
           <div className="stagger" id="tripDays">{days.map(d => <TripDay key={d.date || 'none'} {...d} hints={hints.current} />)}</div>
-          <p className="demo">Bookings, prices and meetups are demo data. Weather: forecast for Berlin.</p>
+          <WeatherStrip />
         </> : (
           <div className="empty" id="tripEmpty">
             <div className="empty-ico" aria-hidden="true">🧳</div>
@@ -56,18 +63,15 @@ export function Trip() {
 
 function TripDay({ date, items, hints }) {
   const past = date && date < ymd(new Date()), f = date && !past ? forecastFor(date) : null;
-  const loaded = weather.status === 'live' || weather.status === 'demo';
   return (
     <section className={'tr-day' + (past ? ' past' : '')} data-date={date}>
       <div className="tr-day-head">
-        <h3>{tripDayLabel(date)}</h3>
-        {f ? <DayWeather f={f} /> : date && !past && loaded && <small className="tr-wx-note">Forecast available closer to the trip</small>}
+        <h2>{tripDayLabel(date)}</h2>
+        {f && <DayWeather f={f} />}
       </div>
+      {/* rain: one short line under the day header (tap: indoor places) */}
       {hints && f && isRainy(f) && (
-        <button className="wx-hint tr-rain" onClick={() => go('explore', {cats: ['museums']})}>
-          <span aria-hidden="true">🌧️</span>
-          <span><b>Rainy: try indoor places</b><small>{`${f.rain}% chance of rain · see museums`}</small></span>
-        </button>
+        <button className="tr-rain" onClick={() => go('explore', {cats: ['museums']})}>{`Rain likely (${f.rain}%) · indoor ideas`}<ChevronRight size={14} aria-hidden="true" /></button>
       )}
       <div className="tr-list">{items.map(it => <TripRow key={it.key} it={it} />)}</div>
     </section>
@@ -75,11 +79,10 @@ function TripDay({ date, items, hints }) {
 }
 
 function DayWeather({ f }) {
-  const [ico, label] = wmo(f.code);
+  const [, label] = wmo(f.code), Icon = wxIcon(f.code);
   return (
-    <span className={'tr-wx' + (isRainy(f) ? ' rainy' : '')} aria-label={`${label}, high ${f.hi}°, low ${f.lo}°, ${f.rain}% chance of rain`}>
-      <span aria-hidden="true">{ico}</span><b>{f.hi}°</b>{` ${f.lo}° · 💧${f.rain}%`}
-      {weather.status === 'demo' && <span className="demo-tag">Demo</span>}
+    <span className={'tr-wx' + (isRainy(f) ? ' rainy' : '')} role="img" aria-label={`${label}, high ${f.hi}°, low ${f.lo}°, ${f.rain}% chance of rain`}>
+      <Icon size={16} aria-hidden="true" /><b>{f.hi}°</b>{` ${f.lo}°`}
     </span>
   );
 }
@@ -89,12 +92,12 @@ function TripRow({ it }) {
   return (
     <button className={'tr-item' + (it.cancelled ? ' cancelled' : '')} data-kind={it.kind} onClick={() => openTripItem(it.id)}>
       <span className="tr-time">{it.t === null ? '–' : timeOf(it.t)}</span>
-      <span className="tr-ic" aria-hidden="true">{TRIP_ICONS[it.kind]}</span>
+      <span className="tr-ic" aria-hidden="true">{(I => <I size={18} />)(KIND_ICONS[it.kind])}</span>
       <span className="tr-nm">
-        <span className="tr-top"><small>{it.label}</small><span className={'tr-st ' + st}>{it.status}</span></span>
         <b>{it.title}</b>
-        {it.sub && <small className="tr-sub">{it.sub}</small>}
+        <small className="tr-sub">{it.label}{it.sub ? ' · ' + it.sub.split(' · ')[0] : ''}</small>
       </span>
+      <span className={'tr-st ' + st}>{it.status}</span>
     </button>
   );
 }
@@ -106,9 +109,9 @@ export function TripItem() {
   const e = tripEntry(ui.tripId);
   return (
     <section className="screen active" id="tripItem">
-      <AppBar back="trip">My Trip</AppBar>
+      <AppBar back="trip" title={e ? KIND[e.kind] : 'Trip'} />
       <div className="scroll" id="tripItemBody">
-        <h1 className="ltitle">{e ? KIND[e.kind] : 'My Trip'}</h1>
+        <h1 className="ltitle">{e ? KIND[e.kind] : 'Trip'}</h1>
         {!e ? <div className="empty"><p>This trip item no longer exists.</p><button className="link-btn" onClick={() => go('trip', {replace: true})}>Show my trip</button></div>
           : e.kind === 'meetup' ? <MeetupItem m={e.m} /> : <BookingItem b={e.b} />}
       </div>
@@ -125,7 +128,7 @@ function BookingItem({ b }) {
   const freeText = b.type === 'taxi' ? 'Free before pick-up' : d.freeCancel ? 'Free cancellation' : 'Non-refundable';
   return (<>
     <div className="tr-head" data-kind={b.type}>
-      <span className="tr-ic big" aria-hidden="true">{TRIP_ICONS[b.type]}</span>
+      <span className="tr-ic big" aria-hidden="true">{(I => <I size={26} />)(KIND_ICONS[b.type])}</span>
       <span className="tr-nm"><b>{b.title}</b><span className={'tr-st ' + (cancelled ? 'off' : 'ok')}>{b.status}</span></span>
     </div>
     <div className="ref" id="tripRef">{b.ref}</div>
@@ -165,15 +168,11 @@ function BookingItem({ b }) {
     </div>
     <div className="btns tr-btns">
       {changeable && <button className="btn" id="tripChange" onClick={() => openSheet('changeBooking', {bookingRef: b.ref})}>Change booking</button>}
-      {b.type === 'taxi' && !cancelled && d.to && <button className="btn" id="tripArrived" onClick={() => arrive(d.to)}>📍 I've arrived</button>}
-      {h && !cancelled && <HereAction spot={hotelSpot(h)} name={h.name} />}
-      {h && !cancelled && <button className="btn ghost" id="tripDirections" onClick={() => openSheet('directions', {to: hotelSpot(h), name: h.name})}>🧭 Directions</button>}
+      {b.type === 'taxi' && !cancelled && d.to && <button className={'btn' + (changeable ? ' ghost' : '')} id="tripArrived" onClick={() => arrive(d.to)}><MapPin size={18} aria-hidden="true" /> I've arrived</button>}
+      {h && !cancelled && <HereAction spot={hotelSpot(h)} name={h.name} ghost={changeable} />}
       {cancellable && <button className="btn ghost tr-danger" id="tripCancel" onClick={() => openSheet('cancelBooking', {bookingRef: b.ref})}>Cancel booking</button>}
     </div>
-    {cancelled ? <p className="hint tr-center">This booking was cancelled. It stays in your trip and in My bookings.</p>
-      : !changeable && !cancellable ? <p className="hint tr-center">This booking has started or is in the past, so it can't be changed any more.</p>
-      : terms && <p className="hint tr-center">{terms.free ? 'Free cancellation: full refund.' : `Cancelling costs a demo fee of ${fmtEur(terms.fee)}.`}</p>}
-    <p className="demo">Demo: no real booking, payment or refund. The provider is fictional.</p>
+    {!cancelled && !changeable && !cancellable && <p className="hint tr-center">This booking has started, so it can't be changed.</p>}
   </>);
 }
 
@@ -181,7 +180,7 @@ function MeetupItem({ m }) {
   const p = byId(m.placeId), g = going(m), past = m.start < Date.now();
   return (<>
     <div className="tr-head">
-      <span className="tr-ic big" aria-hidden="true">👥</span>
+      <span className="tr-ic big" aria-hidden="true">{(I => <I size={26} />)(KIND_ICONS.meetup)}</span>
       <span className="tr-nm"><b>{m.title}</b><span className="tr-st mt">{m.host === 'me' ? 'Hosting' : 'Joined'}</span></span>
     </div>
     <div className="summary" id="tripSummary">
@@ -192,9 +191,8 @@ function MeetupItem({ m }) {
     </div>
     <div className="btns tr-btns">
       <button className="btn" onClick={() => openMeetup(m.id)}>Open meetup</button>
-      {p && <button className="btn ghost" id="tripDirections" onClick={() => openSheet('directions', {to: p.id, name: p.name})}>🧭 Directions</button>}
-      <button className="btn ghost" onClick={() => openChat(m.id)}>💬 Group chat</button>
+      {p && <button className="btn ghost" id="tripDirections" onClick={() => openSheet('directions', {to: p.id, name: p.name})}><Navigation size={18} aria-hidden="true" /> Directions</button>}
+      <button className="btn ghost" onClick={() => openChat(m.id)}><MessageCircle size={18} aria-hidden="true" /> Group chat</button>
     </div>
-    <p className="demo">Demo: meetups and the group chat are simulated.</p>
   </>);
 }

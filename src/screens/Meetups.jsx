@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { Plus, MapPin } from 'lucide-react';
 import { ui, emit, openSheet } from '../state/appStore.js';
 import { mtList, MT_FILTERS } from '../state/meetups.js';
 import { openMeetups } from '../hooks/useHashRouter.js';
@@ -14,23 +15,23 @@ export const createMeetupSheet = () =>
 
 export function Meetups() {
   const p = ui.mtPlace && byId(ui.mtPlace), list = mtList(), box = useRef(null);
-  useFlip(box, '.mt-place, #mtList > *, .demo', ui.mtFilter + '|' + list.map(m => m.id).join());   // filter changes glide
+  useFlip(box, '.mt-place, #mtList > *', ui.mtFilter + '|' + list.map(m => m.id).join());   // filter changes glide
   const none = ui.mtFilter === 'joined' ? 'You haven\'t joined a meetup yet.' : p ? 'No meetups planned here yet.' : 'No meetups match this filter.';
   return (
     <section className="screen active" id="meetups">
-      <AppBar back="home">Excelsior Explorer</AppBar>
+      <AppBar back="home" title="Meetups">
+        <button className="ab-icon" aria-label="Create a meetup" onClick={createMeetupSheet}><Plus size={24} aria-hidden="true" /></button>
+      </AppBar>
       <div className="scroll" ref={box}>
-        <div className="lt-row"><h1 className="ltitle">Meetups</h1><button className="add-btn" aria-label="Create a meetup" onClick={createMeetupSheet}>+</button></div>
-        <p className="hint">Join a planned activity and meet other travelers in Berlin.</p>
+        <h1 className="ltitle">Meetups</h1>
         <FilterChips options={MT_FILTERS} value={ui.mtFilter} onChange={k => { ui.mtFilter = k; emit(); }} />
         <p className="mt-place" id="mtPlace" style={p ? undefined : {display: 'none'}}>
-          {p && <>📍 Meetups at <b>{p.name}</b> · <a onClick={() => openMeetups('')}>Show all</a></>}
+          {p && <><MapPin size={14} aria-hidden="true" /> At <b>{p.name}</b> · <button className="link-btn" onClick={() => openMeetups('')}>Show all</button></>}
         </p>
         <div id="mtList" className="stagger">
           {list.length ? list.map(m => <MeetupCard key={m.id} m={m} />) :
             <div className="empty">{none}<br /><br /><button className="pill" onClick={createMeetupSheet}>+ Create a meetup</button></div>}
         </div>
-        <p className="demo">Demo: meetups, people and chat are simulated.</p>
       </div>
     </section>
   );

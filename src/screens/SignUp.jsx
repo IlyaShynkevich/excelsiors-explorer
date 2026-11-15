@@ -36,11 +36,10 @@ export function SignUp() {
   const eye = () => { f.show = !f.show; emit(); };
   return (
     <section className="screen active" id="signup">
-      <AppBar back="login">Excelsior Explorer</AppBar>
+      <AppBar back="login" title="Create Account" />
       <div className="scroll">
         <form id="signupForm" className="form" noValidate onSubmit={submit}>
           <h1 className="ltitle">Create Account</h1>
-          <p className="hint">Save places, collect badges and join meetups in Berlin.</p>
           <label htmlFor="suName">Name</label>
           <input {...input('suName', 'name', checkName)} autoComplete="name" maxLength={30} enterKeyHint="next" />
           <FieldMsg id="suName" m={fm.msg('suName')} />
@@ -57,7 +56,7 @@ export function SignUp() {
           <button className="btn" type="submit">Create Account</button>
         </form>
         <p className="alt">Already have an account? <button type="button" onClick={() => go('login')}>Sign In</button></p>
-        <p className="demo">Demo: your account is only stored in this browser. Please don't use a real password.</p>
+        <p className="demo">Demo: stored in this browser only. Don't use a real password.</p>
       </div>
     </section>
   );

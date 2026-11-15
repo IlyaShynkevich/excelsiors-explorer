@@ -1,5 +1,6 @@
 import { dueReminders, remindersOn, remindersDemo, markRead, markAllRead, toggleReminders } from '../state/reminders.js';
-import { TRIP_ICONS } from '../state/trip.js';
+import { KIND_ICONS } from '../components/Icons.jsx';
+import { BellOff, Bell } from 'lucide-react';
 import { go, openTripItem } from '../hooks/useHashRouter.js';
 import { useClock } from '../hooks/useClock.js';
 import { AppBar } from '../components/AppBar.jsx';
@@ -11,14 +12,13 @@ export function Reminders() {
   const open = r => { markRead([r.id]); openTripItem(r.itemId); };
   return (
     <section className="screen active" id="reminders">
-      <AppBar back="home">Excelsior Explorer</AppBar>
+      <AppBar back="trip" title="Reminders" />
       <div className="scroll">
         <h1 className="ltitle">Reminders</h1>
         {!on ? (
           <div className="empty" id="remOff">
-            <div className="empty-ico" aria-hidden="true">🔕</div>
+            <div className="empty-ico" aria-hidden="true"><BellOff size={40} /></div>
             <b>Reminders are off</b>
-            <p>Turn them on to get reminded before your flights, taxis, meetups and hotel check-ins.</p>
             <button className="link-btn" onClick={toggleReminders}>Turn on reminders</button>
           </div>
         ) : list.length ? <>
@@ -28,20 +28,18 @@ export function Reminders() {
           </div>
           <div className="stagger" id="remList">{list.map(r => (
             <button className={'rm-item' + (r.read ? '' : ' unread')} key={r.id} data-kind={r.kind} onClick={() => open(r)}>
-              <span className="tr-ic" aria-hidden="true">{TRIP_ICONS[r.kind]}</span>
+              <span className="tr-ic" aria-hidden="true">{(I => <I size={18} />)(KIND_ICONS[r.kind])}</span>
               <span className="rm-nm"><b>{r.title}</b><small>{r.text}</small><small className="rm-when">{r.when}</small></span>
               {!r.read && <span className="rm-dot" aria-label="Unread"></span>}
             </button>
           ))}</div>
         </> : (
           <div className="empty" id="remEmpty">
-            <div className="empty-ico" aria-hidden="true">🔔</div>
+            <div className="empty-ico" aria-hidden="true"><Bell size={40} /></div>
             <b>No reminders right now</b>
-            <p>They appear here 2 hours before a flight, 15 minutes before a taxi, 1 hour before a meetup and the day before a hotel check-in.</p>
-            <button className="link-btn" onClick={() => go('trip')}>Open my trip</button>
+            <p>They show up before flights, taxis, meetups and check-ins.</p>
           </div>
         )}
-        <p className="demo">{'Simulated reminders inside the app – no push notifications.' + (on && remindersDemo() ? ' Demo mode: all upcoming reminders are shown now (Profile).' : '')}</p>
       </div>
     </section>
   );

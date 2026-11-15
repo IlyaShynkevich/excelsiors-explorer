@@ -21,6 +21,7 @@ export const ui = {
   login: {email: '', pw: '', err: ''},
   signup: {name: '', email: '', pw: '', show: false},
   homeQ: '', exploreQ: '', chatDraft: '',
+  recent: [],   // places opened in this session, newest first (Explore › Suggested › Recently viewed)
   // Explore filters (EE-43) + list/map view; `sel` = place previewed on the map
   ex: {cats: [], open: false, diet: [], view: 'list', sel: '', sort: 'default'},   // sort: 'default' | 'near' (Stage 4)
 };
@@ -31,8 +32,9 @@ export function emit() { version++; listeners.forEach(l => l()); }
 const subscribe = l => { listeners.add(l); return () => listeners.delete(l); };
 export const useStore = () => useSyncExternalStore(subscribe, () => version);
 
-export function toast(msg) {
-  ui.toast = {msg, show: true}; emit();
+// action = optional {label, onClick}: a small button in the toast (e.g. "Saved" → View)
+export function toast(msg, action) {
+  ui.toast = {msg, action, show: true}; emit();
   clearTimeout(toast.t); toast.t = setTimeout(() => { ui.toast = {...ui.toast, show: false}; emit(); }, 1800);
 }
 

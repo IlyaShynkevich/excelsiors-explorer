@@ -12,9 +12,10 @@ import { byMeetup, joinedM } from '../state/meetups.js';
 import { tripEntry } from '../state/trip.js';
 import { navStart } from '../lib/motion.js';
 
-export const TABS = ['home','explore','book','saved','profile'];
+// Tab bar: Home, Explore, Book, Trip, Profile (Saved is reached from Profile and the Save button)
+export const TABS = ['home','explore','book','trip','profile'];
 const SCREENS = ['login','signup','home','explore','book','saved','profile','editProfile','achievements','detail','meetups','meetup','chat','interests',
-                 'trip','tripItem','reminders','location'];
+                 'trip','tripItem','reminders','location','settings','about'];
 const PUBLIC = ['login','signup'];   // the only screens you can see while logged out
 // Book steps (ui.bookView) ↔ #book/<path>. The live ride can't be restored, so #book/ride opens the hub.
 const BOOK_PATHS = {flights:'flights', results:'flights/results', taxi:'taxi', ride:'ride', hotels:'hotels', hotelResults:'hotels/results'};
@@ -79,6 +80,7 @@ export function enterApp() {
 export function openDetail(id, opts = {}) {
   if (!byId(id)) return go('explore', {replace:true});
   ui.detailId = id;
+  ui.recent = [id, ...ui.recent.filter(x => x !== id)].slice(0, 6);
   go('detail', opts);
 }
 export function openMeetups(place, opts = {}) {

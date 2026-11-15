@@ -42,7 +42,7 @@ export function EditProfile() {
   const n = v.bio.length;
   return (
     <section className="screen active" id="editProfile">
-      <AppBar back="profile">Edit Profile</AppBar>
+      <AppBar back="profile" title="Edit Profile" />
       <div className="scroll">
         <form id="editForm" className="form" noValidate onSubmit={submit}>
           <div className="pf-av ep-av" id="epPreview"><AvatarImg id={v.avatar} /></div>
@@ -68,7 +68,6 @@ export function EditProfile() {
           <p className="fmsg">Used for the “For you” suggestions on Home. Pick 3 or more for the best results.</p>
           <button className="btn" type="submit">Save Changes</button>
         </form>
-        <p className="demo">Demo: your profile is only stored in this browser.</p>
       </div>
     </section>
   );

@@ -40,8 +40,8 @@ function Confetti() {
 }
 
 async function flex(b) {
-  const text = `I just earned the "${b.name}" ${b.icon} badge on Excelsior Explorer! ${myBadges().length}/${BADGES.length} badges collected. Can you beat me?`;
-  try { if (navigator.share) { await navigator.share({title:'Excelsior Explorer', text}); return; } }
+  const text = `I just earned the "${b.name}" ${b.icon} badge on Excelsiors Explorer! ${myBadges().length}/${BADGES.length} badges collected. Can you beat me?`;
+  try { if (navigator.share) { await navigator.share({title:'Excelsiors Explorer', text}); return; } }
   catch (e) { if (e.name === 'AbortError') return; }
   try { await navigator.clipboard.writeText(text); toast('Copied – paste it anywhere to flex'); }
   catch (e) { toast('Sharing not supported here'); }
