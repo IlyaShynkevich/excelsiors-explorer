@@ -64,7 +64,7 @@ export function PlaceMap({ places, sel, onSelect, onShowList }) {
     const still = reducedMotion();
     pts.forEach((p, i) => {
       const n = still || i >= 8 ? 0 : i;   // pins drop in (motion.css), the first 8 one after the other (--stagger × n)
-      const icon = L.divIcon({className: 'ex-pin', html: `<span style="--i:${n}"><i>${pinFor(p)}</i></span>`, iconSize: [34, 34], iconAnchor: [17, 41]});
+      const icon = L.divIcon({className: 'ex-pin', html: `<span style="--i:${n}"><i>${pinFor(p)}</i></span>`, iconSize: [44, 44], iconAnchor: [22, 46]});   // 44 px hit area, 34 px pin centred in it
       const mk = L.marker(COORDS[p.id], {icon, title: p.name, alt: p.name, keyboard: true, riseOnHover: true})
         .on('click', () => onSelect(p.id)).addTo(layer);
       m.current.markers[p.id] = mk;

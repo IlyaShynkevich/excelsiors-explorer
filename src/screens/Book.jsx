@@ -19,6 +19,7 @@ import { Stepper } from '../components/Stepper.jsx';
 import { FilterChips } from '../components/FilterChips.jsx';
 import { ProviderList } from '../components/ProviderList.jsx';
 import { Photo } from '../components/Photo.jsx';
+import { Tag } from '../components/Tag.jsx';
 
 const TITLES = {hub:'Book', flights:'Book a flight', results:'Choose a flight', taxi:'Book a taxi', ride:'Your ride',
                 hotels:'Book a hotel', hotelResults:'Choose a hotel', hotel:'Your stay'};
@@ -31,12 +32,13 @@ export function Book() {
   const v = ui.bookView, View = VIEWS[v], box = useRef(null);
   return (
     <section className="screen active" id="book">
-      {/* the hotel page has no large title: its photo, then the hotel name; the small title shows after the photo */}
-      <AppBar id="bookBar" title={v === 'hotel' ? (byHotel(ui.ht.sel) || {}).name : TITLES[v]} watch={v === 'hotel' ? '.ht-hero' : '.ltitle'}
+      {/* the hotel page is laid out like the place and meetup pages: full-width photo, round back button over it,
+          the small title once the photo has scrolled away */}
+      <AppBar id="bookBar" overlay={v === 'hotel'} title={v === 'hotel' ? (byHotel(ui.ht.sel) || {}).name : TITLES[v]} watch={v === 'hotel' ? '.hero' : '.ltitle'}
               onBack={v === 'hub' ? undefined : () => goBack(() => setBookView(BOOK_PARENT[v] || 'hub'))} />
-      <div className="scroll" ref={box}>
+      <div className={'scroll' + (v === 'hotel' ? ' flush' : v === 'hub' ? ' fill' : '')} ref={box}>
         {v !== 'hotel' && <h1 className="ltitle" id="bookTitle">{TITLES[v]}</h1>}
-        <div id="bookBody" key={v}><View box={box} /></div>
+        <div id="bookBody" className={v === 'hub' ? 'bk-fill' : undefined} key={v}><View box={box} /></div>
       </div>
     </section>
   );
@@ -99,7 +101,7 @@ function FlightResults({ box }) {
     <FilterChips id="flFilters" label="Filter providers" options={FLIGHT_FILTERS} value={f.filters} onChange={k => toggleFilter('fl', k)} />
     {list.length ? <div className="stagger" id="flList">{list.map(({r, offers}) => (
       <div className="fl" key={r.no} data-flight={r.no}>
-        <div className="air"><span><b>{r.airline}</b>{' · ' + r.no}</span>{offers[0].total === best && <span className="fl-badge">CHEAPEST</span>}</div>
+        <div className="air"><span><b>{r.airline}</b>{' · ' + r.no}</span>{offers[0].total === best && <Tag>Cheapest</Tag>}</div>
         <div className="times">
           <div className="t">{hm(r.dep)}<small>{A}</small></div>
           <div className="line">{dur(r.d)}<br />{r.stop ? '1 stop' : 'Direct'}</div>
@@ -153,7 +155,7 @@ function HotelResults({ box }) {
       const o = offers[0], save = offers[offers.length - 1].total - o.total;
       return (
         <button className="ht-card" key={h.id} data-hotel={h.id} onClick={() => openHotel(h.id)}>
-          <Photo className="ht-ph" size="card" p={h}>{o.total === best && <span className="fl-badge">CHEAPEST</span>}</Photo>
+          <Photo className="ht-ph" size="card" p={h}>{o.total === best && <Tag>Cheapest</Tag>}</Photo>
           <span className="ht-body">
             <span className="ht-top"><b>{h.name}</b><span className="stars" aria-label={h.stars ? h.stars + ' stars' : 'Hostel'}>{starText(h)}</span></span>
             <span className="ht-price"><span><b>{fmtEur(o.rate)}</b><small> / night</small></span><span className="ht-tot">{fmtEur(o.total) + ' total'}</span></span>
@@ -176,24 +178,28 @@ function HotelDetail() {
   if (!h) return <div className="empty"><p>This hotel is not available.</p><button className="link-btn" onClick={() => setBookView('hotelResults', {replace: true})}>Show all hotels</button></div>;
   const offers = hotelOffersFor(h), units = hotelUnits(h, s.guests), spot = hotelSpot(h);
   return (<>
-    <Photo className="ht-hero" size="hero" priority p={h} shade><span className="stars">{starText(h)}</span></Photo>
-    <h1 className="d-title ht-name">{h.name}</h1>
-    <p className="d-meta ht-area">{`${h.area} · ${distLabel(spot)}`}</p>
-    <Clamp lines={2}><p className="ht-about">{h.short}</p></Clamp>
-    <p className="hint ht-search">{`${plural(hotelNights(), 'night')} · ${plural(s.guests, 'guest')} · ${plural(units, h.stars ? 'room' : 'bed')} `}
-      <button className="link-btn" id="htChange" onClick={() => setBookView('hotels')}>Change</button></p>
-    <FilterChips id="htOfferFilters" label="Filter offers" options={OFFER_FILTERS} value={s.filters} onChange={k => toggleFilter('ht', k)} />
-    {offers.length ? <ProviderList offers={offers} kind="hotel" limit={3} expanded={all} onExpand={() => setAll(x => !x)} onPick={(o, cheapest) => openSheet('hotel', {h, o, cheapest})} />
-      : <div className="empty"><p>No offer matches these filters.</p><button className="link-btn" onClick={() => resetFilters('ht')}>Reset filters</button></div>}
+    <Photo className="hero" size="hero" priority p={h} shade><span className="stars">{starText(h)}</span></Photo>
+    <div className="detail">
+    <h1 className="d-title">{h.name}</h1>
+    <p className="d-meta">{`${h.area} · ${distLabel(spot)}`}</p>
+    <Clamp lines={2}><p>{h.short}</p></Clamp>
+    <section className="ht-offers">
+      <p className="hint ht-search">{`${plural(hotelNights(), 'night')} · ${plural(s.guests, 'guest')} · ${plural(units, h.stars ? 'room' : 'bed')} `}
+        <button className="link-btn" id="htChange" onClick={() => setBookView('hotels')}>Change</button></p>
+      <FilterChips id="htOfferFilters" label="Filter offers" options={OFFER_FILTERS} value={s.filters} onChange={k => toggleFilter('ht', k)} />
+      {offers.length ? <ProviderList offers={offers} kind="hotel" limit={3} expanded={all} onExpand={() => setAll(x => !x)} onPick={(o, cheapest) => openSheet('hotel', {h, o, cheapest})} />
+        : <div className="empty"><p>No offer matches these filters.</p><button className="link-btn" onClick={() => resetFilters('ht')}>Reset filters</button></div>}
+    </section>
     <RoundActions items={[
       isAt(spot) && {icon: MapPin, label: "I'm here", id: 'checkBtn', onClick: () => checkIn(spot)},
       {icon: Navigation, label: 'Directions', onClick: () => openSheet('directions', {to: spot, name: h.name})},
       {icon: CarTaxiFront, label: 'Taxi', onClick: () => { ui.tx.to = spot; setBookView('taxi'); }},
     ]} />
     <Details id="htDetails">
-      <div className="ht-amen">{h.amen.map(a => <span key={a}>{plain(a)}</span>)}</div>
+      <div className="ht-amen">{h.amen.map(a => <Tag tone="plain" key={a}>{plain(a)}</Tag>)}</div>
       <p className="note">Amenities are indicative; check with the hotel. Prices come from fictional providers.</p>
     </Details>
+    </div>
   </>);
 }
 

@@ -8,7 +8,8 @@ import { checkIn, checkedInToday } from '../state/challenges.js';
 // The primary action of a place or hotel page (spot id). Within 150 m: "I'm here" (check in, Stage 4).
 // Further away: "Directions", with one small line under it: the distance and, with a demo location, "Put me here".
 // ghost = shown as a secondary button (pages that already have another primary action, e.g. a booking).
-export function HereAction({ spot, name, ghost }) {
+// note = false: no line under Directions (the place page shows the distance in its meta line; "Put me here" is in Profile › Demo tools).
+export function HereAction({ spot, name, ghost, note = true }) {
   const [bump, setBump] = useState(false);   // the button pops once when tapped (motion.css .bump)
   const today = checkedInToday(spot), before = user.visited.includes(spot);
   const cls = 'btn' + (ghost ? ' ghost' : '') + (bump ? ' bump' : '');
@@ -21,9 +22,9 @@ export function HereAction({ spot, name, ghost }) {
   </>);
   return (<>
     <button className={cls} id="farDirections" onClick={() => openSheet('directions', {to: spot, name})}><Navigation size={18} aria-hidden="true" /> Directions</button>
-    <p className="here-far" id="hereFar">
+    {note && <p className="here-far" id="hereFar">
       {`${fmtDist(kmToSpot(spot))} away`}{before && ' · visited'}
       {!here().real && <> · <button className="link-btn" id="putMeHere" onClick={() => setDemoSpot(spot)}>Put me here (demo)</button></>}
-    </p>
+    </p>}
   </>);
 }

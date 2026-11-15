@@ -5,8 +5,9 @@
 // - Map tiles (OpenStreetMap): stale-while-revalidate, at most 300 tiles.
 // Everything else (weather API …) goes straight to the network.
 // ee-v3 = precache list generated from the files that really exist in dist/ (ee-v2 listed a missing file, so its
-// install failed on Vercel). Activating deletes every older cache ('ee-v1', 'ee-v2').
-const CACHE = 'ee-v3', PHOTOS = 'ee-photos', TILES = 'ee-tiles';
+// install failed on Vercel). ee-v4 = new logo and app icons (icon-192.png is precached under the same name).
+// Activating deletes every older cache ('ee-v1' … 'ee-v3').
+const CACHE = 'ee-v4', PHOTOS = 'ee-photos', TILES = 'ee-tiles';
 const CORE = ['./', 'index.html', 'manifest.webmanifest', 'assets/icon-192.png'];
 // Filled in by `npm run build` (vite.config.js) with the hashed files of this build.
 const BUILD = /* BUILD_FILES */[];

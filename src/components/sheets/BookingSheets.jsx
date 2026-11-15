@@ -6,6 +6,7 @@ import { openBooking } from '../../hooks/useHashRouter.js';
 import { spotName } from '../../data/booking.js';
 import { starText } from '../../data/hotels.js';
 import { fmtEur, hm, niceDate, plural } from '../../lib/format.js';
+import { Tag } from '../Tag.jsx';
 
 // "Done" after a booking: back to the hub (replaces the step in the history, so back doesn't book again)
 const toHub = () => { closeSheet(); setBookView('hub', {replace: true}); };
@@ -29,7 +30,7 @@ export function FlightConfirmSheet({ r, o, cheapest }) {
     <h3>Confirm your flight</h3>
     <p>{`${r.airline} ${r.no} · ${A} → ${B}`}</p>
     <div className="summary" id="flBreakdown">
-      <div><span>Provider</span><span><b>{o.name}</b>{cheapest && <span className="fl-badge sum-badge">Cheapest</span>}</span></div>
+      <div><span>Provider</span><span><b>{o.name}</b>{cheapest && <Tag className="sum-badge">Cheapest</Tag>}</span></div>
       <div><span>Flight</span><span>{`${niceDate(f.date)} · ${hm(r.dep)} → ${hm(r.arr)}`}</span></div>
       <div><span>Price</span><span>{`${f.pax} × ${fmtEur(o.fare + (o.bagFee || 0))} + ${fmtEur(o.taxes)} taxes`}</span></div>
       <div><span>Terms</span><span>{`${o.bag ? 'Bag included' : 'Cabin bag only'} · ${o.free ? 'Free cancellation' : 'Non-refundable'}`}</span></div>
@@ -70,7 +71,7 @@ export function HotelConfirmSheet({ h, o, cheapest }) {
     <h3>Confirm your stay</h3>
     <p>{`${h.name} · ${starText(h)}`}</p>
     <div className="summary" id="htBreakdown">
-      <div><span>Provider</span><span><b>{o.name}</b>{cheapest && <span className="fl-badge sum-badge">Cheapest</span>}</span></div>
+      <div><span>Provider</span><span><b>{o.name}</b>{cheapest && <Tag className="sum-badge">Cheapest</Tag>}</span></div>
       <div><span>Stay</span><span>{`${niceDate(s.checkIn)} → ${niceDate(s.checkOut)} · ${plural(s.guests, 'guest')}`}</span></div>
       <div><span>Price</span><span>{`${o.units > 1 ? o.units + ' × ' : ''}${o.nights} × ${fmtEur(o.rate)} + ${fmtEur(o.taxes)} taxes`}</span></div>
       <div><span>Terms</span><span>{`${o.breakfast ? 'Breakfast' : 'Room only'} · ${o.free ? 'Free cancellation' : 'Non-refundable'}`}</span></div>

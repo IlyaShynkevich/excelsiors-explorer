@@ -8,6 +8,7 @@ import { Photo } from '../components/Photo.jsx';
 import { AppBar } from '../components/AppBar.jsx';
 import { Pav, AvatarStack } from '../components/Avatar.jsx';
 import { RoundActions, Clamp, Details, InfoRow } from '../components/DetailParts.jsx';
+import { Tag } from '../components/Tag.jsx';
 
 // Meetup page – decide and act: photo, title, one meta line, About, ONE primary button (Join, or Open chat once you're in),
 // round actions (Directions, Place, Leave), the people as an avatar row; the full list and the host in "Details".
@@ -45,7 +46,7 @@ function Body({ m }) {
         <InfoRow icon={Star}>{'Hosted by ' + host.name + (host.me ? ' (you)' : '')}</InfoRow>
         <InfoRow icon={Users}>{`${g.length} / ${m.max} going${full ? ' · full' : ''}`}</InfoRow>
         <div className="plist">{g.map((x, i) => (
-          <div key={i}><Pav x={x} /><span className="n">{x.name}{x.me && <span className="muted"> (you)</span>}</span>{x === host && <span className="htag">Host</span>}</div>
+          <div key={i}><Pav x={x} /><span className="n">{x.name}{x.me && <span className="muted"> (you)</span>}</span>{x === host && <Tag>Host</Tag>}</div>
         ))}</div>
         {mine && <button className="btn ghost tr-danger" id="mtCancel" onClick={() => openSheet('cancelMeetup', {m})}>Cancel meetup</button>}
       </Details>

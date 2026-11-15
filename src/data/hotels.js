@@ -81,3 +81,7 @@ export function hotelOffers(h, s) {
     return {id:p.id, name:p.name, ic:p.ic, rate, breakfast, free, fee, nights, units, room, taxes, total:r2(room + taxes)};
   }).sort((a, b) => a.total - b.total);
 }
+
+// Short names for one-line rows (Trip timeline); the full name stays on the hotel page and in the booking detail.
+const HOTEL_SHORT = {parkinn: 'Park Inn Alexanderplatz', adlon: 'Hotel Adlon', bikini: '25hours Bikini', generator: 'Generator Mitte'};
+export const shortHotelName = (id, fallback) => HOTEL_SHORT[id] || (byHotel(id) || {}).name || fallback;

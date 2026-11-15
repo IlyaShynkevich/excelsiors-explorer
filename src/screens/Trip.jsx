@@ -1,38 +1,38 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ui, openSheet } from '../state/appStore.js';
-import { tripDays, upcomingTrip, tripEntry, timeOf, dayLabel, tripDayLabel, parseLocal, canChange, canCancel, cancelTerms } from '../state/trip.js';
+import { tripDays, tripEntry, timeOf, dayLabel, tripDayLabel, parseLocal, canChange, canCancel, cancelTerms } from '../state/trip.js';
 import { going } from '../state/meetups.js';
 import { weather, loadWeather, forecastFor, isRainy } from '../state/weather.js';
 import { go, openTripItem, openMeetup, openChat } from '../hooks/useHashRouter.js';
 import { useClock } from '../hooks/useClock.js';
 import { wmo } from '../data/weather.js';
 import { RIDES, spotName } from '../data/booking.js';
-import { byHotel, hotelSpot } from '../data/hotels.js';
+import { byHotel, hotelSpot, shortHotelName } from '../data/hotels.js';
 import { byId } from '../data/places.js';
 import { fmtEur, ymd, plural } from '../lib/format.js';
 import { AppBar } from '../components/AppBar.jsx';
 import { HereAction } from '../components/HereAction.jsx';
 import { arrive } from '../state/challenges.js';
 import { SkelCards } from '../components/Skeleton.jsx';
-import { Bell, Navigation, MessageCircle, MapPin, ChevronRight } from 'lucide-react';
+import { Bell, Navigation, MessageCircle, MapPin } from 'lucide-react';
 import { KIND_ICONS, wxIcon } from '../components/Icons.jsx';
 import { WeatherStrip } from '../components/WeatherStrip.jsx';
 import { unreadCount } from '../state/reminders.js';
+import { Tag } from '../components/Tag.jsx';
 
-// The rainy-day hints sit above a day's items, so they can't appear after the timeline is shown (it would jump).
-// While the forecast is still loading, the timeline waits up to WX_WAIT ms (card skeletons); a forecast that comes
-// later only fills the weather chips in the day headers (same line, no jump) and the hints show on the next visit.
+// While the forecast is still loading, the timeline waits up to WX_WAIT ms (card skeletons), so the day headers show
+// their weather chips at once; a forecast that comes later only fills the chips (same line, no jump).
+// Rain is shown once: the tinted chip in the day header, and one "Rainy: try indoor places" card in the forecast below.
 const WX_WAIT = 800;
 const wxSettled = () => weather.status === 'live' || weather.status === 'demo';
 
 // ---------- Trip overview (EE-38): bookings + joined meetups, one timeline grouped by day ----------
 export function Trip() {
   useClock();
-  const [waited, setWaited] = useState(false), hints = useRef(null);
+  const [waited, setWaited] = useState(false);
   useEffect(() => { loadWeather(); const t = setTimeout(() => setWaited(true), WX_WAIT); return () => clearTimeout(t); }, []);
   const show = wxSettled() || waited;
-  if (show && hints.current === null) hints.current = wxSettled();   // decided once, when the timeline first shows
-  const days = tripDays(), next = upcomingTrip().length, unread = unreadCount();
+  const days = tripDays(), unread = unreadCount();
   return (
     <section className="screen active" id="trip">
       <AppBar title="Trip">
@@ -42,8 +42,7 @@ export function Trip() {
       <div className="scroll">
         <h1 className="ltitle">Trip</h1>
         {!show && days.length ? <SkelCards n={Math.min(days.length + 1, 3)} /> : days.length ? <>
-          <p className="hint" id="tripCount">{next ? plural(next, 'upcoming plan') : 'Nothing coming up'}</p>
-          <div className="stagger" id="tripDays">{days.map(d => <TripDay key={d.date || 'none'} {...d} hints={hints.current} />)}</div>
+          <div className="stagger" id="tripDays">{days.map(d => <TripDay key={d.date || 'none'} {...d} />)}</div>
           <WeatherStrip />
         </> : (
           <div className="empty" id="tripEmpty">
@@ -61,7 +60,7 @@ export function Trip() {
   );
 }
 
-function TripDay({ date, items, hints }) {
+function TripDay({ date, items }) {
   const past = date && date < ymd(new Date()), f = date && !past ? forecastFor(date) : null;
   return (
     <section className={'tr-day' + (past ? ' past' : '')} data-date={date}>
@@ -69,10 +68,6 @@ function TripDay({ date, items, hints }) {
         <h2>{tripDayLabel(date)}</h2>
         {f && <DayWeather f={f} />}
       </div>
-      {/* rain: one short line under the day header (tap: indoor places) */}
-      {hints && f && isRainy(f) && (
-        <button className="tr-rain" onClick={() => go('explore', {cats: ['museums']})}>{`Rain likely (${f.rain}%) · indoor ideas`}<ChevronRight size={14} aria-hidden="true" /></button>
-      )}
       <div className="tr-list">{items.map(it => <TripRow key={it.key} it={it} />)}</div>
     </section>
   );
@@ -87,17 +82,28 @@ function DayWeather({ f }) {
   );
 }
 
+// One row: time · icon · short title, one sub line; a tag only when the item is not in its normal state
+// (Cancelled, Hosting). The icon already says the kind, the provider is in the detail.
+const rowTitle = it => it.kind === 'hotel' ? shortHotelName(it.b.details.hotelId, it.title)
+  : it.kind === 'taxi' && it.b.details.to ? 'To ' + spotName(it.b.details.to) : it.title;
+const rowSub = it => {
+  const d = it.b && it.b.details;
+  if (it.kind === 'hotel') return [it.label, d.area && d.area.split(' · ')[0]].filter(Boolean).join(' · ');
+  if (it.kind === 'flight') return [d.flightNo, d.airline].filter(Boolean).join(' · ') || it.label;
+  if (it.kind === 'taxi') return it.label + (d.ride ? ' · ' + (RIDES.find(r => r.id === d.ride) || {name: 'Taxi'}).name : '');
+  return it.sub;   // meetup: the place
+};
 function TripRow({ it }) {
-  const st = it.cancelled ? 'off' : it.kind === 'meetup' ? 'mt' : 'ok';
+  const tag = it.cancelled ? ['off', it.status] : it.status === 'Hosting' ? ['warn', 'Hosting'] : null;
   return (
     <button className={'tr-item' + (it.cancelled ? ' cancelled' : '')} data-kind={it.kind} onClick={() => openTripItem(it.id)}>
       <span className="tr-time">{it.t === null ? '–' : timeOf(it.t)}</span>
       <span className="tr-ic" aria-hidden="true">{(I => <I size={18} />)(KIND_ICONS[it.kind])}</span>
       <span className="tr-nm">
-        <b>{it.title}</b>
-        <small className="tr-sub">{it.label}{it.sub ? ' · ' + it.sub.split(' · ')[0] : ''}</small>
+        <b>{rowTitle(it)}</b>
+        <small className="tr-sub">{rowSub(it)}</small>
       </span>
-      <span className={'tr-st ' + st}>{it.status}</span>
+      {tag && <Tag tone={tag[0]}>{tag[1]}</Tag>}
     </button>
   );
 }
@@ -129,10 +135,10 @@ function BookingItem({ b }) {
   return (<>
     <div className="tr-head" data-kind={b.type}>
       <span className="tr-ic big" aria-hidden="true">{(I => <I size={26} />)(KIND_ICONS[b.type])}</span>
-      <span className="tr-nm"><b>{b.title}</b><span className={'tr-st ' + (cancelled ? 'off' : 'ok')}>{b.status}</span></span>
+      <span className="tr-nm"><b>{b.title}</b>{cancelled && <Tag tone="off">{b.status}</Tag>}</span>
     </div>
+    <p className="tr-label">Booking reference</p>
     <div className="ref" id="tripRef">{b.ref}</div>
-    <p className="hint tr-center">Booking reference</p>
     <div className="summary" id="tripSummary">
       {b.type === 'flight' && d.from && <>
         <Row k="Route">{`${d.from} → ${d.to}`}</Row>
@@ -169,7 +175,7 @@ function BookingItem({ b }) {
     <div className="btns tr-btns">
       {changeable && <button className="btn" id="tripChange" onClick={() => openSheet('changeBooking', {bookingRef: b.ref})}>Change booking</button>}
       {b.type === 'taxi' && !cancelled && d.to && <button className={'btn' + (changeable ? ' ghost' : '')} id="tripArrived" onClick={() => arrive(d.to)}><MapPin size={18} aria-hidden="true" /> I've arrived</button>}
-      {h && !cancelled && <HereAction spot={hotelSpot(h)} name={h.name} ghost={changeable} />}
+      {h && !cancelled && <div className="here-group"><HereAction spot={hotelSpot(h)} name={h.name} ghost={changeable} /></div>}
       {cancellable && <button className="btn ghost tr-danger" id="tripCancel" onClick={() => openSheet('cancelBooking', {bookingRef: b.ref})}>Cancel booking</button>}
     </div>
     {!cancelled && !changeable && !cancellable && <p className="hint tr-center">This booking has started, so it can't be changed.</p>}
@@ -181,7 +187,7 @@ function MeetupItem({ m }) {
   return (<>
     <div className="tr-head">
       <span className="tr-ic big" aria-hidden="true">{(I => <I size={26} />)(KIND_ICONS.meetup)}</span>
-      <span className="tr-nm"><b>{m.title}</b><span className="tr-st mt">{m.host === 'me' ? 'Hosting' : 'Joined'}</span></span>
+      <span className="tr-nm"><b>{m.title}</b>{m.host === 'me' && <Tag tone="warn">Hosting</Tag>}</span>
     </div>
     <div className="summary" id="tripSummary">
       <Row k="Place">{p ? p.name : '–'}</Row>

@@ -13,7 +13,7 @@ import { AppBar } from '../components/AppBar.jsx';
 import { DietTags } from '../components/PlaceMeta.jsx';
 import { RoundActions, Clamp, Details, InfoRow } from '../components/DetailParts.jsx';
 
-// Place page – one job: decide and act. Photo, name, one meta line, About (3 lines + More), one primary button
+// Place page – one job: decide and act. Photo, name, one meta line, About (2 lines + More), one primary button
 // (I'm here / Directions), one row of round actions; everything else in the collapsed "Details".
 export function PlaceDetail() {
   const p = byId(ui.detailId);
@@ -38,8 +38,8 @@ function Body({ p }) {
     <div className="detail">
       <h1 className="d-title">{p.name}</h1>
       <p className="d-meta" id="detailKm">{`${p.area} · ${distLabel(p.id)} · `}<span className={'oc ' + (open ? 'is-open' : 'is-closed')}>{open ? 'Open now' : 'Closed'}</span></p>
-      <Clamp>{p.about.map((t, i) => <p key={i}>{t}</p>)}</Clamp>
-      <div className="d-primary"><HereAction spot={p.id} name={p.name} /></div>
+      <Clamp lines={2}>{p.about.map((t, i) => <p key={i}>{t}</p>)}</Clamp>
+      <div className="d-primary"><HereAction spot={p.id} name={p.name} note={false} /></div>
       <RoundActions items={[
         {icon: isSaved ? BookmarkCheck : Bookmark, label: isSaved ? 'Saved' : 'Save', on: isSaved, id: 'saveBtn', onClick: () => toggleSave(p.id)},
         at && {icon: Navigation, label: 'Directions', id: 'dirBtn', onClick: directions},

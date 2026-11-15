@@ -1,9 +1,11 @@
-import { Trophy, Users, Bookmark, MapPin, Settings as SettingsIcon, Info, BellRing, CalendarPlus, RotateCcw, Award } from 'lucide-react';
+import { Trophy, Users, Bookmark, MapPin, Navigation, Settings as SettingsIcon, Info, BellRing, CalendarPlus, RotateCcw, Award } from 'lucide-react';
 import { getProfile, myBadges } from '../state/userData.js';
 import { upcomingMeetups, joinedM } from '../state/meetups.js';
 import { remindersOn, remindersDemo, toggleRemindersDemo } from '../state/reminders.js';
 import { resetProgress } from '../state/achievements.js';
-import { here } from '../state/location.js';
+import { here, setDemoSpot } from '../state/location.js';
+import { ui } from '../state/appStore.js';
+import { byId } from '../data/places.js';
 import { user } from '../state/userData.js';
 import { demoDays, appToday, nextDemoDay, resetDemoDate } from '../state/clock.js';
 import { go, openMeetups } from '../hooks/useHashRouter.js';
@@ -17,6 +19,7 @@ import { Group, Row, SwitchRow } from '../components/RowList.jsx';
 // Profile – one job: me and my settings. Avatar, name, city, one short list; the demo tools collapsed at the end.
 export function Profile() {
   const p = getProfile(), nj = upcomingMeetups().filter(m => joinedM(m)).length;
+  const last = byId(ui.recent[0]);   // the place opened last in this session ("Put me here" moved from the place page)
   return (
     <section className="screen active" id="profile">
       <AppBar title="Profile"><button className="ab-text" id="pfEdit" onClick={() => go('editProfile')}>Edit</button></AppBar>
@@ -42,6 +45,7 @@ export function Profile() {
             <Row icon={CalendarPlus} label="Simulate next day" value={niceDate(appToday())} id="nextDay" onClick={nextDemoDay} />
             <Row icon={RotateCcw} label="Reset demo date" value={demoDays() ? `+${demoDays()} d` : 'Today'} id="resetDay" disabled={!demoDays()} onClick={resetDemoDate} />
             <Row icon={MapPin} label="Demo location" value={here().real ? 'Real' : here().name} onClick={() => go('location')} />
+            {last && <Row icon={Navigation} label="Put me at" value={last.name} id="putMeAt" onClick={() => setDemoSpot(last.id)} />}
             <Row icon={Award} label="Reset badges" id="resetAch" onClick={resetProgress} />
           </Group>
         </Details>

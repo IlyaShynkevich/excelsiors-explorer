@@ -35,13 +35,13 @@ as a working web app that runs in any phone browser.
 | 🗺️ **Map view** | The map icon in Explore's top bar switches to an OpenStreetMap map with a pin for every filtered place. Tap a pin for a preview card (photo, distance, open status, *View details*); a blue dot shows where you are. While it loads you see a "Loading map" placeholder; without internet a friendly message and the list keeps working |
 | ✨ **Interests** | After the first sign-up (and once on the first demo login) a "What do you like?" screen: pick at least 3 of History, Street art, Food, Nightlife, Nature, Museums, Architecture, Shopping, or skip. Change them any time in Edit Profile |
 | 📍 **Place details** | Photo, name, one line (area · distance · open/closed), a 3-line About with *More*, one main button (**I'm here** when you are there, otherwise **Directions**) and round buttons for Save, Directions, Taxi and Meetups. Address, opening hours, prices, dietary options, Wikipedia and the photo credit are in **Details** |
-| 🛬 **Arrive** (Stage 4) | **I'm here** checks you in when you are within 150 m of a place (or a hotel); further away it says "You're about 1.2 km away" with *Directions* (and *Put me here (demo)* with a demo location). After a check-in an **arrival sheet** shows "You arrived at …", a short fact, your joined meetup there today, the challenges you just completed and three places nearby. In a taxi booking of My Trip, **I've arrived** moves your demo location to the destination and shows the same sheet |
+| 🛬 **Arrive** (Stage 4) | **I'm here** checks you in when you are within 150 m of a place (or a hotel); further away the place page shows *Directions* (the distance is in the line under the name). To jump there with a demo location: Profile → Demo tools → **Put me at** (the place you opened last), or *Put me here (demo)* under *Directions* in a hotel booking in Trip. After a check-in an **arrival sheet** shows "You arrived at …", a short fact, your joined meetup there today, the challenges you just completed and three places nearby. In a taxi booking of My Trip, **I've arrived** moves your demo location to the destination and shows the same sheet |
 | 🎯 **Daily challenges** (Stage 4) | 3 quests a day from a pool of 13 (e.g. *Visit a historic landmark*, *Try a food place*, *Check in at 2 places today*, *Visit a place within 500 m of your hotel*, *Check in at a museum / park*). Check-ins complete them automatically; each gives points, with a progress bar and a points total. The 🔥 **streak** counts the days in a row with at least one completed challenge (streak chip on Home, Achievements → *Challenges*). Profile → Demo tools → **Simulate next day** moves the app's date forward (saved, with a reset) for challenges, streak and reminders |
 | ✈️ **Flights** | Search flights to and from Berlin BER (14 European cities), choose passengers and class. **Compare providers** (Stage 2 "Book"): every flight is offered by 4–6 fictional booking sites at different prices and terms (checked bag included or not, free cancellation or not), cheapest first with a **Cheapest** tag and a "Save €X vs the most expensive" line. Sort the flights by *Cheapest*, *Fastest* or *Fewest stops*, filter by *Baggage included* and *Free cancellation*. The confirmation shows the provider and a price breakdown (base fare, taxes & fees, baggage). The same search always shows the same offers |
 | 🏨 **Hotels** | Search by city, check-in/check-out and guests (only Berlin has hotels in the demo). **10 Berlin hotels and hostels** with photo, area, stars, description and amenities; each is offered by 3–5 fictional providers (breakfast or room only, free cancellation or non-refundable), with the same Cheapest tag and savings line. Sort by price or stars, filter *Under €120/night*, *4 stars and up*, *Free cancellation*, *Breakfast*. The confirmation shows nights × rate, taxes & fees (incl. Berlin City Tax) and the provider |
 | 🚕 **Taxi** | Pick-up and destination, Eco / Standard / XL with price estimate, schedule a ride or watch the driver arrive live |
 | 🧾 **Bookings** | Book shows how many bookings are coming up and links to **Trip**, where every flight, stay and ride (also cancelled ones) is in the timeline with provider, price, status and booking reference |
-| 🧳 **Trip** (Stage 3, EE-38, tab) | One **timeline** of all flights, hotel stays (check-in and check-out), taxis and joined meetups, grouped by day; each row shows time, title, one line and the status. Day headers show the **Berlin forecast** (icon and temperatures) when it is within the 5-day window, and on rainy days (≥ 60 %) one line "Rain likely · indoor ideas" that opens museums. The 5-day forecast is at the end. The bell in the top bar opens the reminders |
+| 🧳 **Trip** (Stage 3, EE-38, tab) | One **timeline** of all flights, hotel stays (check-in and check-out), taxis and joined meetups, grouped by day; each row shows time, a short title (up to 2 lines) and one line; a tag only when something is not as planned (*Cancelled*, *Hosting*). Day headers show the **Berlin forecast** (icon and temperatures, tinted blue on rainy days) when it is within the 5-day window. The 5-day forecast is at the end, with one "Rainy: try indoor places" card that opens museums. The bell in the top bar opens the reminders |
 | ✏️ **Change or cancel** | A booking's detail shows its reference, route or address, provider, price and status. **Change booking**: another day (flight), other dates (hotel) or another time (taxi), with the new demo price, a change fee for non-flexible offers and the price difference before you confirm. **Cancel booking**: the refund terms of the booked offer (free cancellation = full refund, non-refundable = only taxes & fees back, taxis free); afterwards it shows as *Cancelled* everywhere |
 | 🔔 **Reminders** (simulated) | Bell in Trip's top bar (and a badge on the Trip tab): flight 2 hours before, taxi 15 minutes before, meetup 1 hour before, hotel check-in the day before, shown once that time has come. Mark as read, turn them off in Settings, or use Profile → Demo tools → **Show reminders now**. No push notifications, no permission request |
 | 🧭 **Directions** (simulated) | From a place, a hotel booking or a meetup: walking time (5 km/h), public transport estimate (U-Bahn / S-Bahn / bus, demo) and taxi fare, starting at your hotel (or Alexanderplatz), with the distance in km and "Get a taxi here" |
@@ -67,7 +67,9 @@ Everything is in one place, but each screen has **one job** and shows only what 
 sections before you scroll, list cards with just photo, name and one line, short labels, line icons instead of emoji (emoji only for
 badges, avatars and chat), and the large title turns into a small one in the top bar when you scroll. The demo notes live on one
 **About this demo** page (Profile), plus a small one-time banner on the first launch. The plan and before/after numbers are in
-`design-review/simplify-plan.md` (local).
+`design-review/simplify-plan.md` (local). Spacing uses one scale (4 / 8 / 12 / 16 / 24 / 32 px) with fixed roles (16 screen and card padding,
+12 between cards, 24 between sections), every control has a 44 × 44 px tap area, and on tall phones the main photos and cards
+take the free height instead of leaving empty space; the audit is in `design-review/unslop-audit.md` (local).
 
 ## Try it
 
@@ -82,7 +84,7 @@ Profile → **Delete Account** removes the account and everything saved in the b
 - Explore → tap **Food** and then **Vegan** + **Gluten-free**, or tap the **map** icon in the top bar and tap a pin
 - Explore → the location pill in the search field → pick *Brandenburg Gate*, then **Sort ▾ → Near me** and open the gate → **I'm here** (arrival sheet, challenges, badges)
 - Home → the 🔥 **streak chip** → today's challenges: complete all 3, then Profile → Demo tools → **Simulate next day** twice to build a 3-day streak (*On a Roll*)
-- Book → Hotels → open a hotel → *Put me here (demo)* → **I'm here**, then the same at a second hotel (*Hotel Hopper*)
+- Profile → Where am I? → *Park Inn by Radisson* → Book → Hotels → open that hotel → **I'm here**, then the same with *Circus Hostel* (*Hotel Hopper*)
 - Trip → a taxi booking → **I've arrived**
 - Book a flight to Berlin from the **cheapest provider** (Smart Saver badge), then tap **Taxi from BER**
 - Book → Hotels: compare providers for a Berlin hotel, try the filters and the *Stars* sort
@@ -174,7 +176,7 @@ excelsiors-explorer/
 ├── package.json
 ├── public/                  # copied as-is into dist/
 │   ├── manifest.webmanifest
-│   ├── sw.js                # service worker (cache 'ee-v3' network-first; photos and map tiles cached)
+│   ├── sw.js                # service worker (cache 'ee-v4' network-first; photos and map tiles cached)
 │   └── assets/              # favicon, apple-touch-icon, app icons
 ├── src/
 │   ├── main.jsx             # entry: styles, React root, service worker registration

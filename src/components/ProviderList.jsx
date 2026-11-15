@@ -1,4 +1,5 @@
 import { fmtEur } from '../lib/format.js';
+import { Tag } from './Tag.jsx';
 
 // "Compare providers": the same flight or room from several (fictional, demo) providers, cheapest first.
 // offers = sorted offers; kind 'flight' | 'hotel' decides the terms shown; onPick(offer, isCheapest).
@@ -21,7 +22,7 @@ export function ProviderList({ offers, kind, onPick, limit = 3, expanded, onExpa
       {shown.map((o, i) => (
         <button type="button" className={'prov' + (i === 0 ? ' best' : '')} key={o.id} data-provider={o.id} onClick={() => onPick(o, i === 0)}>
           <span className="pv-ic" aria-hidden="true">{o.name[0]}</span>
-          <span className="pv-nm"><b>{o.name}</b>{i === 0 && <span className="fl-badge">Cheapest</span>}
+          <span className="pv-nm"><b>{o.name}</b>{i === 0 && <Tag>Cheapest</Tag>}
             <small>{terms(o, kind).join(' · ')}</small></span>
           <span className="pv-pr"><b>{fmtEur(o.total)}</b><small>{kind === 'hotel' ? `${fmtEur(o.rate)} / night` : 'total'}</small></span>
         </button>

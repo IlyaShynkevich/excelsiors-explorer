@@ -1,7 +1,7 @@
 /* booking */
 /* three equal columns, icon above the label, so all quick buttons stay readable at 320px */
 .quick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s2)}
-.quick button{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:60px;padding:var(--s2) var(--s1);
+.quick button{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--s1);min-height:60px;padding:var(--s2) var(--s1);
               border-radius:var(--r-sm);background:var(--green);color:#fff;font-weight:600;font-size:clamp(12px,3.6vw,14px);line-height:1.15;text-align:center}
 .quick button span{font-size:20px;line-height:1}
 .bk-hero{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);margin-bottom:var(--s2)}
@@ -13,7 +13,7 @@
 .fgroup{margin-bottom:var(--s4);min-width:0}
 .fgroup label{font-size:var(--fs-cap);font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 #book .field,.sheet .field{margin-bottom:0}
-select.field{padding-right:34px;text-overflow:ellipsis;
+select.field{padding-right:calc(var(--s6) + var(--s1));text-overflow:ellipsis;
              background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238e8e93' stroke-width='2' fill='none'/%3E%3C/svg%3E") no-repeat right var(--s3) center}
 input[type=date].field,input[type=datetime-local].field,input[type=time].field{line-height:var(--field-h)}
 .field::-webkit-date-and-time-value{text-align:left}
@@ -33,10 +33,10 @@ input[type=date].field,input[type=datetime-local].field,input[type=time].field{l
 .fixed{height:var(--field-h);line-height:calc(var(--field-h) - 2px);border:1px dashed var(--border);border-radius:var(--r-sm);padding:0 var(--s3);
        font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .stepper{display:flex;align-items:center;justify-content:space-between;height:var(--field-h);border:1px solid var(--border);border-radius:var(--r-sm);
-         padding:0 2px;background:var(--card)}
-.stepper button{width:var(--tap);height:var(--tap);border-radius:10px;background:var(--fill);font-size:20px;color:var(--accent)}
+         padding:0 var(--s1);background:var(--card)}
+.stepper button{width:var(--tap);height:var(--tap);border-radius:var(--s2);background:var(--fill);font-size:20px;color:var(--accent)}
 .stepper b{font-size:var(--fs-headline)}
-.fl{background:var(--card);border-radius:var(--r);padding:var(--s4);margin-bottom:var(--s3);width:100%;text-align:left;display:block;box-shadow:var(--sh-1)}
+.fl{background:var(--card);border-radius:var(--r-card);padding:var(--pad-card);margin-bottom:var(--gap-list);width:100%;text-align:left;display:block;box-shadow:var(--sh-1)}
 .fl .air{display:flex;justify-content:space-between;align-items:center;gap:var(--s2);font-size:var(--fs-foot);color:var(--muted);margin-bottom:var(--s3)}
 .fl .air > span:first-child{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fl .air b{color:var(--text);font-size:var(--fs-sub)}
@@ -47,23 +47,22 @@ input[type=date].field,input[type=datetime-local].field,input[type=time].field{l
 .fl .line::before{content:"";display:block;height:2px;border-radius:1px;background:var(--border);margin:var(--s1) 0}
 .fl .price{font-size:var(--fs-title3);font-weight:800;color:var(--accent);text-align:right;margin-top:var(--s2)}
 .fl .price small{font-size:var(--fs-cap);color:var(--muted);font-weight:500}
-.fl-badge{flex:none;display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;padding:3px 7px;border-radius:6px;background:var(--green-l);color:var(--accent)}
-.ride{display:flex;align-items:center;gap:var(--s3);width:100%;min-height:64px;padding:var(--s3);background:var(--card);border-radius:var(--r);
-      margin-bottom:var(--s2);text-align:left;box-shadow:inset 0 0 0 1px var(--border)}
+.ride{display:flex;align-items:center;gap:var(--s3);width:100%;min-height:64px;padding:var(--s3) var(--pad-card);background:var(--card);border-radius:var(--r-card);
+      margin-bottom:var(--gap-list);text-align:left;box-shadow:inset 0 0 0 1px var(--border)}
 .ride.on{box-shadow:inset 0 0 0 2px var(--green);background:var(--green-l)}
 .ride .ic{font-size:28px;flex:none}
 .ride .nm{flex:1;min-width:0}
 .ride .nm b{display:block;font-size:var(--fs-sub);font-weight:600}
 .ride .nm small{font-size:var(--fs-cap);color:var(--muted)}
 .ride .pr{font-weight:800;font-size:var(--fs-headline);white-space:nowrap}
-.summary{background:var(--card);border-radius:var(--r);padding:var(--s3) var(--s4);margin:var(--s3) 0 var(--s4);font-size:var(--fs-sub)}
+.summary{background:var(--card);border-radius:var(--r-card);padding:var(--s3) var(--pad-card);margin:var(--s3) 0 var(--s4);font-size:var(--fs-sub)}
 .sheet .summary{background:var(--bg)}
 .summary div{display:flex;justify-content:space-between;gap:var(--s3);padding:var(--s1) 0}
 .summary div span:first-child{color:var(--muted)}
 .summary div span:last-child{text-align:right}
 .summary .tot{border-top:1px solid var(--hairline);margin-top:var(--s1);padding-top:var(--s2);font-weight:800;font-size:var(--fs-headline)}
 .summary .tot span:first-child{color:var(--text)}
-.bk-item{display:flex;gap:var(--s3);align-items:center;background:var(--card);border-radius:var(--r);padding:var(--s3);margin-bottom:var(--s2);box-shadow:var(--sh-1)}
+.bk-item{display:flex;gap:var(--s3);align-items:center;background:var(--card);border-radius:var(--r-card);padding:var(--s3) var(--pad-card);margin-bottom:var(--gap-list);box-shadow:var(--sh-1)}
 .bk-item .ic{font-size:22px;width:42px;height:42px;border-radius:50%;background:var(--green-l);display:grid;place-items:center;flex:none}
 .bk-item .nm{flex:1;min-width:0}
 .bk-item .nm b{display:block;font-size:var(--fs-sub);font-weight:600}
@@ -74,22 +73,22 @@ input[type=date].field,input[type=datetime-local].field,input[type=time].field{l
 .map{height:200px;border-radius:var(--r);position:relative;overflow:hidden;margin-bottom:var(--s4);
      background:linear-gradient(90deg,rgba(0,0,0,.05) 1px,transparent 1px) 0 0/28px 28px,linear-gradient(rgba(0,0,0,.05) 1px,transparent 1px) 0 0/28px 28px,#e8efe9}
 body.dark .map{background-color:#1f2a24}
-.map .road{position:absolute;left:12%;right:12%;top:50%;height:6px;border-radius:3px;background:repeating-linear-gradient(90deg,var(--green) 0 14px,transparent 14px 22px)}
+.map .road{position:absolute;left:12%;right:12%;top:50%;height:6px;border-radius:var(--r-pill);background:repeating-linear-gradient(90deg,var(--green) 0 14px,transparent 14px 22px)}
 .map .pin{position:absolute;top:calc(50% - 30px);font-size:26px}
 /* the car moves with transform: the track spans the map, so translateX(pos%) = pos% of the map width */
 .map .car-track{position:absolute;inset:0;pointer-events:none;transition:transform var(--dur-ride) linear}
 .map .car{position:absolute;left:0;top:calc(50% - 16px);font-size:26px;transform:scaleX(-1)}
-.driver{display:flex;align-items:center;gap:var(--s3);background:var(--card);border-radius:var(--r);padding:var(--s3) var(--s4);margin-bottom:var(--s3);box-shadow:var(--sh-1)}
+.driver{display:flex;align-items:center;gap:var(--s3);background:var(--card);border-radius:var(--r-card);padding:var(--s3) var(--pad-card);margin-bottom:var(--s3);box-shadow:var(--sh-1)}
 .driver .av{width:50px;height:50px;border-radius:50%;background:var(--green-l);display:grid;place-items:center;font-size:26px;flex:none}
 .driver .nm{flex:1;min-width:0}
 .driver .nm b{display:block;font-size:var(--fs-sub)}
 .driver .nm small{color:var(--muted);font-size:var(--fs-cap)}
-.plate{flex:none;font-family:ui-monospace,"SF Mono",monospace;font-weight:700;border:2px solid var(--text);border-radius:6px;padding:3px 7px;font-size:var(--fs-foot);white-space:nowrap}
+.plate{flex:none;font-family:ui-monospace,"SF Mono",monospace;font-weight:700;border:2px solid var(--text);border-radius:var(--s1);padding:0 var(--s2);font-size:var(--fs-foot);white-space:nowrap}
 .eta{text-align:center;margin-bottom:var(--s3)}
 .eta b{font-size:clamp(28px,8.5vw,34px);color:var(--accent);letter-spacing:-.02em}
 .demo{font-size:var(--fs-cap);color:var(--muted);text-align:center;margin-top:var(--s4)}
 .ref{font-family:ui-monospace,"SF Mono",monospace;font-size:clamp(18px,6vw,22px);font-weight:800;letter-spacing:.12em;text-align:center;background:var(--green-l);color:var(--accent);
-     border-radius:var(--r-sm);padding:var(--s3);margin:var(--s1) 0 var(--s2)}
+     border-radius:var(--r-card);padding:var(--s3) var(--pad-card);margin:0}
 .big-emoji{font-size:56px;line-height:1.1;text-align:center;margin-bottom:var(--s2)}
 #book .err{margin:0 0 var(--s4)}
 
@@ -101,7 +100,7 @@ body.dark .map{background-color:#1f2a24}
 #flFilters,#htFilters,#htOfferFilters{margin-bottom:var(--s3)}
 /* "Compare providers": rows inside a flight card or on the hotel page */
 .pv-list{margin-top:var(--s3);border-top:1px solid var(--hairline);padding-top:var(--s3)}
-.pv-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px var(--s2);margin-bottom:var(--s2)}
+.pv-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:0 var(--s2);margin-bottom:var(--s2)}
 .pv-head b{font-size:var(--fs-sub);font-weight:700}
 .save{font-size:var(--fs-cap);font-weight:700;color:var(--accent)}
 .prov{display:flex;align-items:center;gap:var(--s2);width:100%;min-height:56px;padding:var(--s2) var(--s3);margin-bottom:var(--s2);text-align:left;
@@ -110,19 +109,18 @@ body.dark .map{background-color:#1f2a24}
 .pv-ic{font-size:20px;flex:none;width:28px;text-align:center}
 .pv-nm{flex:1;min-width:0}
 .pv-nm b{font-size:var(--fs-sub);font-weight:600;margin-right:var(--s1)}
-.pv-nm .fl-badge{vertical-align:2px}
 .pv-nm small{display:block;font-size:var(--fs-cap);color:var(--muted);line-height:1.3}
 .pv-pr{flex:none;text-align:right}
 .pv-pr b{display:block;font-size:var(--fs-headline);font-weight:800;color:var(--accent);white-space:nowrap}
 .pv-pr small{font-size:var(--fs-cap);color:var(--muted);white-space:nowrap}
 .pv-more{margin-top:calc(-1 * var(--s1))}
-.sum-badge{margin-left:var(--s1);vertical-align:1px}
+.sum-badge{margin-left:var(--s1)}
 .empty .link-btn{margin-top:var(--s1)}
 /* hotel list */
-.ht-card{display:block;width:100%;text-align:left;background:var(--card);border-radius:var(--r);overflow:hidden;margin-bottom:var(--s3);box-shadow:var(--sh-1)}
+.ht-card{display:block;width:100%;text-align:left;background:var(--card);border-radius:var(--r-card);overflow:hidden;margin-bottom:var(--gap-list);box-shadow:var(--sh-1)}
 .ht-ph{display:block;height:clamp(120px,38vw,150px);position:relative}
-.ht-ph .fl-badge{position:absolute;top:var(--s2);left:var(--s2)}
-.ht-body{display:block;padding:var(--s3) var(--s4) var(--s4)}
+.ht-ph .tg{position:absolute;top:var(--s3);left:var(--s3)}
+.ht-body{display:block;padding:var(--s3) var(--pad-card) var(--pad-card)}
 .ht-top{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2)}
 .ht-top b{font-size:var(--fs-headline);font-weight:700;min-width:0}
 .stars{flex:none;font-size:var(--fs-cap);font-weight:700;color:var(--star);letter-spacing:.04em;white-space:nowrap}
@@ -131,14 +129,9 @@ body.dark .map{background-color:#1f2a24}
 .ht-price b{font-size:var(--fs-title3);font-weight:800;color:var(--accent)}
 .ht-price small{font-size:var(--fs-cap);color:var(--muted)}
 .ht-tot{font-size:var(--fs-foot);font-weight:600}
-.ht-body .save{display:block;margin-top:2px}
+.ht-body .save{display:block;margin-top:var(--s1)}
 /* hotel page */
-.ht-hero{display:block;height:clamp(170px,52vw,220px);border-radius:var(--r);position:relative;margin-bottom:var(--s3)}
-.ht-hero .stars{position:absolute;left:var(--s3);bottom:var(--s3);color:#fff;font-size:var(--fs-sub);text-shadow:0 1px 3px rgba(0,0,0,.5)}
-.ht-name{font-size:var(--fs-title2);font-weight:700;letter-spacing:-.015em;line-height:1.2}
-.ht-area{font-size:var(--fs-foot);margin:2px 0 var(--s2)}
-.ht-about{font-size:var(--fs-sub);margin-bottom:var(--s3)}
-.ht-amen{display:flex;flex-wrap:wrap;gap:var(--s1);margin-bottom:var(--s4)}
-.ht-amen span{font-size:var(--fs-cap);padding:4px 10px;border-radius:12px;background:var(--fill)}
-#bookBody .hint .link-btn{min-height:0;vertical-align:baseline}
+/* stars on the hotel photo, above the edge of the detail sheet that overlaps the photo */
+.hero .stars{position:absolute;left:var(--gl);bottom:calc(var(--r-lg) + var(--s3));color:#fff;font-size:var(--fs-sub);text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.ht-amen{display:flex;flex-wrap:wrap;gap:var(--s2);margin-bottom:var(--s3)}
 .bk-item .nm .via{display:block;color:var(--accent);font-weight:600}

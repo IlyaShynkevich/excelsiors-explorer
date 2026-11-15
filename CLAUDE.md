@@ -17,7 +17,7 @@ and on arrival check in where they are ("I'm here", simulated location, Near me,
   are `lazyScreen(() => import(...), 'Name')` (`lib/lazyScreen.js`): own build files, preloaded when the browser is idle, `ScreenSkeleton` as
   `Suspense` fallback, `ScreenError` if a file can't load. Once loaded they render directly (no Suspense frame), so transitions stay intact.
 - `src/screens/`: one file per screen. `src/components/`: shared pieces (AppBar/BackButton, TabBar, BottomSheet + `sheets/`,
-  ChatBubble, Badge, Avatar/Pav/AvatarStack, MeetupCard/JoinButton, FilterChips (single or multi-select), Stepper, FieldMsg, PlaceTile,
+  ChatBubble, Badge, Tag, Avatar/Pav/AvatarStack, MeetupCard/JoinButton, FilterChips (single or multi-select), Stepper, FieldMsg, PlaceTile,
   PlaceMeta/DietTags, PlaceMap (Leaflet), WeatherStrip, Toast, PullToRefresh, Photo (place photo: fades in once loaded, shimmer until then), Skeleton (SkelCards, ScreenSkeleton),
   ProviderList ("Compare providers" rows: Cheapest tag, "Save €X" line, optional "Show all")).
   Place photos are rendered with `<Photo p={p} size="thumb|tile|card|hero" [priority] [shade] [as="button"]>` (not `style={{background: bg(p)}}`):
@@ -91,7 +91,7 @@ and on arrival check in where they are ("I'm here", simulated location, Near me,
 - Only `login`/`signup` are reachable while logged out. The chat is only reachable for joined meetups.
 
 ## Images
-- Logo (`logo.webp`, 192 px), home background (`home-bg.webp`, 716×1600) and Lego avatar are real files in `src/assets/` (they used to be base64 in the old file).
+- Logo (`logo.webp`, 192 px; the artwork has no name in it, so Login shows "Excelsiors Explorer" as live text under it; `<img>` has width/height 88), home background (`home-bg.webp`, 716×1600) and Lego avatar are real files in `src/assets/` (they used to be base64 in the old file).
   Own images: WebP at the size they are shown.
   **Never print, paste or rewrite base64 strings** (e.g. in `legacy/index.old.html`); use grep/scripts with offsets.
 - Place photos are Wikimedia Commons URLs in `PHOTOS` (`src/data/places.js`) and `HOTELS` (960 px thumbnail or original upload URL).
@@ -113,16 +113,17 @@ and on arrival check in where they are ("I'm here", simulated location, Near me,
 - Geolocation: `navigator.geolocation.watchPosition`, only after the user turns on "Use my real location"; no other permission prompts.
 - Weather: Open-Meteo (`api.open-meteo.com`); on failure/offline the demo forecast is shown with a "Demo data" label.
   While loading, WeatherStrip shows skeleton day boxes of the same height. Trip waits up to `WX_WAIT` (0.8 s, card skeletons) for the forecast,
-  then shows everything at once; a later forecast fills only the header chips (rain hints wait for the next visit), so the timeline never jumps.
+  then shows everything at once; a later forecast fills only the header chips, so the timeline never jumps. Rain shows once: the blue-tinted
+  chip in the day header and one "Rainy: try indoor places" card in the forecast (no per-day rain line).
 
 ## PWA
-- `public/manifest.webmanifest`, `public/assets/*.png` icons, `public/sw.js`: `ee-v3` app shell (network-first, offline fallback to `index.html`),
+- `public/manifest.webmanifest`, `public/assets/*.png` icons, `public/sw.js`: `ee-v4` app shell (network-first, offline fallback to `index.html`),
   `ee-photos` (Wikimedia, cache-first, 80 entries, 14 days), `ee-tiles` (OSM, stale-while-revalidate, 300 entries); weather and other cross-origin requests bypass it.
   Photos and tiles are CORS requests (`crossorigin` on `<img>`, Leaflet `crossOrigin: true`), so only real (non-opaque) responses are cached.
 - **The precache list is generated at build time:** `vite.config.js` (`closeBundle`) reads the hashed files that really exist in `dist/assets/`
   and replaces `/* BUILD_FILES */[]` in `dist/sw.js`; the build fails if a listed file is missing (one missing file = install fails on Vercel).
   Never hand-write file names into the list; only `CORE` in `sw.js` (`./`, `index.html`, manifest, `icon-192.png`). Don't precache the other icons.
-  Bump the cache name when the caching strategy changes; activate deletes every cache except `ee-v3`, `ee-photos`, `ee-tiles`.
+  Bump the cache name when the caching strategy changes; activate deletes every cache except `ee-v4`, `ee-photos`, `ee-tiles`.
 - `vercel.json`: hashed `/assets/*` → `public, max-age=31536000, immutable` (unhashed icons excluded); `/`, `index.html`, `sw.js`, manifest → `no-cache`. No rewrites (hash routes).
 - Test offline against a strict static server that returns 404 for missing files (not `vite preview`, which answers missing files with `index.html`).
 
@@ -133,6 +134,16 @@ and on arrival check in where they are ("I'm here", simulated location, Near me,
   Use `<button>` for actions, never `<a>` without `href`.
 - The toast sits below the top bar and the large-title row (`.toast` in `screens.css`), so it never covers a title. `toast(msg, {label, onClick})` adds one action button.
 - New layout rules live in `styles/simple.css` (imported after the area files, before `motion.css`).
+- **Spacing**: only the scale `--s1`…`--s6` (4/8/12/16/24/32) and its roles in `base.css :root`: `--pad-screen` 16, `--pad-card` 16 (sides of every
+  card; compact rows use `--s3` top/bottom), `--gap-list` 12 between cards, `--gap-section` 24 between sections, `--gap-label` 8 from a heading or
+  label to its content. No raw px for padding/margin/gap. Radii: `--r-card` (16) for cards, `--r-sm` (12) for fields and controls,
+  `--r-lg` (20) for sheets, `--r-pill` for tags and pills. Remember that vertical margins collapse in block flow (use the full value, not a remainder).
+- **Tags**: one component, `<Tag tone>` (`components/Tag.jsx`, `.tg`, 22 px, pill radius); tones `''` green, `off`, `plain`, `warn`, `demo`, `photo`.
+- **Pills**: two sizes only: small 32 px visual (`--pill-sm`: chips, location pill, streak chip) and large 44 px (`--pill-lg`: Join/Leave, interests).
+- **Touch targets**: every control has a 44 × 44 px hit area. If it looks smaller, add it to the `::after` hit-area rule at the end of `simple.css`
+  (never shrink the target); a scroll row of small chips keeps `--hit-out` padding so the hit areas are not clipped.
+- **No big empty areas** on tall phones: Home's "Near you" photos and Book's three cards grow into the free height (flex, capped), the detail
+  photo is taller (`min-height:740px`). Fix empty space with layout, never with extra text.
 
 ## Simplicity (the app's core promise: everything in one place, nothing confusing)
 Plan and before/after numbers: `design-review/simplify-plan.md`. HIG references: toolbars (large titles), buttons, disclosure controls, tab bars, writing.
@@ -141,8 +152,13 @@ Plan and before/after numbers: `design-review/simplify-plan.md`. HIG references:
 - **At most 3 sections above the fold** at 390×844. Secondary things move **one tap deeper**, never get deleted: the one collapsed
   **Details** disclosure on detail pages (`Details`, `components/DetailParts.jsx`), **Demo tools** on Profile, Settings, a sheet.
 - **List cards**: photo, name, **one meta line** (`PlaceMeta`: distance · Open now/Closed). Descriptions, tags and categories only on the detail page.
-- **Detail pages** (place, hotel, meetup): photo, name, one meta line, About shortened to 3 lines (`Clamp`, *More*), ONE primary action
-  (place: *I'm here* when there, otherwise *Directions* = `HereAction`; meetup: *Join* / *Open group chat*), one row of round actions, then *Details*.
+- **Detail pages** (place, hotel, meetup) share one layout: full-width `.hero` photo (taller on phones ≥ 740 px high), round 44 px back button
+  (`AppBar overlay`, 36 px circle drawn by `::before`), the `.detail` sheet; name, one meta line, About shortened (`Clamp`: place and hotel 2 lines,
+  meetup 3), ONE primary action (place: *I'm here* when there, otherwise *Directions* = `HereAction note={false}`, the distance is in the meta line;
+  meetup: *Join* / *Open group chat*; hotel: the provider rows), one row of round actions, then *Details* (24 px above).
+  "Put me here (demo)" is under Directions only in a Trip hotel booking; otherwise Profile › Demo tools › *Put me at* (last opened place).
+- **Trip rows**: short title (`shortHotelName`, taxi "To <destination>", up to 2 lines), one sub line without the provider; a `Tag` only for
+  exceptions (*Cancelled*, *Hosting*), never for the normal state.
 - **Text**: helper text at most one short line and only where people would otherwise be stuck; labels ≤ 3 words; verbs on buttons; no "my/your" in titles.
 - **Demo notices** are not on screens: one **About this demo** page (Profile), the one-time `DemoBanner` (first launch, Login or Home),
   booking/cancel sheets keep one line "Demo – no payment is taken", Login keeps "Demo: any email and password work."

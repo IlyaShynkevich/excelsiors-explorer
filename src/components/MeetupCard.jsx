@@ -3,6 +3,7 @@ import { openMeetup } from '../hooks/useHashRouter.js';
 import { byId } from '../data/places.js';
 import { whenText } from '../lib/format.js';
 import { Photo } from './Photo.jsx';
+import { Tag } from './Tag.jsx';
 
 // Join / Leave / Full / Hosting; cls is 'pill' (cards) or 'btn' (meetup page)
 export function JoinButton({ m, cls }) {
@@ -19,7 +20,7 @@ export function MeetupCard({ m }) {
   const open = () => openMeetup(m.id);
   return (
     <div className="card mt-card" role="button" tabIndex={0} onClick={open} onKeyDown={e => { if (e.key === 'Enter' && e.target === e.currentTarget) open(); }}>
-      <Photo className="img" size="card" p={p} shade><span className="when">{whenText(m.start)}</span></Photo>
+      <Photo className="img" size="card" p={p} shade><Tag tone="photo" className="when">{whenText(m.start)}</Tag></Photo>
       <div className="body mt-body">
         <span className="nm"><h2>{m.title}</h2><span className="pmeta"><span>{p.name}</span><span className={j ? 'going in' : 'going'}>{`${g.length}/${m.max} going`}</span></span></span>
         <JoinButton m={m} cls="pill tint" />

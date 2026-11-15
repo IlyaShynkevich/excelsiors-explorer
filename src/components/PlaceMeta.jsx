@@ -1,4 +1,5 @@
 import { DIETS } from '../data/places.js';
+import { Tag } from './Tag.jsx';
 
 const DIET_LABEL = Object.fromEntries(DIETS);
 
@@ -16,7 +17,7 @@ export function PlaceMeta({ p, dist, open }) {
 export function DietTags({ p, note }) {
   if (!p.diet.length) return null;
   return (<>
-    <div className="dtags" aria-label="Dietary options (indicative)">{p.diet.map(d => <span key={d}>{DIET_LABEL[d]}</span>)}</div>
+    <div className="dtags" aria-label="Dietary options (indicative)">{p.diet.map(d => <Tag key={d}>{DIET_LABEL[d]}</Tag>)}</div>
     {note && <p className="note">Indicative, check with the venue.</p>}
   </>);
 }

@@ -4,6 +4,7 @@ import { wmo } from '../data/weather.js';
 import { go } from '../hooks/useHashRouter.js';
 import { CloudRain } from 'lucide-react';
 import { wxIcon } from './Icons.jsx';
+import { Tag } from './Tag.jsx';
 
 const dayName = (iso, i) => i === 0 ? 'Today' : new Date(iso + 'T12:00').toLocaleDateString('en-GB', {weekday: 'short'});
 
@@ -17,7 +18,7 @@ export function WeatherStrip() {
       <div className="wx-head">
         <h2 className="sec">Berlin weather</h2>
         {status === 'live' && <small className="wx-src">Open-Meteo</small>}
-        {status === 'demo' && <small className="wx-src demo-tag">Demo data</small>}
+        {status === 'demo' && <Tag tone="demo">Demo data</Tag>}
       </div>
       {/* loading: the same day boxes as skeletons (same height, so nothing moves when the forecast arrives) */}
       {!days.length ? <div className="wx-days loading" aria-busy="true" aria-label="Loading the forecast">{[0,1,2,3,4].map(i =>

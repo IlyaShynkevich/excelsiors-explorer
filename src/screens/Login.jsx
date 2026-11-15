@@ -20,7 +20,8 @@ export function Login() {
     <section className="screen active" id="login">
       <div className="scroll">
         <DemoBanner />
-        <img className="logo" src={logo} alt="Excelsiors Explorer logo" />
+        {/* the logo has no name in it: the app name follows as live text */}
+        <img className="logo" src={logo} width="88" height="88" alt="Excelsiors Explorer logo" />
         <h1 className="brand">Excelsiors Explorer</h1>
         <p className="tag">Booking App with Travel Guidance</p>
         <form id="loginForm" noValidate onSubmit={submit}>
