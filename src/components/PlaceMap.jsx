@@ -83,7 +83,17 @@ export function PlaceMap({ places, sel, onSelect, onShowList }) {
   const key = places.map(p => p.id).join() + '|' + here().ll.join();
   useEffect(draw, [key]);
   const card = useRef(null);
-  useEffect(() => { mark(); if (sel && card.current) card.current.scrollIntoView({block: 'nearest'}); }, [sel]);   // keep the preview above the tab bar
+  // keep the preview above the tab bar. Not card.scrollIntoView(): on its first frame the card is still moved down by its
+  // slide-up animation, so the browser scrolled the map box itself (the whole map slid up with the card). Instead only
+  // the screen's scroll box moves, just enough to show the map's bottom edge (where the card ends up), from layout positions.
+  useEffect(() => {
+    mark();
+    const wrap = box.current && box.current.parentElement, sc = wrap && wrap.closest('.scroll');
+    if (!sel || !sc) return;
+    const pad = parseFloat(getComputedStyle(sc).scrollPaddingBottom) || 0;
+    const d = wrap.getBoundingClientRect().bottom - (sc.getBoundingClientRect().bottom - pad);
+    if (d > 0) sc.scrollBy({top: d, behavior: reducedMotion() ? 'auto' : 'smooth'});
+  }, [sel]);
   // the preview slides up (--dur-sheet-in); after closing it stays until it has slid down (.closing, --dur-sheet-out)
   const [shown, setShown] = useState(sel), closing = !sel && !!shown;
   if (sel && sel !== shown) setShown(sel);

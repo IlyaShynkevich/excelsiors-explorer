@@ -23,6 +23,8 @@
 /* isolation: Leaflet's own z-indexes (up to 1000) stay inside the map, under the top and tab bars */
 .map-wrap{position:relative;isolation:isolate;z-index:0;height:clamp(320px,60vh,560px);border-radius:var(--r);overflow:hidden;
           box-shadow:var(--sh-1);background:var(--fill)}
+/* clip, not a scroll box: nothing (focus, scrollIntoView) can scroll the map inside its frame */
+@supports (overflow:clip){.map-wrap{overflow:clip}}
 .ex-map{position:absolute;inset:0}
 .map-wrap .leaflet-container{font:inherit;font-size:var(--fs-cap);background:var(--fill)}
 .ex-pin{background:none;border:0}

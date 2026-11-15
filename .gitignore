@@ -12,3 +12,6 @@ desktop.ini
 # Build
 node_modules/
 dist/
+
+# Design review screenshots and reports (local only)
+design-review/
