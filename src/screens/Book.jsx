@@ -47,7 +47,7 @@ function Hub() {
       <button className="bk-tile" id="hotelTile" style={{background: 'linear-gradient(145deg,#f472b6,#9d174d)'}} onClick={() => setBookView('hotels')}><span className="em">🏨</span><span><b>Hotels</b><small>Compare prices in Berlin</small></span></button>
       <button className="bk-tile wide" style={{background: 'linear-gradient(145deg,#facc15,#ca8a04)'}} onClick={() => setBookView('taxi')}><span className="em">🚕</span><span><b>Taxi</b><small>Anywhere in Berlin</small></span></button>
     </div>
-    <div className="sec-row"><h3 className="sec">My bookings</h3><button className="link-btn" id="toTrip" onClick={() => go('trip')}>Trip overview</button></div>
+    <div className="sec-row"><h2 className="sec">My bookings</h2><button className="link-btn" id="toTrip" onClick={() => go('trip')}>Trip overview</button></div>
     {list.length ? <div className="stagger" id="myBookings">{list.map(b => (
       <button className={'bk-item' + (b.status === 'Cancelled' ? ' cancelled' : '')} key={b.ref + b.created} data-type={b.type} onClick={() => openTripItem(b.ref)}><span className="ic">{ICONS[b.type]}</span>
         <span className="nm"><b>{b.title}</b><small>{b.sub}</small>
@@ -156,7 +156,7 @@ function HotelResults({ box }) {
       const o = offers[0], save = offers[offers.length - 1].total - o.total;
       return (
         <button className="ht-card" key={h.id} data-hotel={h.id} onClick={() => openHotel(h.id)}>
-          <Photo className="ht-ph" p={h}>{o.total === best && <span className="fl-badge">CHEAPEST</span>}</Photo>
+          <Photo className="ht-ph" size="card" p={h}>{o.total === best && <span className="fl-badge">CHEAPEST</span>}</Photo>
           <span className="ht-body">
             <span className="ht-top"><b>{h.name}</b><span className="stars" aria-label={h.stars ? h.stars + ' stars' : 'Hostel'}>{starText(h)}</span></span>
             <small className="muted">{h.area}</small>
@@ -178,7 +178,7 @@ function HotelDetail() {
   if (!h) return <div className="empty"><p>This hotel is not available.</p><button className="link-btn" onClick={() => setBookView('hotelResults', {replace: true})}>Show all hotels</button></div>;
   const offers = hotelOffersFor(h), units = hotelUnits(h, s.guests);
   return (<>
-    <Photo className="ht-hero" p={h} shade><span className="stars">{starText(h)}</span></Photo>
+    <Photo className="ht-hero" size="hero" priority p={h} shade><span className="stars">{starText(h)}</span></Photo>
     <h2 className="ht-name">{h.name}</h2>
     <p className="muted ht-area">{'📍 ' + h.area}</p>
     <p className="ht-about">{h.short}</p>

@@ -29,8 +29,9 @@ export function PlaceMap({ places, sel, onSelect, onShowList }) {
       // Leaflet's zoom / tile fade / marker zoom animations are timed inside Leaflet (0.25 s / 0.2 s): off with reduced motion
       const anim = !reducedMotion();
       const map = L.map(box.current, {center: CENTER, zoom: 12, zoomControl: true, tap: false, zoomAnimation: anim, fadeAnimation: anim, markerZoomAnimation: anim});
+      // crossOrigin: OSM sends CORS headers, so the service worker can keep tiles for offline (sw.js)
       const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
+        maxZoom: 19, crossOrigin: true, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
       }).addTo(map);
       tiles.on('tileload', () => { loaded++; setStatus(s => s === 'loading' ? 'ok' : s); });   // offline: cached tiles don't hide the message
       tiles.on('tileerror', () => { errors++; if (!loaded && errors >= 3) setStatus('offline'); });
@@ -104,6 +105,10 @@ export function PlaceMap({ places, sel, onSelect, onShowList }) {
   return (
     <div className="map-wrap" id="exMap">
       <div className="ex-map" ref={box} role="region" aria-label="Map of the filtered places"></div>
+      {/* until the first tile is there (Leaflet file + tiles load): a skeleton instead of an empty grey box; fades out */}
+      <div className={'map-skel skel' + (status === 'loading' ? '' : ' gone')} aria-hidden={status !== 'loading'}>
+        <span className="map-skel-tx" role="status">🗺️ Loading map</span>
+      </div>
       {(status === 'offline' || status === 'failed') && (
         <div className="map-msg" role="status">
           <b>🗺️ The map can't load right now</b>
@@ -114,7 +119,7 @@ export function PlaceMap({ places, sel, onSelect, onShowList }) {
       {p && (
         <div className={'map-card' + (closing ? ' closing' : '')} key={p.id} ref={card} role="dialog" aria-label={p.name}
              onAnimationEnd={e => { if (closing && e.target === e.currentTarget) gone(); }}>
-          <Photo className="thumb" p={p} />
+          <Photo className="thumb" size="thumb" p={p} />
           <div className="mc-body">
             <b>{p.name}</b>
             <PlaceMeta p={p} open={isOpenNow(p)} />

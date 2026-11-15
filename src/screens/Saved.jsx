@@ -15,7 +15,7 @@ export function Saved() {
         <div className="grid2 stagger" id="savedGrid">
           {n ? user.saved.map(id => { const p = byId(id); return (
             <button className="saved-item" key={id} onClick={() => openDetail(id)}>
-              <Photo className="img" p={p}><span className="dot"></span></Photo>
+              <Photo className="img" size="tile" p={p}><span className="dot"></span></Photo>
               <b>{p.name}</b><small>{p.area}</small>
             </button>); }) : <p className="muted">Nothing saved yet.</p>}
         </div>
@@ -23,7 +23,7 @@ export function Saved() {
         <div id="recentList" className="stagger">
           {['kadewe','museuminsel'].map(id => { const p = byId(id); return (
             <button className="recent-row" key={id} onClick={() => openDetail(id)}>
-              <Photo className="thumb" p={p} />
+              <Photo className="thumb" size="thumb" p={p} />
               <div><b>{p.name}</b><small>{p.area}</small></div>
             </button>); })}
         </div>

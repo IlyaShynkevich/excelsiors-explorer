@@ -17,7 +17,9 @@ export function WeatherStrip() {
         {status === 'live' && <small className="wx-src">Open-Meteo</small>}
         {status === 'demo' && <small className="wx-src demo-tag">Demo data</small>}
       </div>
-      {!days.length ? <div className="wx-days loading" aria-busy="true">{[0,1,2,3,4].map(i => <div key={i} className="wx-day"><i /></div>)}</div> :
+      {/* loading: the same day boxes as skeletons (same height, so nothing moves when the forecast arrives) */}
+      {!days.length ? <div className="wx-days loading" aria-busy="true" aria-label="Loading the forecast">{[0,1,2,3,4].map(i =>
+          <div key={i} className="wx-day skel"><b>&nbsp;</b><span className="ico">&nbsp;</span><span className="t">&nbsp;</span><small>&nbsp;</small></div>)}</div> :
         <div className="wx-days" role="list" aria-label="5-day forecast">
           {days.map((d, i) => {
             const [ico, label] = wmo(d.code);

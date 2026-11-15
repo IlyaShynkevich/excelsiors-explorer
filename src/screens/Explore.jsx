@@ -50,13 +50,13 @@ export function Explore() {
         </div>
         {!list.length ? <Empty term={term} />
           : ex.view === 'map' ? <PlaceMap places={list} sel={ex.sel} onSelect={selectPin} onShowList={() => setView('list')} />
-          : <div id="results" className="stagger">{list.map(p => (
+          : <div id="results" className="stagger">{list.map((p, i) => (
               <button className="card" key={p.id} onClick={() => openDetail(p.id)}>
-                <Photo className="img" p={p} />
+                <Photo className="img" size="card" priority={i === 0} p={p} />
                 <div className="body">
                   <span className="km">{distLabel(p.id)}</span>
                   {isNearby(p.id) && <span className="fl-badge near-tag">Nearby</span>}
-                  <h4>{`${p.name}, ${p.area}`}</h4>
+                  <h2>{`${p.name}, ${p.area}`}</h2>
                   <PlaceMeta p={p} open={isOpenNow(p)} />
                   <p>{p.short}</p>
                   <DietTags p={p} />

@@ -26,6 +26,10 @@
 /* clip, not a scroll box: nothing (focus, scrollIntoView) can scroll the map inside its frame */
 @supports (overflow:clip){.map-wrap{overflow:clip}}
 .ex-map{position:absolute;inset:0}
+.map-skel{position:absolute;inset:0;z-index:1000;border-radius:0;display:grid;place-items:center;pointer-events:none;background:var(--fill-2);
+          transition:opacity var(--dur-base) var(--ease-out)}
+.map-skel.gone{opacity:0}
+.map-skel-tx{font-size:var(--fs-sub);font-weight:600;color:var(--muted);background:var(--card);padding:var(--s2) var(--s4);border-radius:999px;box-shadow:var(--sh-1)}
 .map-wrap .leaflet-container{font:inherit;font-size:var(--fs-cap);background:var(--fill)}
 .ex-pin{background:none;border:0}
 .ex-pin span{display:grid;place-items:center;width:34px;height:34px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);background:var(--card);
@@ -68,8 +72,6 @@ body.dark .demo-tag{color:#fbbf24;background:rgba(251,191,36,.16)}
 .wx-day .t b{color:var(--text)}
 .wx-day small{font-size:clamp(10px,2.9vw,11px);color:var(--muted);white-space:nowrap}
 .wx-day.rainy{background:rgba(10,132,255,.14)}
-.wx-days.loading i{display:block;width:60%;flex:1;border-radius:6px;background:var(--fill-2);animation:wxPulse var(--dur-loop) var(--ease-in-out) infinite alternate}
-@keyframes wxPulse{to{opacity:.4}}
 .wx-note{margin-top:var(--s2)}
 .wx-hint{display:flex;align-items:center;gap:var(--s3);width:100%;margin-top:var(--s3);padding:var(--s3);border-radius:var(--r-sm);
          background:rgba(10,132,255,.12);text-align:left;min-height:var(--tap)}

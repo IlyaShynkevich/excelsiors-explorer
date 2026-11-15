@@ -12,9 +12,33 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" type="image/png" href="/assets/favicon.png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<!-- place photos come from Wikimedia Commons (CORS requests, see components/Photo.jsx): connect early -->
+<link rel="preconnect" href="https://thumb.wikimedia.org" crossorigin>
 </head>
 <body>
-<div id="root"></div>
+<div id="root">
+<!-- Boot skeleton: shown until the app's JavaScript has run (React replaces it). The same shapes as the
+     in-app skeletons (components/Skeleton.jsx, .skel in styles/screens.css); the script below picks the one for the route. -->
+<div id="app" aria-busy="true" aria-label="Loading">
+<section class="screen sk-screen" data-boot="home" id="home"><div class="home-top"><span class="skel sk-dot"></span></div><div class="scroll"><div class="panel">
+  <div class="skel sk-title"></div><div class="skel sk-line"></div><div class="skel sk-field"></div><div class="sk-row"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div><div class="skel sk-block"></div>
+</div></div></section>
+<section class="screen sk-screen" data-boot="place"><div class="scroll sk-flush"><div class="skel sk-hero"></div><div class="sk-pad">
+  <div class="skel sk-title"></div><div class="skel sk-line"></div><div class="skel sk-line short"></div><div class="skel sk-block"></div>
+</div></div></section>
+<section class="screen sk-screen" data-boot="screen"><div class="appbar">Excelsior Explorer</div><div class="scroll">
+  <div class="skel sk-title"></div><div class="sk-cards"><div class="skel sk-card"><span class="skel sk-line"></span><span class="skel sk-line short"></span></div><div class="skel sk-card"><span class="skel sk-line"></span><span class="skel sk-line short"></span></div><div class="skel sk-card"><span class="skel sk-line"></span><span class="skel sk-line short"></span></div></div>
+</div></section>
+<script>
+  (function () {   // #home (or no route) → Home shape, #place/… and #meetup/<id> → photo hero, anything else → top bar + cards
+    var h = location.hash.slice(1).split('/'), v = !h[0] || h[0] === 'home' ? 'home' : (h[0] === 'place' || (h[0] === 'meetup' && h.length === 2)) ? 'place' : 'screen';
+    var s = document.querySelector('[data-boot="' + v + '"]');
+    s.className += ' active';
+    [].forEach.call(document.querySelectorAll('[data-boot]'), function (x) { if (x !== s) x.remove(); });
+  })();
+</script>
+</div>
+</div>
 <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>

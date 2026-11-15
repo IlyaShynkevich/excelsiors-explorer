@@ -22,7 +22,7 @@ function Body({ m }) {
   const p = byId(m.placeId), g = going(m), host = person(m.host), j = joinedM(m);
   const last = j ? chatOf(m).slice(-1)[0] : null;
   return (<>
-    <Photo className="hero" p={p} />
+    <Photo className="hero" size="hero" priority p={p} />
     <div className="detail">
       <h2>{m.title}</h2>
       <div className="loc"><span className="ico">➤</span><span><a className="plink" onClick={() => openDetail(p.id)}>{p.name}</a><br />{p.addr}</span></div>

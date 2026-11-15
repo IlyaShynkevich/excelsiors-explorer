@@ -20,7 +20,7 @@ export function MeetupCard({ m }) {
   const open = () => openMeetup(m.id);
   return (
     <div className="card mt-card" role="button" tabIndex={0} onClick={open} onKeyDown={e => { if (e.key === 'Enter' && e.target === e.currentTarget) open(); }}>
-      <Photo className="img" p={p} shade><span className="when">{whenText(m.start)}</span></Photo>
+      <Photo className="img" size="card" p={p} shade><span className="when">{whenText(m.start)}</span></Photo>
       <div className="body">
         <h4>{m.title}</h4>
         <p>{`📍 ${p.name} · ${p.area}`}</p>

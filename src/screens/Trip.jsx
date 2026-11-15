@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ui, openSheet } from '../state/appStore.js';
 import { tripDays, upcomingTrip, tripEntry, TRIP_ICONS, timeOf, dayLabel, tripDayLabel, parseLocal, canChange, canCancel, cancelTerms } from '../state/trip.js';
 import { going } from '../state/meetups.js';
@@ -13,20 +13,30 @@ import { fmtEur, ymd, plural } from '../lib/format.js';
 import { AppBar } from '../components/AppBar.jsx';
 import { HereAction } from '../components/HereAction.jsx';
 import { arrive } from '../state/challenges.js';
+import { SkelCards } from '../components/Skeleton.jsx';
+
+// The rainy-day hints sit above a day's items, so they can't appear after the timeline is shown (it would jump).
+// While the forecast is still loading, the timeline waits up to WX_WAIT ms (card skeletons); a forecast that comes
+// later only fills the weather chips in the day headers (same line, no jump) and the hints show on the next visit.
+const WX_WAIT = 800;
+const wxSettled = () => weather.status === 'live' || weather.status === 'demo';
 
 // ---------- Trip overview (EE-38): bookings + joined meetups, one timeline grouped by day ----------
 export function Trip() {
   useClock();
-  useEffect(() => { loadWeather(); }, []);
+  const [waited, setWaited] = useState(false), hints = useRef(null);
+  useEffect(() => { loadWeather(); const t = setTimeout(() => setWaited(true), WX_WAIT); return () => clearTimeout(t); }, []);
+  const show = wxSettled() || waited;
+  if (show && hints.current === null) hints.current = wxSettled();   // decided once, when the timeline first shows
   const days = tripDays(), next = upcomingTrip().length;
   return (
     <section className="screen active" id="trip">
       <AppBar back="home">Excelsior Explorer</AppBar>
       <div className="scroll">
         <h1 className="ltitle">My Trip</h1>
-        {days.length ? <>
+        {!show && days.length ? <SkelCards n={Math.min(days.length + 1, 3)} /> : days.length ? <>
           <p className="hint" id="tripCount">{next ? `${plural(next, 'upcoming plan')} · tap one for details` : 'Nothing coming up · your past plans are below'}</p>
-          <div className="stagger" id="tripDays">{days.map(d => <TripDay key={d.date || 'none'} {...d} />)}</div>
+          <div className="stagger" id="tripDays">{days.map(d => <TripDay key={d.date || 'none'} {...d} hints={hints.current} />)}</div>
           <p className="demo">Bookings, prices and meetups are demo data. Weather: forecast for Berlin.</p>
         </> : (
           <div className="empty" id="tripEmpty">
@@ -44,7 +54,7 @@ export function Trip() {
   );
 }
 
-function TripDay({ date, items }) {
+function TripDay({ date, items, hints }) {
   const past = date && date < ymd(new Date()), f = date && !past ? forecastFor(date) : null;
   const loaded = weather.status === 'live' || weather.status === 'demo';
   return (
@@ -53,7 +63,7 @@ function TripDay({ date, items }) {
         <h3>{tripDayLabel(date)}</h3>
         {f ? <DayWeather f={f} /> : date && !past && loaded && <small className="tr-wx-note">Forecast available closer to the trip</small>}
       </div>
-      {f && isRainy(f) && (
+      {hints && f && isRainy(f) && (
         <button className="wx-hint tr-rain" onClick={() => go('explore', {cats: ['museums']})}>
           <span aria-hidden="true">🌧️</span>
           <span><b>Rainy: try indoor places</b><small>{`${f.rain}% chance of rain · see museums`}</small></span>

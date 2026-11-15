@@ -36,7 +36,7 @@ export function ArrivalSheet({ spot, quests = [] }) {
       <h4 className="arr-h">Nearby</h4>
       <div className="arr-near" id="arrNear">{near.map(({p: x, km}) => (
         <button className="recent-row" key={x.id} onClick={() => { closeSheet(); openDetail(x.id); }}>
-          <Photo className="thumb" p={x} />
+          <Photo className="thumb" size="thumb" p={x} />
           <div><b>{x.name}</b><small>{`${fmtDist(km)} · ${x.area}`}</small></div>
         </button>
       ))}</div>

@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect } from 'react';
+import { Component, Suspense, useEffect, useLayoutEffect } from 'react';
 import { ui, useStore, toast, closeSheet, sheetOpen } from './state/appStore.js';
 import { user } from './state/userData.js';
 import { useHashRouter, TABS } from './hooks/useHashRouter.js';
@@ -15,17 +15,45 @@ import { Explore } from './screens/Explore.jsx';
 import { PlaceDetail } from './screens/PlaceDetail.jsx';
 import { Saved } from './screens/Saved.jsx';
 import { Profile } from './screens/Profile.jsx';
-import { EditProfile } from './screens/EditProfile.jsx';
-import { Achievements } from './screens/Achievements.jsx';
-import { Book } from './screens/Book.jsx';
-import { Meetups } from './screens/Meetups.jsx';
-import { MeetupDetail } from './screens/MeetupDetail.jsx';
-import { MeetupChat, scrollChat } from './screens/MeetupChat.jsx';
 import { Interests } from './screens/Interests.jsx';
-import { Trip, TripItem } from './screens/Trip.jsx';
-import { Reminders } from './screens/Reminders.jsx';
-import { Location } from './screens/Location.jsx';
+import { ScreenSkeleton } from './components/Skeleton.jsx';
+import { lazyScreen } from './lib/lazyScreen.js';
 import { initLocation } from './state/location.js';
+
+// Screens that are not needed for Login and Home are their own build files (loaded on first use, preloaded
+// when the browser is idle). While one loads, ScreenSkeleton shows. New screens: add them here the same way.
+const EditProfile = lazyScreen(() => import('./screens/EditProfile.jsx'), 'EditProfile');
+const Achievements = lazyScreen(() => import('./screens/Achievements.jsx'), 'Achievements');
+const Book = lazyScreen(() => import('./screens/Book.jsx'), 'Book');
+const Meetups = lazyScreen(() => import('./screens/Meetups.jsx'), 'Meetups');
+const MeetupDetail = lazyScreen(() => import('./screens/MeetupDetail.jsx'), 'MeetupDetail');
+const MeetupChat = lazyScreen(() => import('./screens/MeetupChat.jsx'), 'MeetupChat');
+const Trip = lazyScreen(() => import('./screens/Trip.jsx'), 'Trip');
+const TripItem = lazyScreen(() => import('./screens/Trip.jsx'), 'TripItem');
+const Reminders = lazyScreen(() => import('./screens/Reminders.jsx'), 'Reminders');
+const Location = lazyScreen(() => import('./screens/Location.jsx'), 'Location');
+const LAZY = [EditProfile, Achievements, Book, Meetups, MeetupDetail, MeetupChat, Trip, Reminders, Location];
+// the chat keeps its newest message in view (same as MeetupChat.jsx scrollChat; that file loads lazily)
+const scrollChat = () => { const s = document.getElementById('chatMsgs'); if (s) s.scrollTop = s.scrollHeight; };
+
+// A lazy screen whose file can't be loaded (offline before it was ever cached): a message instead of a blank app
+class ScreenError extends Component {
+  state = {failed: false};
+  static getDerivedStateFromError() { return {failed: true}; }
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return (
+      <section className="screen active">
+        <div className="appbar">Excelsior Explorer</div>
+        <div className="scroll"><div className="empty">
+          <b>This screen can't load right now</b>
+          <p>Check your connection and try again.</p>
+          <button className="pill" onClick={() => location.reload()}>Try again</button>
+        </div></div>
+      </section>
+    );
+  }
+}
 
 const SCREENS = {
   interests: Interests,
@@ -52,6 +80,10 @@ export function App() {
     document.addEventListener('keydown', keys);
     setOnline();
     motionReady();   // screen transitions from now on (not on the first screen after a reload)
+    // fetch the lazy screens once the first screen has loaded and the browser is idle, so later screens open at once
+    const idle = window.requestIdleCallback || (f => setTimeout(f, 1));
+    const preload = () => idle(() => LAZY.forEach(s => s.preload()), {timeout: 4000});
+    if (document.readyState === 'complete') preload(); else window.addEventListener('load', preload, {once: true});
     initLocation();  // real location: only continues if it was on and the browser still allows it
     // Keyboard: Android resizes the page (interactive-widget=resizes-content); iOS only shrinks the
     // visual viewport, so there the chat is pinned to the visible area and the input stays above the keyboard.
@@ -75,7 +107,7 @@ export function App() {
   return (<>
     <div id="app">
       {/* a new key on every navigation: the screen starts fresh (scrolled to the top), like before */}
-      <Screen key={ui.navSeq} />
+      <ScreenError key={ui.navSeq}><Suspense fallback={<ScreenSkeleton />}><Screen /></Suspense></ScreenError>
       <TabBar current={ui.current} />
       {/* copy of the previous screen while it animates out (filled by lib/motion.js, never by React) */}
       <div id="navfx" aria-hidden="true"></div>

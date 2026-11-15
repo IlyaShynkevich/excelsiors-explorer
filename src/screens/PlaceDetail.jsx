@@ -35,7 +35,7 @@ function Body({ p }) {
   const [lang, title] = p.wiki.startsWith('de:') ? ['de', p.wiki.slice(3)] : ['en', p.wiki];
   const wiki = title && `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g,'_'))}`;
   return (<>
-    <Photo className="hero" p={p} />
+    <Photo className="hero" size="hero" priority p={p} />
     <div className="detail">
       <div className="row"><h2>{p.name}</h2><span className="km" id="detailKm">{distLabel(p.id)}</span></div>
       <div className="loc"><span className="ico">➤</span><span>{p.addr}<br />{`${p.area} · ${distLabel(p.id)} from ${h.real ? 'your location' : h.name}`}

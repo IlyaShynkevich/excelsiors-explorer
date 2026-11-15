@@ -8,15 +8,20 @@ and on arrival check in where they are ("I'm here", simulated location, Near me,
 
 ## Architecture
 - **React 18 + Vite**, plain JavaScript (no TypeScript), no UI libraries, no router library. Don't add any unless explicitly asked.
-- `index.html`: page shell (meta tags incl. viewport `interactive-widget=resizes-content`, manifest + icon links, `#root`).
+- `index.html`: page shell (meta tags incl. viewport `interactive-widget=resizes-content`, manifest + icon links, preconnect to `thumb.wikimedia.org`, `#root`).
+  `#root` holds a static boot skeleton (Home / photo hero / top bar + cards, picked by a small inline script from the hash) until React replaces it.
 - `src/main.jsx`: imports the CSS, sets `--lego`, renders `<App>`, registers `sw.js` (production build, http/https only).
 - `src/App.jsx`: renders the current screen (`ui.current`), tab bar, toast, bottom sheet, pull-to-refresh, offline banner;
   body classes `dark`, `is-offline`, `kb-open` (iOS keyboard, `--vvh/--vvt`).
+  Screens not needed for Login/Home (EditProfile, Achievements, Book, Meetups, MeetupDetail, MeetupChat, Trip/TripItem, Reminders, Location)
+  are `lazyScreen(() => import(...), 'Name')` (`lib/lazyScreen.js`): own build files, preloaded when the browser is idle, `ScreenSkeleton` as
+  `Suspense` fallback, `ScreenError` if a file can't load. Once loaded they render directly (no Suspense frame), so transitions stay intact.
 - `src/screens/`: one file per screen. `src/components/`: shared pieces (AppBar/BackButton, TabBar, BottomSheet + `sheets/`,
   ChatBubble, Badge, Avatar/Pav/AvatarStack, MeetupCard/JoinButton, FilterChips (single or multi-select), Stepper, FieldMsg, PlaceTile,
-  PlaceMeta/DietTags, PlaceMap (Leaflet), WeatherStrip, Toast, PullToRefresh, Photo (place photo: fades in once loaded, shimmer until then),
+  PlaceMeta/DietTags, PlaceMap (Leaflet), WeatherStrip, Toast, PullToRefresh, Photo (place photo: fades in once loaded, shimmer until then), Skeleton (SkelCards, ScreenSkeleton),
   ProviderList ("Compare providers" rows: Cheapest tag, "Save €X" line, optional "Show all")).
-  Place photos are rendered with `<Photo p={p} [shade] [as="button"]>` (not `style={{background: bg(p)}}`).
+  Place photos are rendered with `<Photo p={p} size="thumb|tile|card|hero" [priority] [shade] [as="button"]>` (not `style={{background: bg(p)}}`):
+  an `<img class="ph-img">` with `srcset`/`sizes` from `lib/photo.js`, `loading="lazy"`, `decoding="async"`, `crossorigin="anonymous"`.
 - `src/data/`: demo data constants (`PLACES` incl. 8 food places, `PHOTOS`, `CATEGORIES`, `DIETS`, `INTERESTS`, weather `demoForecast`/`wmo`, `BADGES`, `FRIENDS`, `PEOPLE`, `MEETUPS` + seed chats, `REPLIES`,
   `CITIES`, `AIRLINES`, `RIDES`, `DRIVERS`, `COORDS`, `AVATARS`), the seeded flight generator and `taxiFare`.
   Stage 2 "Book": `FLIGHT_PROVIDERS` + `flightOffers(r, f)` (`data/booking.js`), `HOTELS` + `HOTEL_PROVIDERS` + `hotelOffers(h, s)` (`data/hotels.js`).
@@ -84,22 +89,38 @@ and on arrival check in where they are ("I'm here", simulated location, Near me,
 - Only `login`/`signup` are reachable while logged out. The chat is only reachable for joined meetups.
 
 ## Images
-- Logo, home background and Lego avatar are real files in `src/assets/` (they used to be base64 in the old file).
+- Logo (`logo.webp`, 192 px), home background (`home-bg.webp`, 716×1600) and Lego avatar are real files in `src/assets/` (they used to be base64 in the old file).
+  Own images: WebP at the size they are shown.
   **Never print, paste or rewrite base64 strings** (e.g. in `legacy/index.old.html`); use grep/scripts with offsets.
-- Place photos are Wikimedia Commons URLs in `PHOTOS` (`src/data/places.js`).
+- Place photos are Wikimedia Commons URLs in `PHOTOS` (`src/data/places.js`) and `HOTELS` (960 px thumbnail or original upload URL).
+  **Always show them through `<Photo>` / the thumbnail helper** (`lib/photo.js`: `thumbUrl(url, w)`, `photoAttrs(url, size)`), never the raw URL.
+  Commons only serves its standard widths (120, 250, 330, 500, 960, 1280; others answer 400). Roles in `PHOTO_SIZES`: thumb 250/330,
+  tile 250/330, card 330/500, hero 500/960. A new photo: check that every width of its role returns 200.
+  `priority` = the screen's largest paint (Home: first "Near you" tile, Explore: first result, detail heroes): `fetchpriority="high"`, not lazy.
+  Every other photo is lazy. Photo boxes have fixed CSS sizes, so loading never shifts the layout.
 
 ## External services (no keys)
 - Map: Leaflet (npm, dynamically imported, its own build chunk) + OpenStreetMap tiles; keep the OSM attribution. PlaceMap focuses the map
   itself with `preventScroll` on pointerdown (else Leaflet's focus scrolls a half-visible map and the pin tap is lost). Map classes are
   `.ex-map`/`.ex-pin` (`.map`/`.pin` belong to the taxi tracker), `.ex-me` = you-are-here dot (non-interactive). Offline → message + "Show list".
+  Until the first tile has loaded, `.map-skel` ("Loading map" skeleton) covers the map and then fades out.
   The preview card stays mounted with `.closing` until it slid down. Leaflet's zoom (0.25 s) and tile fade (0.2 s) are timed inside leaflet.js
   (overriding the CSS would cut them off), so they keep Leaflet's values; `zoomAnimation/fadeAnimation/markerZoomAnimation` are off with reduced motion.
 - Geolocation: `navigator.geolocation.watchPosition`, only after the user turns on "Use my real location"; no other permission prompts.
 - Weather: Open-Meteo (`api.open-meteo.com`); on failure/offline the demo forecast is shown with a "Demo data" label.
+  While loading, WeatherStrip shows skeleton day boxes of the same height. Trip waits up to `WX_WAIT` (0.8 s, card skeletons) for the forecast,
+  then shows everything at once; a later forecast fills only the header chips (rain hints wait for the next visit), so the timeline never jumps.
 
 ## PWA
-- `public/manifest.webmanifest`, `public/assets/*.png` icons, `public/sw.js` (cache `ee-v2`, network-first, offline fallback).
-- Cross-origin requests (photos, tiles, weather) bypass the service worker. `vite.config.js` replaces `/* BUILD_FILES */[]` in `dist/sw.js` with the hashed build files; old caches and stale files are deleted on activate.
+- `public/manifest.webmanifest`, `public/assets/*.png` icons, `public/sw.js`: `ee-v3` app shell (network-first, offline fallback to `index.html`),
+  `ee-photos` (Wikimedia, cache-first, 80 entries, 14 days), `ee-tiles` (OSM, stale-while-revalidate, 300 entries); weather and other cross-origin requests bypass it.
+  Photos and tiles are CORS requests (`crossorigin` on `<img>`, Leaflet `crossOrigin: true`), so only real (non-opaque) responses are cached.
+- **The precache list is generated at build time:** `vite.config.js` (`closeBundle`) reads the hashed files that really exist in `dist/assets/`
+  and replaces `/* BUILD_FILES */[]` in `dist/sw.js`; the build fails if a listed file is missing (one missing file = install fails on Vercel).
+  Never hand-write file names into the list; only `CORE` in `sw.js` (`./`, `index.html`, manifest, `icon-192.png`). Don't precache the other icons.
+  Bump the cache name when the caching strategy changes; activate deletes every cache except `ee-v3`, `ee-photos`, `ee-tiles`.
+- `vercel.json`: hashed `/assets/*` → `public, max-age=31536000, immutable` (unhashed icons excluded); `/`, `index.html`, `sw.js`, manifest → `no-cache`. No rewrites (hash routes).
+- Test offline against a strict static server that returns 404 for missing files (not `vite preview`, which answers missing files with `index.html`).
 
 ## Style
 - Brand green `#0b7a2b`, max width 480px, iOS look; centred phone frame on desktop (min-width 601px).
@@ -114,7 +135,7 @@ and on arrival check in where they are ("I'm here", simulated location, Near me,
   Base durations `--dur-fast` 150ms (press feedback, chips) / `--dur-base` 350ms / `--dur-slow` 500ms, `--stagger` 60ms, `--press` (.97).
   Role durations: `--dur-nav` 480ms (slide forward/back), `--dur-tab` 300ms (tab cross-fade), `--dur-sheet-in` 450ms / `--dur-sheet-out` 350ms,
   `--dur-pop` 550ms (+ `--dur-pop-delay` 180ms), `--dur-photo` 400ms, `--dur-flip` 400ms (useFlip), `--dur-confetti` 1300ms, `--dur-toast` 350ms,
-  `--dur-ride` 1s (taxi car step). Loops: `--dur-loop` 1.2s + `--loop-step` .2s (typing dots, weather pulse), `--dur-shimmer` 1.3s, `--dur-spin` .8s.
+  `--dur-ride` 1s (taxi car step). Loops: `--dur-loop` 1.2s + `--loop-step` .2s (typing dots), `--dur-shimmer` 1.3s, `--dur-spin` .8s.
   Map preview card: `--dur-sheet-in`/`--dur-sheet-out` with `--ease-nav`; pins `--dur-slow` + `calc(var(--stagger) * var(--i))`.
   **New UI must reuse these tokens** (no raw durations or curves) and only animate `transform`/`opacity` (colours at most; never
   width/height/top/left, box-shadow or filter). Keep 150–550 ms (confetti 1.3 s); nothing may block taps.
@@ -145,6 +166,8 @@ and on arrival check in where they are ("I'm here", simulated location, Near me,
 - **Never run git commands** (add, commit, push, pull, checkout …). The user handles all git.
   At the end of a task, list the changed files and suggest a commit message.
 - Update `README.md` when features change.
+- New screens are lazy-loaded (`lazyScreen` in `App.jsx`) unless Login or Home need them. New loading states use the skeleton pieces
+  (`.skel` + shimmer, `Skeleton.jsx`) and must keep the final layout's size (no jump when the content arrives).
 
 ## Checking your work
 - `npm run build` must succeed (also catches syntax errors).

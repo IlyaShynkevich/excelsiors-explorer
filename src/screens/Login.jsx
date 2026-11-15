@@ -1,4 +1,4 @@
-import logo from '../assets/logo.png';
+import logo from '../assets/logo.webp';
 import { ui, emit } from '../state/appStore.js';
 import { getUser, signIn } from '../state/userData.js';
 import { go, enterApp } from '../hooks/useHashRouter.js';

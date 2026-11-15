@@ -78,7 +78,7 @@ export function Profile() {
         <div className="hscroll" id="recentProfile">
           {RECENT_DEST.map(([id, when]) => { const pl = byId(id); return (
             <button className="rp-item" key={id} onClick={() => openDetail(id)}>
-              <Photo className="tile" p={pl} shade>{pl.name}</Photo>
+              <Photo className="tile" size="tile" p={pl} shade>{pl.name}</Photo>
               <small>{when}</small>
             </button>); })}
         </div>

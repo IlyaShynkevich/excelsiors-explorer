@@ -88,11 +88,24 @@ Profile → **Delete Account** removes the account and everything saved in the b
 - **React 18 + Vite**, plain JavaScript (no TypeScript, no UI or router library); hash routing in a small custom hook
 - **CSS** in `src/styles/` (iOS-style design tokens, light and dark mode)
 - **localStorage** for the account, profile, login state, saved places, badges, bookings, meetups, chat messages, reminder settings, demo location, check-ins, challenges and the demo date (stored per browser; never the real position)
-- **PWA**: web app manifest and a network-first service worker, so the app can be installed and opens offline
+- **PWA**: web app manifest and a service worker (network-first app shell, cached photos and map tiles), so the app can be installed and opens offline
 - **Wikimedia Commons** photos loaded from each place's Wikipedia article
 - **[Leaflet](https://leafletjs.com/)** (npm, loaded only when the map opens) with **[OpenStreetMap](https://www.openstreetmap.org/copyright)** tiles for the map view, no API key
 - **[Open-Meteo](https://open-meteo.com/)** free weather API (no key) for the 5-day Berlin forecast
-- **Vercel** hosting: Vercel detects Vite, runs `npm run build` and serves `dist/`, with no extra config. Every push to `main` goes live
+- **Vercel** hosting: Vercel detects Vite, runs `npm run build` and serves `dist/`; `vercel.json` only sets cache headers. Every push to `main` goes live
+
+## Performance
+
+Measured with Lighthouse (mobile) and Playwright; details in `design-review/performance-after.md` (local, not in git).
+
+- **Photos** are Wikimedia Commons thumbnails sized for where they are shown (`srcset`/`sizes`: 250–330 px for tiles and
+  rows, 500 px for list cards, 960 px only for the big photo on a detail page), loaded lazily except the main photo of a screen.
+  The first load of Home went from 2.8 MB to 0.7 MB.
+- **Code:** screens that Login and Home don't need (Book, Trip, Achievements, Meetups, chat, Edit Profile, Where am I?, Reminders)
+  and the map are separate files, loaded when first opened or when the browser is idle.
+- **Loading states:** a skeleton shows before the app has started, while a screen or the map loads, and for the weather; nothing jumps when the forecast arrives.
+- **Caching:** hashed build files are cached for a year (`vercel.json`); the service worker keeps the app, the last 80 photos
+  (14 days) and 300 map tiles, so visited places still work offline. Its file list is generated at build time.
 
 ## Motion
 
@@ -112,7 +125,7 @@ Calm iOS-style animations that never get in the way (only `transform` and `opaci
 | Map pin preview: slide up / down (soft ease-out) | 450 ms / 350 ms | `--dur-sheet-in`, `--dur-sheet-out`, `--ease-nav` |
 | Map pins drop in one after the other · tapped pin grows | 500 ms · 350 ms | `--dur-slow`, `--stagger`, `--dur-base` |
 | Taxi tracker car step | 1 s | `--dur-ride` |
-| Loading loops (typing dots, weather, shimmer, spinner) | 1.2 s / 1.3 s / 0.8 s | `--dur-loop`, `--dur-shimmer`, `--dur-spin` |
+| Loading loops (typing dots, photo and skeleton shimmer, spinner) | 1.2 s / 1.3 s / 0.8 s | `--dur-loop`, `--dur-shimmer`, `--dur-spin` |
 | Other fades and pops | 350 / 500 ms | `--dur-base`, `--dur-slow` |
 
 No animation has a hard-coded duration; only Leaflet's own map zoom (0.25 s) and tile fade (0.2 s) keep Leaflet's built-in timing, and they are turned off with *Reduce motion*.
@@ -146,24 +159,26 @@ The service worker (install / offline) is only registered in the production buil
 
 ```
 excelsiors-explorer/
-├── index.html               # page shell: meta tags, manifest and icon links, #root
-├── vite.config.js           # React plugin; writes the list of built files into dist/sw.js
+├── index.html               # page shell: meta tags, manifest and icon links, #root with the boot skeleton
+├── vercel.json              # cache headers (hashed assets: 1 year, immutable; index.html, sw.js, manifest: no-cache)
+├── vite.config.js           # React plugin; writes the list of built files (read from dist/) into dist/sw.js
 ├── package.json
 ├── public/                  # copied as-is into dist/
 │   ├── manifest.webmanifest
-│   ├── sw.js                # service worker (cache 'ee-v2', network-first)
+│   ├── sw.js                # service worker (cache 'ee-v3' network-first; photos and map tiles cached)
 │   └── assets/              # favicon, apple-touch-icon, app icons
 ├── src/
 │   ├── main.jsx             # entry: styles, React root, service worker registration
 │   ├── App.jsx              # shell: current screen, tab bar, toast, bottom sheet, theme, offline, keyboard
-│   ├── assets/              # logo, home background, Lego avatar picture
+│   ├── assets/              # logo, home background (WebP), Lego avatar picture
 │   ├── data/                # demo data: places + photos, badges + friends, meetups + chats, flights/taxi + providers, hotels, avatars
 │   ├── state/               # user data layer (the only code using localStorage), UI store, app actions
 │   ├── hooks/               # useHashRouter (routes + back button), useFieldMessages (form validation), useFlip (list animation), useClock
 │   ├── components/          # app bar, tab bar, bottom sheets, chat bubble, badge, avatars, cards, chips …
 │   ├── screens/             # one file per screen: Login, SignUp, Interests, Home, Explore, PlaceDetail, Saved, Profile,
 │   │                        #   EditProfile, Achievements, Book, Meetups, MeetupDetail, MeetupChat, Trip (+ detail), Reminders, Location
-│   ├── lib/                 # format.js (dates, times, prices), hours.js ("open now" in Berlin time), motion.js (screen transitions)
+│   ├── lib/                 # format.js (dates, times, prices), hours.js ("open now" in Berlin time), motion.js (screen transitions),
+│   │                        #   photo.js (Commons thumbnail sizes), lazyScreen.js (screens loaded on first use)
 │   └── styles/              # the CSS, split by area (motion.css: all animations)
 ├── legacy/index.old.html    # the previous single-file version, kept until the migration is signed off
 ├── assets/logo.png          # logo used in this README

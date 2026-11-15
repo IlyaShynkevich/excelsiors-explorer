@@ -56,7 +56,7 @@ export function Home() {
             <QuestList quests={todaysQuests()} compact />
           </button>
           <div className="sec-row"><h3>Near you</h3><button className="link-btn" id="homeLoc" onClick={() => go('location')}>{'📍 ' + h.name}</button></div>
-          <div className="hscroll" id="nearYou">{nearestPlaces(3).map(({p: x, km}) => <PlaceTile key={x.id} p={x} sub={fmtDist(km)} />)}</div>
+          <div className="hscroll" id="nearYou">{nearestPlaces(3).map(({p: x, km}, i) => <PlaceTile key={x.id} p={x} sub={fmtDist(km)} priority={i === 0} />)}</div>
           <WeatherStrip />
           <div className="sec-row"><h3>For you</h3>{p.interests.length > 0 && <button className="link-btn" onClick={() => go('editProfile')}>Edit interests</button>}</div>
           {!p.interests.length && <p className="sub fy-hint">Tell us what you like and we'll pick places for you. <button className="link-btn" onClick={() => go('editProfile')}>Choose interests</button></p>}
