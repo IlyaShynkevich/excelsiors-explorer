@@ -201,7 +201,7 @@ excelsiors-explorer/
 |------|------|
 | Ilya Shynkevich | Development |
 | Nicolas Stechmann | Team Leader |
-| Anant Raghavan | Development |
+| Anant Raghavan | Support |
 
 Planning in **Jira** (Kanban board) and design in **Miro**.
 
